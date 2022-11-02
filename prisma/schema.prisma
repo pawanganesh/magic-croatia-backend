@@ -16,8 +16,8 @@ model Customer {
   password  String
   firstName String   @map("first_name")
   lastName  String   @map("last_name")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
 }
 
 model Landlord {
@@ -27,27 +27,35 @@ model Landlord {
   firstName String     @map("first_name")
   lastName  String     @map("last_name")
   Property  Property[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @default(now())
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @default(now()) @map("updated_at")
 }
 
 model Property {
   id               Int       @id @default(autoincrement())
   name             String
-  featuredImageUrl String    @map("featured_image")
+  featuredImageUrl String    @map("featured_image_url")
   landlord         Landlord  @relation(fields: [landlordId], references: [id])
-  landlordId       Int
+  landlordId       Int       @map("landlord_id")
   Booking          Booking[]
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @default(now())
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @default(now()) @map("updated_at")
+  pricePerNight    Int       @map("price_per_night")
 }
 
 model Booking {
   id         Int      @id @default(autoincrement())
-  property   Property @relation(fields: [propertyID], references: [id])
-  propertyID Int
-  startDate  DateTime
-  endDate    DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now())
+  property   Property @relation(fields: [propertyId], references: [id])
+  propertyId Int      @map("property_id")
+  startDate  DateTime @map("start_date")
+  endDate    DateTime @map("end_date")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @map("updated_at")
+  status     Status   @default(CREATED)
+}
+
+enum Status {
+  CREATED
+  ACTIVE
+  FINISHED
 }
