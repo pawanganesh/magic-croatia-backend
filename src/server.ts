@@ -1,9 +1,5 @@
-import express from "express";
+import App from "app";
+import BookingController from "booking/booking.controller";
 
-const app = express();
-
-app.get("/", (request, response) => {
-  response.send("Hello world!");
-});
-
-app.listen(5000);
+const app = new App([new BookingController()]);
+app.appListen();

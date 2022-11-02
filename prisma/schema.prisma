@@ -46,6 +46,7 @@ model Booking {
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @default(now()) @map("updated_at")
   status     Status   @default(CREATED)
+  totalPrice Decimal  @map("total_price")
 }
 
 enum Role {
