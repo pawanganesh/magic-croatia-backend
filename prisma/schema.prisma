@@ -11,13 +11,14 @@ datasource db {
 }
 
 model Customer {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   email     String
   password  String
-  firstName String   @map("first_name")
-  lastName  String   @map("last_name")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @map("updated_at")
+  firstName String    @map("first_name")
+  lastName  String    @map("last_name")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @map("updated_at")
+  Booking   Booking[]
 }
 
 model Landlord {
@@ -40,13 +41,15 @@ model Property {
   Booking          Booking[]
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @default(now()) @map("updated_at")
-  pricePerNight    Int       @map("price_per_night")
+  pricePerNight    Decimal   @map("price_per_night")
 }
 
 model Booking {
   id         Int      @id @default(autoincrement())
   property   Property @relation(fields: [propertyId], references: [id])
   propertyId Int      @map("property_id")
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId Int      @map("customer_id")
   startDate  DateTime @map("start_date")
   endDate    DateTime @map("end_date")
   createdAt  DateTime @default(now()) @map("created_at")
