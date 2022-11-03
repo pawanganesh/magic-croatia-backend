@@ -33,6 +33,8 @@ model Property {
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @default(now()) @map("updated_at")
   pricePerNight    Decimal   @map("price_per_night")
+  latitude         Float
+  longitude        Float
 }
 
 model Booking {

@@ -28,6 +28,8 @@ async function main() {
           featuredImageUrl:
             "https://res.cloudinary.com/dxn9yllna/image/upload/v1667420252/Houses/ralph-ravi-kayden-mR1CIDduGLc-unsplash_pvnaui.jpg",
           pricePerNight: 99.99,
+          latitude: 43.446999,
+          longitude: 16.692384,
         },
       },
     },
