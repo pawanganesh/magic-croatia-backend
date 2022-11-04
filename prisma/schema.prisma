@@ -26,6 +26,7 @@ model User {
 model Property {
   id               Int       @id @default(autoincrement())
   name             String
+  description      String
   featuredImageUrl String    @map("featured_image_url")
   user             User      @relation(fields: [userId], references: [id])
   userId           Int       @map("user_id")
