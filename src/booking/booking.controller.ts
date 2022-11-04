@@ -1,7 +1,8 @@
-import express from "express";
+import express, { NextFunction } from "express";
 import validate from "validation";
 import { createBookingSchema } from "validation/booking/createBookingSchema";
-import { CreateBookingDto } from "./booking.interface";
+import { createReviewSchema } from "validation/booking/createReviewSchema";
+import { CreateBookingDto, ReviewData } from "./booking.interface";
 import BookingService from "./booking.service";
 
 class BookingController {
@@ -20,6 +21,11 @@ class BookingController {
         validate(createBookingSchema),
         this.createBooking
       );
+    this.router.post(
+      `${this.path}/:id/review`,
+      validate(createReviewSchema),
+      this.createReview
+    );
   }
 
   private getMyBookings = async (
@@ -37,6 +43,28 @@ class BookingController {
     const bookingData: CreateBookingDto = request.body;
     const booking = await this.bookingService.createBooking(bookingData);
     return response.json(booking);
+  };
+
+  private createReview = async (
+    request: express.Request,
+    response: express.Response,
+    next: NextFunction
+  ) => {
+    const reviewData: ReviewData = request.body;
+    const bookingId = +request.params.id;
+    const userId = 3;
+    try {
+      await this.bookingService.validateBookingReview(bookingId, userId);
+
+      const updatedBooking = await this.bookingService.createBookingReview(
+        bookingId,
+        userId,
+        reviewData
+      );
+      return response.json(updatedBooking);
+    } catch (err) {
+      next(err);
+    }
   };
 }
 

@@ -30,6 +30,7 @@ async function main() {
           pricePerNight: 99.99,
           latitude: 43.446999,
           longitude: 16.692384,
+          description: "Lovely home!",
         },
       },
     },
