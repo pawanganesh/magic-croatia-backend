@@ -27,7 +27,6 @@ class BookingController {
     response: express.Response
   ) => {
     const myBookings = await this.bookingService.getMyBookings(1);
-
     return response.json(myBookings);
   };
 
@@ -37,7 +36,6 @@ class BookingController {
   ) => {
     const bookingData: CreateBookingDto = request.body;
     const booking = await this.bookingService.createBooking(bookingData);
-
     return response.json(booking);
   };
 }

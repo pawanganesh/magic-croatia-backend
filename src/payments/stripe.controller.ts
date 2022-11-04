@@ -23,8 +23,6 @@ class StripeController {
     request: express.Request,
     response: express.Response
   ) => {
-    console.log({ request });
-
     const session = await this.stripe.checkout.sessions.create({
       line_items: [
         {
