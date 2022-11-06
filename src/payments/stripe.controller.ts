@@ -1,12 +1,10 @@
 import express from "express";
-import Stripe from "stripe";
+import StripeService from "./stripe.service";
 
 class StripeController {
   public path = "/payments";
   public router = express.Router();
-  public stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2022-08-01",
-  });
+  public stripeService = new StripeService();
 
   constructor() {
     this.initializeRoutes();
@@ -23,18 +21,7 @@ class StripeController {
     request: express.Request,
     response: express.Response
   ) => {
-    const session = await this.stripe.checkout.sessions.create({
-      line_items: [
-        {
-          price: "price_1LzyAuKFqGXoqmW7pT7ZRgJe",
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      success_url: `${process.env.BACKEND_DOMAIN}${this.path}?success=true`,
-      cancel_url: `${process.env.BACKEND_DOMAIN}${this.path}?canceled=true`,
-    });
-
+    const session = await this.stripeService.createStripeSession(this.path);
     return response.redirect(303, session.url);
   };
 }

@@ -1,9 +1,11 @@
-import { PrismaClient, Role, Status } from "@prisma/client";
+import { PrismaClient, Role } from "@prisma/client";
 import HttpException from "exceptions/HttpException";
+import StripeService from "payments/stripe.service";
 import { CreatePropertyDto } from "./property.interface";
 
 class PropertyService {
   private prisma = new PrismaClient();
+  private stripeService = new StripeService();
 
   public getProperty = async (propertyId: number) => {
     const property = await this.prisma.property.findFirst({
@@ -39,6 +41,19 @@ class PropertyService {
         userId,
       },
     });
+
+    const stripeProduct = await this.stripeService.createStripeProduct(
+      property.name,
+      property.id
+    );
+
+    const calculatedStripePrice =
+      parseFloat(property.pricePerNight.toString()) * 100;
+    await this.stripeService.createStripePrice(
+      stripeProduct.id,
+      calculatedStripePrice
+    );
+
     return property;
   };
 

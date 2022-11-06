@@ -13,6 +13,17 @@ async function main() {
       role: "CUSTOMER",
     },
   });
+  const john = await prisma.user.upsert({
+    where: { email: "john@prisma.io" },
+    update: {},
+    create: {
+      email: "john@prisma.io",
+      password: "123456",
+      firstName: "John",
+      lastName: "Halving",
+      role: "CUSTOMER",
+    },
+  });
   const bob = await prisma.user.upsert({
     where: { email: "bob@prisma.io" },
     update: {},
@@ -46,7 +57,7 @@ async function main() {
       },
     },
   });
-  console.log({ alice, bob });
+  console.log({ alice, john, bob });
 }
 main()
   .then(async () => {
