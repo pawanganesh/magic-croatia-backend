@@ -43,6 +43,32 @@ class PropertyService {
       throw new HttpException(400, "You are not landlord!");
     }
   };
+
+  public calculatePropertyAverageRating = async (propertyId: number) => {
+    const propertyBookings = await this.prisma.property.findFirst({
+      where: { id: propertyId },
+      include: {
+        bookings: {
+          select: {
+            rating: true,
+          },
+        },
+      },
+    });
+
+    const totalRating = propertyBookings.bookings.reduce(
+      (acc, item) => acc + parseFloat(item.rating.toString()),
+      0
+    );
+
+    await this.prisma.property.update({
+      where: { id: propertyId },
+      data: {
+        averageRating: totalRating / propertyBookings.bookings.length,
+        numberOfReviews: propertyBookings.bookings.length,
+      },
+    });
+  };
 }
 
 export default PropertyService;

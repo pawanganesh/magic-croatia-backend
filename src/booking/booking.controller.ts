@@ -1,4 +1,5 @@
 import express, { NextFunction } from "express";
+import PropertyService from "property/property.service";
 import validate from "validation";
 import { createBookingSchema } from "validation/booking/createBookingSchema";
 import { createReviewSchema } from "validation/booking/createReviewSchema";
@@ -8,7 +9,7 @@ import BookingService from "./booking.service";
 class BookingController {
   public path = "/bookings";
   public router = express.Router();
-  public bookingService = new BookingService();
+  public bookingService = new BookingService(new PropertyService());
 
   constructor() {
     this.initializeRoutes();
@@ -52,7 +53,7 @@ class BookingController {
   ) => {
     const reviewData: ReviewData = request.body;
     const bookingId = +request.params.id;
-    const userId = 1;
+    const userId = 3;
     try {
       await this.bookingService.validateBookingReview(bookingId, userId);
 

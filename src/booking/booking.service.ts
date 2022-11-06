@@ -1,8 +1,14 @@
 import { PrismaClient, Status } from "@prisma/client";
 import { CreateBookingDto, ReviewData } from "./booking.interface";
 import HttpException from "exceptions/HttpException";
+import PropertyService from "property/property.service";
 class BookingService {
   private prisma = new PrismaClient();
+  private propertyService: PropertyService;
+
+  constructor(propertyService: PropertyService) {
+    this.propertyService = propertyService;
+  }
 
   public getMyBookings = async (userId: number) => {
     const myBookings = await this.prisma.booking.findMany({
@@ -26,7 +32,7 @@ class BookingService {
         totalPrice: bookingData.totalPrice,
         startDate: new Date(bookingData.startDate),
         endDate: new Date(bookingData.endDate),
-        userId: 1,
+        userId: 3,
         propertyId: bookingData.propertyId,
       },
     });
@@ -44,6 +50,9 @@ class BookingService {
         rating: reviewData.rating,
       },
     });
+    await this.propertyService.calculatePropertyAverageRating(
+      updatedBooking.propertyId
+    );
     return updatedBooking;
   };
 
