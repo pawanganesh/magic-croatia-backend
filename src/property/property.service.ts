@@ -42,7 +42,7 @@ class PropertyService {
       },
     });
 
-    const stripeProduct = await this.stripeService.createStripeProduct(
+    await this.stripeService.createStripeProduct(
       property.name,
       property.featuredImageUrl,
       property.id
@@ -51,7 +51,7 @@ class PropertyService {
     const calculatedStripePrice =
       parseFloat(property.pricePerNight.toString()) * 100;
     await this.stripeService.createStripePrice(
-      stripeProduct.id,
+      property.id.toString(),
       calculatedStripePrice
     );
 
