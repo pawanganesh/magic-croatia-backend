@@ -15,12 +15,23 @@ class PropertyController {
 
   public initializeRoutes() {
     this.router.get(`${this.path}/personal`, this.getMyProperties),
+      this.router.get(`${this.path}/:id`, this.getProperty),
       this.router.post(
         this.path,
         validate(createPropertySchema),
         this.createProperty
       );
   }
+
+  private getProperty = async (
+    request: express.Request,
+    response: express.Response,
+    next: NextFunction
+  ) => {
+    const propertyId = +request.params.id;
+    const property = await this.propertyService.getProperty(propertyId);
+    return response.json(property);
+  };
 
   private getMyProperties = async (
     request: express.Request,

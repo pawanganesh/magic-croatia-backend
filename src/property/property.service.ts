@@ -5,9 +5,9 @@ import { CreatePropertyDto } from "./property.interface";
 class PropertyService {
   private prisma = new PrismaClient();
 
-  public getMyProperties = async (userId: number) => {
-    const properties = await this.prisma.property.findMany({
-      where: { userId },
+  public getProperty = async (propertyId: number) => {
+    const property = await this.prisma.property.findFirst({
+      where: { id: propertyId },
       include: {
         bookings: {
           select: {
@@ -17,6 +17,13 @@ class PropertyService {
           take: 5,
         },
       },
+    });
+    return property;
+  };
+
+  public getMyProperties = async (userId: number) => {
+    const properties = await this.prisma.property.findMany({
+      where: { userId },
       take: 10,
     });
     return properties;
