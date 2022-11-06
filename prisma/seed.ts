@@ -22,7 +22,7 @@ async function main() {
       firstName: "Bob",
       lastName: "Roger",
       role: "LANDLORD",
-      Property: {
+      properties: {
         create: {
           name: "Ralph Ravi",
           featuredImageUrl:

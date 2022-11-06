@@ -27,7 +27,7 @@ class PropertyController {
     response: express.Response,
     next: NextFunction
   ) => {
-    const userId = 3;
+    const userId = 2;
     const properties = await this.propertyService.getMyProperties(userId);
     return response.json(properties);
   };

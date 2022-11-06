@@ -26,7 +26,7 @@ class BookingService {
         totalPrice: bookingData.totalPrice,
         startDate: new Date(bookingData.startDate),
         endDate: new Date(bookingData.endDate),
-        userId: 3,
+        userId: 1,
         propertyId: bookingData.propertyId,
       },
     });
@@ -35,7 +35,6 @@ class BookingService {
 
   public createBookingReview = async (
     bookingId: number,
-    userId: number,
     reviewData: ReviewData
   ) => {
     const updatedBooking = await this.prisma.booking.update({

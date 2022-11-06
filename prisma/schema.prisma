@@ -11,16 +11,18 @@ datasource db {
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
-  email     String     @unique
-  password  String
-  firstName String     @map("first_name")
-  lastName  String     @map("last_name")
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @default(now()) @map("updated_at")
-  Booking   Booking[]
-  Property  Property[]
-  role      Role       @default(CUSTOMER)
+  id         Int        @id @default(autoincrement())
+  email      String     @unique
+  password   String
+  firstName  String     @map("first_name")
+  lastName   String     @map("last_name")
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @default(now()) @map("updated_at")
+  bookings   Booking[]
+  properties Property[]
+  role       Role       @default(CUSTOMER)
+
+  @@map("users")
 }
 
 model Property {
@@ -30,12 +32,14 @@ model Property {
   featuredImageUrl String    @map("featured_image_url")
   user             User      @relation(fields: [userId], references: [id])
   userId           Int       @map("user_id")
-  Booking          Booking[]
+  bookings         Booking[]
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @default(now()) @map("updated_at")
   pricePerNight    Decimal   @map("price_per_night")
   latitude         Float
   longitude        Float
+
+  @@map("properties")
 }
 
 model Booking {
@@ -52,6 +56,8 @@ model Booking {
   totalPrice Decimal  @map("total_price")
   rating     Decimal?
   review     String?
+
+  @@map("bookings")
 }
 
 enum Role {

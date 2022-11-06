@@ -8,6 +8,15 @@ class PropertyService {
   public getMyProperties = async (userId: number) => {
     const properties = await this.prisma.property.findMany({
       where: { userId },
+      include: {
+        bookings: {
+          select: {
+            rating: true,
+            review: true,
+          },
+        },
+      },
+      take: 10,
     });
     return properties;
   };
