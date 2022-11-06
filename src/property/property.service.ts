@@ -14,6 +14,7 @@ class PropertyService {
             rating: true,
             review: true,
           },
+          take: 5,
         },
       },
       take: 10,
