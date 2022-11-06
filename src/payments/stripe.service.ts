@@ -7,10 +7,12 @@ class StripeService {
 
   public createStripeProduct = async (
     propertyName: string,
+    propertyImageUrl: string,
     propertyId: number
   ) => {
     const product = await this.stripe.products.create({
       name: propertyName,
+      images: [propertyImageUrl],
       id: propertyId.toString(),
     });
     return product;
@@ -28,11 +30,14 @@ class StripeService {
     return price;
   };
 
-  public createStripeSession = async (path: string) => {
+  public createStripeSession = async (propertyId: number, path: string) => {
+    const prices = await this.stripe.prices.list({
+      product: propertyId.toString(),
+    });
     const session = await this.stripe.checkout.sessions.create({
       line_items: [
         {
-          price: "price_1LzyAuKFqGXoqmW7pT7ZRgJe",
+          price: prices[0].id,
           quantity: 1,
         },
       ],

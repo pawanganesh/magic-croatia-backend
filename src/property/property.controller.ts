@@ -38,7 +38,7 @@ class PropertyController {
     response: express.Response,
     next: NextFunction
   ) => {
-    const userId = 2;
+    const userId = 5;
     const properties = await this.propertyService.getMyProperties(userId);
     return response.json(properties);
   };
@@ -49,7 +49,7 @@ class PropertyController {
     next: NextFunction
   ) => {
     const propertyData: CreatePropertyDto = request.body;
-    const userId = 3;
+    const userId = 5;
     try {
       await this.propertyService.canCreateProperty(userId);
       const property = await this.propertyService.createProperty(

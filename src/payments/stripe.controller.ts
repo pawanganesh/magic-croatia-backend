@@ -21,7 +21,11 @@ class StripeController {
     request: express.Request,
     response: express.Response
   ) => {
-    const session = await this.stripeService.createStripeSession(this.path);
+    const propertyId: number = request.body.propertyId;
+    const session = await this.stripeService.createStripeSession(
+      propertyId,
+      this.path
+    );
     return response.redirect(303, session.url);
   };
 }

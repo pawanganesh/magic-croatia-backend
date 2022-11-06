@@ -53,7 +53,7 @@ class BookingController {
   ) => {
     const reviewData: ReviewData = request.body;
     const bookingId = +request.params.id;
-    const userId = 3;
+    const userId = 4;
     try {
       await this.bookingService.validateBookingReview(bookingId, userId);
 
