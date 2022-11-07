@@ -12,21 +12,20 @@ class StripeController {
 
   public initializeRoutes() {
     this.router.post(
-      `${this.path}/create-checkout-session`,
-      this.createCheckoutSession
+      `${this.path}/create-payment-intent`,
+      this.createPaymentIntent
     );
   }
 
-  private createCheckoutSession = async (
+  private createPaymentIntent = async (
     request: express.Request,
     response: express.Response
   ) => {
-    const propertyId: number = request.body.propertyId;
-    const session = await this.stripeService.createStripeSession(
-      propertyId,
-      this.path
+    const propertyId = +request.body.propertyId;
+    const clientSecret = await this.stripeService.createPaymentIntent(
+      propertyId
     );
-    return response.redirect(303, session.url);
+    return response.json(clientSecret);
   };
 }
 
