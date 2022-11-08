@@ -1,4 +1,5 @@
 import express from "express";
+import { StripeBooking } from "./stripe.interface";
 import StripeService from "./stripe.service";
 
 class StripeController {
@@ -21,10 +22,8 @@ class StripeController {
     request: express.Request,
     response: express.Response
   ) => {
-    const propertyId = +request.body.propertyId;
-    const clientSecret = await this.stripeService.createPaymentIntent(
-      propertyId
-    );
+    const booking: StripeBooking = request.body.booking;
+    const clientSecret = await this.stripeService.createPaymentIntent(booking);
     return response.json(clientSecret);
   };
 }
