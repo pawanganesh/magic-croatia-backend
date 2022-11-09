@@ -42,8 +42,8 @@ class StripeService {
     if (!booking.startDate || !booking.endDate) return 0;
 
     const totalNights = differenceInCalendarDays(
-      booking.endDate,
-      booking.startDate
+      new Date(booking.endDate),
+      new Date(booking.startDate)
     );
 
     const totalAdultsPrice = pricePerNight * totalNights * booking.adultsCount;

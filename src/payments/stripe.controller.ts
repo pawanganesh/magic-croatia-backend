@@ -22,7 +22,7 @@ class StripeController {
     request: express.Request,
     response: express.Response
   ) => {
-    const booking: StripeBooking = request.body.booking;
+    const booking: StripeBooking = request.body;
     const clientSecret = await this.stripeService.createPaymentIntent(booking);
     return response.json(clientSecret);
   };
