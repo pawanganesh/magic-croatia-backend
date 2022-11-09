@@ -17,11 +17,17 @@ class BookingController {
 
   public initializeRoutes() {
     this.router.get(`${this.path}/personal`, this.getMyBookings),
-      this.router.post(
-        this.path,
-        validate(createBookingSchema),
-        this.createBooking
+      this.router.get(
+        `${this.path}/properties/:propertyId`,
+        this.getFutureBookingsForProperty
       );
+
+    this.router.post(
+      this.path,
+      validate(createBookingSchema),
+      this.createBooking
+    );
+
     this.router.post(
       `${this.path}/:id/review`,
       validate(createReviewSchema),
@@ -35,6 +41,18 @@ class BookingController {
   ) => {
     const myBookings = await this.bookingService.getMyBookings(1);
     return response.json(myBookings);
+  };
+
+  private getFutureBookingsForProperty = async (
+    request: express.Request,
+    response: express.Response
+  ) => {
+    const propertyId = +request.params.propertyId;
+
+    const futureBookingsForProperty =
+      await this.bookingService.getFutureBookingsForProperty(propertyId);
+
+    return response.json(futureBookingsForProperty);
   };
 
   private createBooking = async (

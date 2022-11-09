@@ -2,6 +2,8 @@ import { PrismaClient, Status } from "@prisma/client";
 import { CreateBookingDto, ReviewData } from "./booking.interface";
 import HttpException from "exceptions/HttpException";
 import PropertyService from "property/property.service";
+import { isBefore } from "date-fns";
+
 class BookingService {
   private prisma = new PrismaClient();
   private propertyService: PropertyService;
@@ -26,7 +28,38 @@ class BookingService {
     return myBookings;
   };
 
+  public getFutureBookingsForProperty = async (propertyId: number) => {
+    const futureBookings = await this.prisma.booking.findMany({
+      where: {
+        propertyId,
+        startDate: {
+          gte: new Date(),
+        },
+      },
+      select: {
+        id: true,
+        startDate: true,
+        endDate: true,
+      },
+    });
+
+    return futureBookings;
+  };
+
   public createBooking = async (bookingData: CreateBookingDto) => {
+    const CURRENT_MONTH = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1
+    );
+
+    if (isBefore(bookingData.startDate, CURRENT_MONTH)) {
+      throw new HttpException(400, "Invalid start date!");
+    }
+    if (isBefore(bookingData.endDate, bookingData.startDate)) {
+      throw new HttpException(400, "Invalid end date!");
+    }
+
     const booking = await this.prisma.booking.create({
       data: {
         totalPrice: bookingData.totalPrice,
