@@ -25,7 +25,7 @@ class StripeService {
       parseFloat(property.pricePerNight.toString())
     );
 
-    const stripePrice = parseFloat(preliminaryCost.toString()) * 100;
+    const stripePrice = parseFloat(preliminaryCost.toFixed(2)) * 100;
 
     if (stripePrice <= 0) {
       throw new HttpException(400, "Error in costs calculations!");
@@ -36,14 +36,16 @@ class StripeService {
       currency: "usd",
     });
 
-    await this.bookingService.createBooking({
-      totalPrice: preliminaryCost,
-      startDate: booking.startDate,
-      endDate: booking.endDate,
-      propertyId: booking.propertyId,
-    });
-
     const clientSecret = paymentIntent.client_secret;
+    if (clientSecret) {
+      await this.bookingService.createBooking({
+        totalPrice: preliminaryCost,
+        startDate: new Date(booking.startDate),
+        endDate: new Date(booking.endDate),
+        propertyId: booking.propertyId,
+      });
+    }
+
     return clientSecret;
   };
 
