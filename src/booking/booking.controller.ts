@@ -39,7 +39,7 @@ class BookingController {
     request: express.Request,
     response: express.Response
   ) => {
-    const myBookings = await this.bookingService.getMyBookings(1);
+    const myBookings = await this.bookingService.getMyBookings(4);
     return response.json(myBookings);
   };
 
