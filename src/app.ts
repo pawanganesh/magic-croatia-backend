@@ -3,7 +3,6 @@ import cors from "cors";
 import Controller from "interfaces/controller.interface";
 import errorMiddleware from "middleware/errorMiddleware";
 import AuthService from "services/authService";
-import authMiddleware from "middleware/authMiddleware";
 
 class App {
   public app: express.Application;
@@ -23,7 +22,6 @@ class App {
   private initializeMiddlewares() {
     this.app.use(cors());
     this.app.use(express.json());
-    this.app.use(authMiddleware);
   }
 
   private initializeErrorHandling() {
