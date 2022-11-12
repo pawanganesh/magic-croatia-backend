@@ -5,4 +5,5 @@ export const createBookingSchema = [
   body("startDate").isDate().withMessage("Provide valid start date"),
   body("endDate").isDate().withMessage("Provide valid end date"),
   body("propertyId").isInt(),
+  body("userId").isInt(),
 ];

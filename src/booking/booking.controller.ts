@@ -16,7 +16,7 @@ class BookingController {
   }
 
   public initializeRoutes() {
-    this.router.get(`${this.path}/personal`, this.getMyBookings),
+    this.router.get(`${this.path}/personal/:userId`, this.getMyBookings),
       this.router.get(
         `${this.path}/properties/:propertyId`,
         this.getFutureBookingsForProperty
@@ -39,7 +39,8 @@ class BookingController {
     request: express.Request,
     response: express.Response
   ) => {
-    const myBookings = await this.bookingService.getMyBookings(4);
+    const userId: number = +request.params.userId;
+    const myBookings = await this.bookingService.getMyBookings(userId);
     return response.json(myBookings);
   };
 

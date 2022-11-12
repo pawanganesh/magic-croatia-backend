@@ -14,7 +14,10 @@ class StripeService {
     apiVersion: "2022-08-01",
   });
 
-  public createPaymentIntent = async (booking: StripeBooking) => {
+  public createPaymentIntent = async (
+    booking: StripeBooking,
+    userId: number
+  ) => {
     const property = await this.propertyService.getProperty(booking.propertyId);
     if (!property) {
       throw new HttpException(404, "Booked property not found!");
@@ -22,7 +25,7 @@ class StripeService {
 
     const preliminaryCost = this.calculateBookingCost(
       booking,
-      parseFloat(property.pricePerNight.toString())
+      parseFloat(property.pricePerNight.toPrecision(2))
     );
 
     const stripePrice = parseFloat(preliminaryCost.toFixed(2)) * 100;
@@ -43,6 +46,7 @@ class StripeService {
         startDate: new Date(booking.startDate),
         endDate: new Date(booking.endDate),
         propertyId: booking.propertyId,
+        userId,
       });
     }
 

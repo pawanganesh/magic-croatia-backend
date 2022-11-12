@@ -1,4 +1,5 @@
 import express from "express";
+import UserService from "user/user.service";
 import { StripeBooking } from "./stripe.interface";
 import StripeService from "./stripe.service";
 
@@ -6,6 +7,7 @@ class StripeController {
   public path = "/payments";
   public router = express.Router();
   public stripeService = new StripeService();
+  public userService = new UserService();
 
   constructor() {
     this.initializeRoutes();
@@ -23,7 +25,11 @@ class StripeController {
     response: express.Response
   ) => {
     const booking: StripeBooking = request.body;
-    const clientSecret = await this.stripeService.createPaymentIntent(booking);
+    const user = await this.userService.findUserByUuid(booking.userUuid);
+    const clientSecret = await this.stripeService.createPaymentIntent(
+      booking,
+      user.id
+    );
     return response.json(clientSecret);
   };
 }

@@ -5,6 +5,7 @@ export type CreateBookingDto = {
   startDate: Date;
   endDate: Date;
   propertyId: number;
+  userId: number;
 };
 
 export type ReviewData = {

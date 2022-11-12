@@ -65,7 +65,7 @@ class BookingService {
         totalPrice: bookingData.totalPrice,
         startDate: new Date(bookingData.startDate),
         endDate: new Date(bookingData.endDate),
-        userId: 4,
+        userId: bookingData.userId,
         propertyId: bookingData.propertyId,
       },
     });
