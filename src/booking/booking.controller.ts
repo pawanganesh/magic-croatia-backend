@@ -49,10 +49,8 @@ class BookingController {
     response: express.Response
   ) => {
     const propertyId = +request.params.propertyId;
-
     const futureBookingsForProperty =
       await this.bookingService.getFutureBookingsForProperty(propertyId);
-
     return response.json(futureBookingsForProperty);
   };
 

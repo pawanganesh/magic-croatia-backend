@@ -13,8 +13,18 @@ class UserController {
 
   public initializeRoutes() {
     this.router.get(this.path, this.getAllUsers),
+      this.router.get(`${this.path}/:uuid`, this.getUserByUuid),
       this.router.post(this.path, this.createUser);
   }
+
+  private getUserByUuid = async (
+    request: express.Request,
+    response: express.Response
+  ) => {
+    const uuid = request.params.uuid;
+    const user = await this.userService.findUserByUuid(uuid);
+    return response.json(user);
+  };
 
   private getAllUsers = async (
     request: express.Request,
