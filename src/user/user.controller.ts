@@ -14,6 +14,7 @@ class UserController {
   public initializeRoutes() {
     this.router.get(this.path, this.getAllUsers),
       this.router.get(`${this.path}/:uuid`, this.getUserByUuid),
+      this.router.patch(`${this.path}/:id/avatar`, this.updateUserAvatar),
       this.router.post(this.path, this.createUser);
   }
 
@@ -23,6 +24,16 @@ class UserController {
   ) => {
     const uuid = request.params.uuid;
     const user = await this.userService.findUserByUuid(uuid);
+    return response.json(user);
+  };
+
+  private updateUserAvatar = async (
+    request: express.Request,
+    response: express.Response
+  ) => {
+    const id = +request.params.id;
+    const avatar: string | undefined = request.body.avatar;
+    const user = await this.userService.updateUserAvatar(id, avatar);
     return response.json(user);
   };
 
