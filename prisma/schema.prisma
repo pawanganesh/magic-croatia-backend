@@ -32,6 +32,7 @@ model Property {
   name             String
   description      String
   featuredImageUrl String    @map("featured_image_url")
+  gallery          String[]
   user             User      @relation(fields: [userId], references: [id])
   userId           Int       @map("user_id")
   bookings         Booking[]
