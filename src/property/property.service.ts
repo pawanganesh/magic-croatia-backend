@@ -19,7 +19,7 @@ class PropertyService {
       },
     });
     if (!property) {
-      throw new HttpException(404, "Property not found!");
+      throw new HttpException(404, `Property #${propertyId} not found!`);
     }
 
     return property;

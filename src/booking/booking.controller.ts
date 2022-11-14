@@ -56,11 +56,16 @@ class BookingController {
 
   private createBooking = async (
     request: express.Request,
-    response: express.Response
+    response: express.Response,
+    next: NextFunction
   ) => {
     const bookingData: CreateBookingDto = request.body;
-    const booking = await this.bookingService.createBooking(bookingData);
-    return response.json(booking);
+    try {
+      const booking = await this.bookingService.createBooking(bookingData);
+      return response.json(booking);
+    } catch (err) {
+      next(err);
+    }
   };
 
   private createReview = async (

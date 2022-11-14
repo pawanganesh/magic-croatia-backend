@@ -43,6 +43,7 @@ model Property {
   longitude        Float
   averageRating    Decimal   @default(0.00) @db.Decimal(10, 2)
   numberOfReviews  Int       @default(0)
+  persons          Int       @default(1)
 
   @@map("properties")
 }

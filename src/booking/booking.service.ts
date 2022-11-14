@@ -1,8 +1,18 @@
 import { PrismaClient, Status } from "@prisma/client";
-import { CreateBookingDto, ReviewData } from "./booking.interface";
+import {
+  CreateBookingDto,
+  FutureBookingsForProperty,
+  MyBooking,
+  ReviewData,
+} from "./booking.interface";
 import HttpException from "exceptions/HttpException";
 import PropertyService from "property/property.service";
 import { isBefore } from "date-fns";
+import {
+  calculateBookingCost,
+  checkBookedInterval,
+  getBookedDays,
+} from "./utils";
 
 class BookingService {
   private prisma = new PrismaClient();
@@ -12,7 +22,7 @@ class BookingService {
     this.propertyService = propertyService;
   }
 
-  public getMyBookings = async (userId: number) => {
+  public getMyBookings = async (userId: number): Promise<MyBooking[]> => {
     const myBookings = await this.prisma.booking.findMany({
       where: { userId },
       select: {
@@ -28,7 +38,9 @@ class BookingService {
     return myBookings;
   };
 
-  public getFutureBookingsForProperty = async (propertyId: number) => {
+  public getFutureBookingsForProperty = async (
+    propertyId: number
+  ): Promise<FutureBookingsForProperty[]> => {
     const futureBookings = await this.prisma.booking.findMany({
       where: {
         propertyId,
@@ -47,26 +59,68 @@ class BookingService {
   };
 
   public createBooking = async (bookingData: CreateBookingDto) => {
+    const {
+      totalPrice,
+      adultCount,
+      childrenCount,
+      startDate,
+      endDate,
+      propertyId,
+      userId,
+    } = bookingData;
+
     const CURRENT_MONTH = new Date(
       new Date().getFullYear(),
       new Date().getMonth(),
       1
     );
-
-    if (isBefore(bookingData.startDate, CURRENT_MONTH)) {
+    if (isBefore(startDate, CURRENT_MONTH)) {
       throw new HttpException(400, "Invalid start date!");
     }
-    if (isBefore(bookingData.endDate, bookingData.startDate)) {
+    if (isBefore(endDate, startDate)) {
       throw new HttpException(400, "Invalid end date!");
+    }
+
+    const propertyFutureBookings = await this.getFutureBookingsForProperty(
+      propertyId
+    );
+    const bookedDays = getBookedDays(propertyFutureBookings);
+    const isBookingValid = checkBookedInterval(startDate, endDate, bookedDays);
+    if (!isBookingValid) {
+      throw new HttpException(
+        400,
+        "Chosen dates for this property are not available!"
+      );
+    }
+
+    const property = await this.propertyService.getProperty(propertyId);
+
+    const totalPersonsForBooking = adultCount + childrenCount;
+    if (totalPersonsForBooking > property.persons) {
+      throw new HttpException(
+        400,
+        `Maximum number of people for this property is ${property.persons}`
+      );
+    }
+
+    const bookingCost = calculateBookingCost({
+      startDate,
+      endDate,
+      adultCount,
+      childrenCount,
+      pricePerNight: property.pricePerNight,
+    });
+    if (bookingCost !== parseFloat(property.pricePerNight.toPrecision(2))) {
+      throw new HttpException(400, `Calculated price is not the same!`);
     }
 
     const booking = await this.prisma.booking.create({
       data: {
-        totalPrice: bookingData.totalPrice,
-        startDate: new Date(bookingData.startDate),
-        endDate: new Date(bookingData.endDate),
-        userId: bookingData.userId,
-        propertyId: bookingData.propertyId,
+        totalPrice,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        userId,
+        propertyId,
       },
     });
     return booking;
