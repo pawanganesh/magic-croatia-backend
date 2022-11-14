@@ -9,7 +9,7 @@ import BookingService from "./booking.service";
 class BookingController {
   public path = "/bookings";
   public router = express.Router();
-  public bookingService = new BookingService(new PropertyService());
+  private bookingService = new BookingService(new PropertyService());
 
   constructor() {
     this.initializeRoutes();

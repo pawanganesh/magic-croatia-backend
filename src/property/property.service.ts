@@ -1,11 +1,13 @@
 import { PrismaClient, Role } from "@prisma/client";
 import HttpException from "exceptions/HttpException";
-import { CreatePropertyDto } from "./property.interface";
+import { CreatePropertyDto, PropertyWithBookings } from "./property.interface";
 
 class PropertyService {
   private prisma = new PrismaClient();
 
-  public getProperty = async (propertyId: number) => {
+  public getProperty = async (
+    propertyId: number
+  ): Promise<PropertyWithBookings> => {
     const property = await this.prisma.property.findFirst({
       where: { id: propertyId },
       include: {
@@ -47,7 +49,7 @@ class PropertyService {
     return property;
   };
 
-  public canCreateProperty = async (userId) => {
+  public canCreateProperty = async (userId: number) => {
     const user = await this.prisma.user.findFirst({
       where: { id: userId },
     });
