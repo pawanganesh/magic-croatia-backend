@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import {
   differenceInCalendarDays,
   eachDayOfInterval,
@@ -33,8 +34,8 @@ export const checkBookedInterval = (
   bookedDays: Date[]
 ) => {
   const intervalDays = eachDayOfInterval({
-    start: new Date(startDate),
-    end: sub(new Date(endDate), { days: 1 }),
+    start: startDate,
+    end: sub(endDate, { days: 1 }),
   });
 
   const isInvalidBooking = intervalDays.some((day) =>
@@ -43,19 +44,19 @@ export const checkBookedInterval = (
   return !isInvalidBooking;
 };
 
-export const calculateBookingCost = (bookingData: BookingCostInputs) => {
-  const { startDate, endDate, adultCount, childrenCount, pricePerNight } =
+export const calculateBookingCost = (
+  bookingData: BookingCostInputs
+): Prisma.Decimal => {
+  const { startDate, endDate, adultsCount, childrenCount, pricePerNight } =
     bookingData;
-  const totalNights = differenceInCalendarDays(startDate, endDate);
+  const totalNights = differenceInCalendarDays(endDate, startDate);
 
   const totalAdultsPrice =
-    parseFloat(pricePerNight.toPrecision(2)) * totalNights * adultCount;
+    parseFloat(pricePerNight.toString()) * totalNights * adultsCount;
+
   const totalChildrenPrice =
-    parseFloat(pricePerNight.toPrecision(2)) *
-    0.8 *
-    totalNights *
-    childrenCount;
+    parseFloat(pricePerNight.toFixed(2)) * 0.8 * totalNights * childrenCount;
 
   const preliminaryCost = totalAdultsPrice + totalChildrenPrice;
-  return preliminaryCost;
+  return new Prisma.Decimal(parseFloat(preliminaryCost.toFixed(2)));
 };

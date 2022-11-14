@@ -43,6 +43,7 @@ async function main() {
             latitude: 43.446999,
             longitude: 16.692384,
             description: "Lovely home!",
+            persons: 4,
           },
           {
             name: "Ralph Ravi 2",
@@ -52,6 +53,7 @@ async function main() {
             latitude: 43.446999,
             longitude: 18.692384,
             description: "Nice home!",
+            persons: 6,
           },
         ],
       },

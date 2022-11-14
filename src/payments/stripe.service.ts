@@ -1,9 +1,9 @@
-import { differenceInCalendarDays } from "date-fns";
 import HttpException from "exceptions/HttpException";
 import PropertyService from "property/property.service";
 import BookingService from "booking/booking.service";
 import Stripe from "stripe";
 import { StripeBooking } from "./stripe.interface";
+import { calculateBookingCost } from "booking/utils";
 import { Prisma } from "@prisma/client";
 
 class StripeService {
@@ -19,17 +19,17 @@ class StripeService {
     userId: number
   ) => {
     const property = await this.propertyService.getProperty(booking.propertyId);
-    if (!property) {
-      throw new HttpException(404, "Booked property not found!");
-    }
+    const bookingStartDate = new Date(booking.startDate);
+    const bookingEndDate = new Date(booking.endDate);
 
-    const preliminaryCost = this.calculateBookingCost(
-      booking,
-      parseFloat(property.pricePerNight.toPrecision(2))
-    );
+    const preliminaryCost = calculateBookingCost({
+      ...booking,
+      startDate: bookingStartDate,
+      endDate: bookingEndDate,
+      pricePerNight: property.pricePerNight,
+    });
 
-    const stripePrice = parseFloat(preliminaryCost.toFixed(2)) * 100;
-
+    const stripePrice = parseFloat(preliminaryCost.toString()) * 100;
     if (stripePrice <= 0) {
       throw new HttpException(400, "Error in costs calculations!");
     }
@@ -47,31 +47,12 @@ class StripeService {
         endDate: new Date(booking.endDate),
         propertyId: booking.propertyId,
         userId,
+        adultsCount: booking.adultsCount,
+        childrenCount: booking.childrenCount,
       });
     }
 
     return clientSecret;
-  };
-
-  private calculateBookingCost = (
-    booking: StripeBooking,
-    pricePerNight: number
-  ): Prisma.Decimal => {
-    if (!booking.startDate || !booking.endDate) return new Prisma.Decimal(0.0);
-
-    const totalNights = differenceInCalendarDays(
-      new Date(booking.endDate),
-      new Date(booking.startDate)
-    );
-
-    const totalAdultsPrice = pricePerNight * totalNights * booking.adultsCount;
-    const totalChildrenPrice =
-      pricePerNight * 0.8 * totalNights * booking.childrenCount;
-
-    const preliminaryCost = parseFloat(
-      (totalAdultsPrice + totalChildrenPrice).toString()
-    ).toFixed(2);
-    return new Prisma.Decimal(preliminaryCost);
   };
 }
 

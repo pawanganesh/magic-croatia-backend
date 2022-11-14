@@ -2,7 +2,7 @@ import { Prisma, Property } from "@prisma/client";
 
 export type CreateBookingDto = {
   totalPrice: Prisma.Decimal;
-  adultCount: number;
+  adultsCount: number;
   childrenCount: number;
   startDate: Date;
   endDate: Date;
@@ -32,7 +32,7 @@ export interface MyBooking {
 export interface BookingCostInputs {
   startDate: Date;
   endDate: Date;
-  adultCount: number;
+  adultsCount: number;
   childrenCount: number;
   pricePerNight: Prisma.Decimal;
 }

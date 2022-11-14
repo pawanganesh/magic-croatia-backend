@@ -7,7 +7,7 @@ import {
 } from "./booking.interface";
 import HttpException from "exceptions/HttpException";
 import PropertyService from "property/property.service";
-import { isBefore } from "date-fns";
+import { isBefore, isEqual } from "date-fns";
 import {
   calculateBookingCost,
   checkBookedInterval,
@@ -61,7 +61,7 @@ class BookingService {
   public createBooking = async (bookingData: CreateBookingDto) => {
     const {
       totalPrice,
-      adultCount,
+      adultsCount,
       childrenCount,
       startDate,
       endDate,
@@ -69,15 +69,22 @@ class BookingService {
       userId,
     } = bookingData;
 
-    const CURRENT_MONTH = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
-      1
-    );
-    if (isBefore(startDate, CURRENT_MONTH)) {
+    const bookingStartDate = new Date(startDate);
+    const bookingEndDate = new Date(endDate);
+
+    const bookingAdultsCount = +adultsCount;
+    const bookingChildrenCount = +childrenCount;
+
+    if (
+      isBefore(bookingStartDate, new Date()) ||
+      isEqual(bookingStartDate, new Date())
+    ) {
       throw new HttpException(400, "Invalid start date!");
     }
-    if (isBefore(endDate, startDate)) {
+    if (
+      isBefore(bookingEndDate, bookingStartDate) ||
+      isEqual(bookingEndDate, bookingStartDate)
+    ) {
       throw new HttpException(400, "Invalid end date!");
     }
 
@@ -85,7 +92,11 @@ class BookingService {
       propertyId
     );
     const bookedDays = getBookedDays(propertyFutureBookings);
-    const isBookingValid = checkBookedInterval(startDate, endDate, bookedDays);
+    const isBookingValid = checkBookedInterval(
+      bookingStartDate,
+      bookingEndDate,
+      bookedDays
+    );
     if (!isBookingValid) {
       throw new HttpException(
         400,
@@ -95,7 +106,7 @@ class BookingService {
 
     const property = await this.propertyService.getProperty(propertyId);
 
-    const totalPersonsForBooking = adultCount + childrenCount;
+    const totalPersonsForBooking = bookingAdultsCount + bookingChildrenCount;
     if (totalPersonsForBooking > property.persons) {
       throw new HttpException(
         400,
@@ -104,21 +115,22 @@ class BookingService {
     }
 
     const bookingCost = calculateBookingCost({
-      startDate,
-      endDate,
-      adultCount,
+      startDate: bookingStartDate,
+      endDate: bookingEndDate,
+      adultsCount,
       childrenCount,
       pricePerNight: property.pricePerNight,
     });
-    if (bookingCost !== parseFloat(property.pricePerNight.toPrecision(2))) {
+
+    if (Number(bookingCost) !== Number(totalPrice)) {
       throw new HttpException(400, `Calculated price is not the same!`);
     }
 
     const booking = await this.prisma.booking.create({
       data: {
-        totalPrice,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
+        totalPrice: bookingCost,
+        startDate: bookingStartDate,
+        endDate: bookingEndDate,
         userId,
         propertyId,
       },
