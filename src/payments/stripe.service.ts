@@ -4,11 +4,14 @@ import BookingService from "booking/booking.service";
 import Stripe from "stripe";
 import { StripeBooking } from "./stripe.interface";
 import { calculateBookingCost } from "booking/utils";
-import { Prisma } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 class StripeService {
   private propertyService = new PropertyService();
-  private bookingService = new BookingService(this.propertyService);
+  private bookingService = new BookingService(
+    this.propertyService,
+    new PrismaClient()
+  );
 
   public stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: "2022-08-01",
