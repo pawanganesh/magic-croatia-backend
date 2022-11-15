@@ -1,9 +1,7 @@
 import BookingService from "./booking.service";
-import { Prisma, PrismaClient } from "@prisma/client";
-import { CreateBookingDto } from "./booking.interface";
-import { addDays, subDays } from "date-fns";
+import { PrismaClient } from "@prisma/client";
+import { addDays } from "date-fns";
 import PropertyService from "property/property.service";
-import HttpException from "exceptions/HttpException";
 import { mockBookingData } from "./mocks/booking";
 
 (PrismaClient as any) = jest.fn();
@@ -20,63 +18,40 @@ describe("Booking service tests", () => {
 
   describe("Create booking", () => {
     it("should throw when start date is before tomorrow's date", async () => {
-      let bookingData = { ...mockBookingData, startDate: subDays(today, 1) };
-      try {
-        await bookingService.createBooking(bookingData);
-      } catch (err) {
-        expect(err).toBeInstanceOf(HttpException);
-        expect(err).toMatchObject({
-          message: "Invalid start date!",
-          status: 400,
-        });
-      }
-    });
-
-    it("should throw when start date today's date", async () => {
       let bookingData = { ...mockBookingData, startDate: today };
-      try {
-        await bookingService.createBooking(bookingData);
-      } catch (err) {
-        expect(err).toBeInstanceOf(HttpException);
-        expect(err).toMatchObject({
-          message: "Invalid start date!",
-          status: 400,
-        });
-      }
+      expect(bookingService.createBooking(bookingData)).rejects.toMatchObject({
+        message: "Invalid start date!",
+        status: 400,
+      });
     });
 
     it("should throw when end date is before start date", async () => {
       let bookingData = {
         ...mockBookingData,
-        endDate: subDays(mockBookingData.startDate, 1),
-      };
-
-      try {
-        await bookingService.createBooking(bookingData);
-      } catch (err) {
-        expect(err).toBeInstanceOf(HttpException);
-        expect(err).toMatchObject({
-          message: "Invalid end date!",
-          status: 400,
-        });
-      }
-    });
-
-    it("should throw when end date is equal start date", async () => {
-      let bookingData = {
-        ...mockBookingData,
         endDate: mockBookingData.startDate,
       };
+      expect(bookingService.createBooking(bookingData)).rejects.toMatchObject({
+        message: "Invalid end date!",
+        status: 400,
+      });
+    });
 
-      try {
-        await bookingService.createBooking(bookingData);
-      } catch (err) {
-        expect(err).toBeInstanceOf(HttpException);
-        expect(err).toMatchObject({
-          message: "Invalid end date!",
-          status: 400,
-        });
-      }
+    it("should throw when booking date range in already booked range", async () => {
+      let bookingData = {
+        ...mockBookingData,
+        startDate: addDays(today, 3),
+        endDate: addDays(today, 5),
+      };
+      bookingService.getFutureBookingsForProperty = jest
+        .fn()
+        .mockResolvedValue([
+          { id: 1, startDate: addDays(today, 2), endDate: addDays(today, 4) },
+        ]);
+
+      expect(bookingService.createBooking(bookingData)).rejects.toMatchObject({
+        message: "Chosen dates for this property are not available!",
+        status: 400,
+      });
     });
   });
 });

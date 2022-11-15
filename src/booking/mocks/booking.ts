@@ -3,6 +3,7 @@ import { CreateBookingDto } from "booking/booking.interface";
 import { addDays } from "date-fns";
 
 const today = new Date();
+
 export const mockBookingData: CreateBookingDto = {
   startDate: addDays(today, 1),
   endDate: addDays(today, 2),
