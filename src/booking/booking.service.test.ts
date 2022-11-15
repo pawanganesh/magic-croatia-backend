@@ -1,8 +1,10 @@
 import BookingService from "./booking.service";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { addDays } from "date-fns";
 import PropertyService from "property/property.service";
 import { mockBookingData, mockPropertyWithBookings } from "./mocks/booking";
+import { calculateBookingCost } from "./utils";
+import { CreateBookingDto } from "./booking.interface";
 
 describe("Booking service tests", () => {
   const mockedPropertyService = new (<new () => PropertyService>(
@@ -18,7 +20,10 @@ describe("Booking service tests", () => {
 
   describe("Create booking", () => {
     it("should throw when start date is before tomorrow's date", async () => {
-      let bookingData = { ...mockBookingData, startDate: today };
+      let bookingData: CreateBookingDto = {
+        ...mockBookingData,
+        startDate: today,
+      };
       expect(bookingService.createBooking(bookingData)).rejects.toMatchObject({
         message: "Invalid start date!",
         status: 400,
@@ -37,7 +42,7 @@ describe("Booking service tests", () => {
     });
 
     it("should throw when booking date range in already booked range", async () => {
-      let bookingData = {
+      let bookingData: CreateBookingDto = {
         ...mockBookingData,
         startDate: addDays(today, 3),
         endDate: addDays(today, 6),
@@ -56,7 +61,7 @@ describe("Booking service tests", () => {
   });
 
   it("should throw when number of people in booking is over allowed maximum of property", async () => {
-    let bookingData = {
+    let bookingData: CreateBookingDto = {
       ...mockBookingData,
       adultsCount: 2,
       childrenCount: 3,
@@ -68,6 +73,34 @@ describe("Booking service tests", () => {
 
     expect(bookingService.createBooking(bookingData)).rejects.toMatchObject({
       message: `Maximum number of people for this property is ${mockPropertyWithBookings.persons}`,
+      status: 400,
+    });
+  });
+
+  it("should throw when FE price is not the same as BE calculated price", async () => {
+    let bookingData: CreateBookingDto = {
+      ...mockBookingData,
+      adultsCount: 2,
+      childrenCount: 2,
+      startDate: addDays(today, 1),
+      endDate: addDays(today, 3),
+      totalPrice: new Prisma.Decimal(719.94),
+    };
+    const pricePerNight = new Prisma.Decimal(99.99);
+
+    jest.spyOn(mockedPropertyService, "getProperty").mockResolvedValue({
+      ...mockPropertyWithBookings,
+      pricePerNight,
+    });
+
+    const bookedPrice = calculateBookingCost({
+      ...bookingData,
+      pricePerNight,
+    }).toString();
+
+    expect(bookedPrice).toBe("719.93");
+    expect(bookingService.createBooking(bookingData)).rejects.toMatchObject({
+      message: `Calculated price is not the same!`,
       status: 400,
     });
   });
