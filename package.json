@@ -9,8 +9,7 @@
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint src/**/*.ts && pretty-quick --pattern '**/*.ts' --check .",
     "lint-staged": "eslint src/**/*.ts && pretty-quick --staged --pattern '**/*.ts' --check .",
-    "format": "eslint src/**/*.ts --fix && pretty-quick --pattern '**/*.ts' --write .",
-    "prepare": "husky install"
+    "format": "eslint src/**/*.ts --fix && pretty-quick --pattern '**/*.ts' --write ."
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [
