@@ -1,7 +1,4 @@
 name: "Magic Croatia Backend"
-author: "Indigo Web Design"
-description: "Booking app with Node.js and TypeScript"
-
 on:
   push:
     branches: [main]
