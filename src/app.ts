@@ -1,5 +1,8 @@
 import express from "express";
 import cors from "cors";
+import * as dotenv from "dotenv";
+dotenv.config();
+
 import Controller from "interfaces/controller.interface";
 import errorMiddleware from "middleware/errorMiddleware";
 import AuthService from "services/authService";
