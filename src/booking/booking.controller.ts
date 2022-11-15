@@ -1,3 +1,4 @@
+import { PrismaClient } from "@prisma/client";
 import express, { NextFunction } from "express";
 import PropertyService from "property/property.service";
 import validate from "validation";
@@ -9,7 +10,10 @@ import BookingService from "./booking.service";
 class BookingController {
   public path = "/bookings";
   public router = express.Router();
-  private bookingService = new BookingService(new PropertyService());
+  private bookingService = new BookingService(
+    new PropertyService(),
+    new PrismaClient()
+  );
 
   constructor() {
     this.initializeRoutes();

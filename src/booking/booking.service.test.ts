@@ -2,7 +2,11 @@ import BookingService from "./booking.service";
 import { Prisma, PrismaClient } from "@prisma/client";
 import { addDays } from "date-fns";
 import PropertyService from "property/property.service";
-import { mockBookingData, mockPropertyWithBookings } from "./mocks/booking";
+import {
+  mockBookingData,
+  mockCreatedBooking,
+  mockPropertyWithBookings,
+} from "./mocks/booking";
 import { calculateBookingCost } from "./utils";
 import { CreateBookingDto } from "./booking.interface";
 
@@ -11,9 +15,14 @@ describe("Booking service tests", () => {
     PropertyService
   ))() as jest.Mocked<PropertyService>;
 
-  (PrismaClient as any) = jest.fn();
+  const mockedPrismaClient = new (<new () => PrismaClient>(
+    PrismaClient
+  ))() as jest.Mocked<PrismaClient>;
 
-  const bookingService = new BookingService(mockedPropertyService);
+  const bookingService = new BookingService(
+    mockedPropertyService,
+    mockedPrismaClient
+  );
   bookingService.getFutureBookingsForProperty = jest.fn().mockResolvedValue([]);
 
   const today = new Date();
@@ -102,6 +111,38 @@ describe("Booking service tests", () => {
     expect(bookingService.createBooking(bookingData)).rejects.toMatchObject({
       message: `Calculated price is not the same!`,
       status: 400,
+    });
+  });
+
+  it("should call create booking method with correct params", async () => {
+    let bookingData: CreateBookingDto = {
+      ...mockBookingData,
+      adultsCount: 2,
+      childrenCount: 2,
+      startDate: addDays(today, 1),
+      endDate: addDays(today, 3),
+      totalPrice: new Prisma.Decimal(719.93),
+    };
+
+    jest
+      .spyOn(mockedPrismaClient.booking, "create")
+      .mockResolvedValue(mockCreatedBooking);
+
+    jest.spyOn(mockedPropertyService, "getProperty").mockResolvedValue({
+      ...mockPropertyWithBookings,
+      userId: 1,
+      id: 1,
+    });
+
+    await bookingService.createBooking(bookingData);
+    expect(mockedPrismaClient.booking.create).toHaveBeenCalledWith({
+      data: {
+        totalPrice: bookingData.totalPrice,
+        startDate: bookingData.startDate,
+        endDate: bookingData.endDate,
+        userId: mockPropertyWithBookings.userId,
+        propertyId: mockPropertyWithBookings.id,
+      },
     });
   });
 });

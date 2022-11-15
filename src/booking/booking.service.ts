@@ -15,11 +15,12 @@ import {
 } from "./utils";
 
 class BookingService {
-  private prisma = new PrismaClient();
+  private prisma: PrismaClient;
   private propertyService: PropertyService;
 
-  constructor(propertyService: PropertyService) {
+  constructor(propertyService: PropertyService, prisma: PrismaClient) {
     this.propertyService = propertyService;
+    this.prisma = prisma;
   }
 
   public getMyBookings = async (userId: number): Promise<MyBooking[]> => {
