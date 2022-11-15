@@ -1,26 +1,20 @@
-import HttpException from "exceptions/HttpException";
-import PropertyService from "property/property.service";
-import BookingService from "booking/booking.service";
-import Stripe from "stripe";
-import { StripeBooking } from "./stripe.interface";
-import { calculateBookingCost } from "booking/utils";
-import { Prisma, PrismaClient } from "@prisma/client";
+import HttpException from 'exceptions/HttpException';
+import PropertyService from 'property/property.service';
+import BookingService from 'booking/booking.service';
+import Stripe from 'stripe';
+import { StripeBooking } from './stripe.interface';
+import { calculateBookingCost } from 'booking/utils';
+import { PrismaClient } from '@prisma/client';
 
 class StripeService {
   private propertyService = new PropertyService();
-  private bookingService = new BookingService(
-    this.propertyService,
-    new PrismaClient()
-  );
+  private bookingService = new BookingService(this.propertyService, new PrismaClient());
 
   public stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2022-08-01",
+    apiVersion: '2022-08-01',
   });
 
-  public createPaymentIntent = async (
-    booking: StripeBooking,
-    userId: number
-  ) => {
+  public createPaymentIntent = async (booking: StripeBooking, userId: number) => {
     const property = await this.propertyService.getProperty(booking.propertyId);
     const bookingStartDate = new Date(booking.startDate);
     const bookingEndDate = new Date(booking.endDate);
@@ -34,12 +28,12 @@ class StripeService {
 
     const stripePrice = parseFloat(preliminaryCost.toString()) * 100;
     if (stripePrice <= 0) {
-      throw new HttpException(400, "Error in costs calculations!");
+      throw new HttpException(400, 'Error in costs calculations!');
     }
 
     const paymentIntent = await this.stripe.paymentIntents.create({
       amount: stripePrice,
-      currency: "usd",
+      currency: 'usd',
     });
 
     const clientSecret = paymentIntent.client_secret;

@@ -1,6 +1,6 @@
-import { PrismaClient } from "@prisma/client";
-import HttpException from "exceptions/HttpException";
-import { CreateUserDto } from "./user.interface";
+import { PrismaClient } from '@prisma/client';
+import HttpException from 'exceptions/HttpException';
+import { CreateUserDto } from './user.interface';
 
 class UserService {
   private prisma = new PrismaClient();
@@ -17,10 +17,7 @@ class UserService {
     return user;
   };
 
-  public updateUserAvatar = async (
-    userId: number,
-    avatar: string | undefined
-  ) => {
+  public updateUserAvatar = async (userId: number, avatar: string | undefined) => {
     const user = await this.prisma.user.update({
       where: {
         id: userId,
@@ -30,7 +27,7 @@ class UserService {
       },
     });
     if (!user) {
-      throw new HttpException(400, "Could not update user avatar!");
+      throw new HttpException(400, 'Could not update user avatar!');
     }
     return user;
   };

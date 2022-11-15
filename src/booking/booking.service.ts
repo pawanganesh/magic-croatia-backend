@@ -1,18 +1,9 @@
-import { PrismaClient, Status } from "@prisma/client";
-import {
-  CreateBookingDto,
-  FutureBookingsForProperty,
-  MyBooking,
-  ReviewData,
-} from "./booking.interface";
-import HttpException from "exceptions/HttpException";
-import PropertyService from "property/property.service";
-import { isBefore, isEqual } from "date-fns";
-import {
-  calculateBookingCost,
-  checkBookedInterval,
-  getBookedDays,
-} from "./utils";
+import { PrismaClient, Status } from '@prisma/client';
+import { CreateBookingDto, FutureBookingsForProperty, MyBooking, ReviewData } from './booking.interface';
+import HttpException from 'exceptions/HttpException';
+import PropertyService from 'property/property.service';
+import { isBefore, isEqual } from 'date-fns';
+import { calculateBookingCost, checkBookedInterval, getBookedDays } from './utils';
 
 class BookingService {
   private prisma: PrismaClient;
@@ -39,9 +30,7 @@ class BookingService {
     return myBookings;
   };
 
-  public getFutureBookingsForProperty = async (
-    propertyId: number
-  ): Promise<FutureBookingsForProperty[]> => {
+  public getFutureBookingsForProperty = async (propertyId: number): Promise<FutureBookingsForProperty[]> => {
     const futureBookings = await this.prisma.booking.findMany({
       where: {
         propertyId,
@@ -60,15 +49,7 @@ class BookingService {
   };
 
   public createBooking = async (bookingData: CreateBookingDto) => {
-    const {
-      totalPrice,
-      adultsCount,
-      childrenCount,
-      startDate,
-      endDate,
-      propertyId,
-      userId,
-    } = bookingData;
+    const { totalPrice, adultsCount, childrenCount, startDate, endDate, propertyId, userId } = bookingData;
 
     const bookingStartDate = new Date(startDate);
     const bookingEndDate = new Date(endDate);
@@ -76,43 +57,25 @@ class BookingService {
     const bookingAdultsCount = +adultsCount;
     const bookingChildrenCount = +childrenCount;
 
-    if (
-      isBefore(bookingStartDate, new Date()) ||
-      isEqual(bookingStartDate, new Date())
-    ) {
-      throw new HttpException(400, "Invalid start date!");
+    if (isBefore(bookingStartDate, new Date()) || isEqual(bookingStartDate, new Date())) {
+      throw new HttpException(400, 'Invalid start date!');
     }
-    if (
-      isBefore(bookingEndDate, bookingStartDate) ||
-      isEqual(bookingEndDate, bookingStartDate)
-    ) {
-      throw new HttpException(400, "Invalid end date!");
+    if (isBefore(bookingEndDate, bookingStartDate) || isEqual(bookingEndDate, bookingStartDate)) {
+      throw new HttpException(400, 'Invalid end date!');
     }
 
-    const propertyFutureBookings = await this.getFutureBookingsForProperty(
-      propertyId
-    );
+    const propertyFutureBookings = await this.getFutureBookingsForProperty(propertyId);
     const bookedDays = getBookedDays(propertyFutureBookings);
-    const isBookingValid = checkBookedInterval(
-      bookingStartDate,
-      bookingEndDate,
-      bookedDays
-    );
+    const isBookingValid = checkBookedInterval(bookingStartDate, bookingEndDate, bookedDays);
     if (!isBookingValid) {
-      throw new HttpException(
-        400,
-        "Chosen dates for this property are not available!"
-      );
+      throw new HttpException(400, 'Chosen dates for this property are not available!');
     }
 
     const property = await this.propertyService.getProperty(propertyId);
 
     const totalPersonsForBooking = bookingAdultsCount + bookingChildrenCount;
     if (totalPersonsForBooking > property.persons) {
-      throw new HttpException(
-        400,
-        `Maximum number of people for this property is ${property.persons}`
-      );
+      throw new HttpException(400, `Maximum number of people for this property is ${property.persons}`);
     }
 
     const bookingCost = calculateBookingCost({
@@ -139,10 +102,7 @@ class BookingService {
     return booking;
   };
 
-  public createBookingReview = async (
-    bookingId: number,
-    reviewData: ReviewData
-  ) => {
+  public createBookingReview = async (bookingId: number, reviewData: ReviewData) => {
     const updatedBooking = await this.prisma.booking.update({
       where: { id: bookingId },
       data: {
@@ -150,9 +110,7 @@ class BookingService {
         rating: reviewData.rating,
       },
     });
-    await this.propertyService.calculatePropertyAverageRating(
-      updatedBooking.propertyId
-    );
+    await this.propertyService.calculatePropertyAverageRating(updatedBooking.propertyId);
     return updatedBooking;
   };
 
@@ -161,13 +119,13 @@ class BookingService {
       where: { id: bookingId },
     });
     if (affectedBooking.userId !== userId) {
-      throw new HttpException(400, "This booking is not yours!");
+      throw new HttpException(400, 'This booking is not yours!');
     }
     if (affectedBooking.status !== Status.FINISHED) {
-      throw new HttpException(400, "Booking is not finished yet!");
+      throw new HttpException(400, 'Booking is not finished yet!');
     }
     if (affectedBooking.rating && affectedBooking.review) {
-      throw new HttpException(400, "Booking already has your review!");
+      throw new HttpException(400, 'Booking already has your review!');
     }
   };
 }

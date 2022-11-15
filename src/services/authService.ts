@@ -1,5 +1,5 @@
-import admin from "firebase-admin";
-import firebaseAdminConfig from "config/firebaseAdmin";
+import admin from 'firebase-admin';
+import firebaseAdminConfig from 'config/firebaseAdmin';
 
 class AuthService {
   static admin: admin.app.App;

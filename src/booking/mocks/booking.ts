@@ -1,7 +1,7 @@
-import { Booking, Prisma } from "@prisma/client";
-import { CreateBookingDto } from "booking/booking.interface";
-import { addDays } from "date-fns";
-import { PropertyWithBookings } from "property/property.interface";
+import { Booking, Prisma } from '@prisma/client';
+import { CreateBookingDto } from 'booking/booking.interface';
+import { addDays } from 'date-fns';
+import { PropertyWithBookings } from 'property/property.interface';
 
 const today = new Date();
 
@@ -17,9 +17,9 @@ export const mockBookingData: CreateBookingDto = {
 
 export const mockPropertyWithBookings: PropertyWithBookings = {
   id: 1,
-  name: "Mocked property",
-  description: "Mocked property desc",
-  featuredImageUrl: "",
+  name: 'Mocked property',
+  description: 'Mocked property desc',
+  featuredImageUrl: '',
   gallery: [],
   userId: 1,
   createdAt: new Date(),
@@ -37,11 +37,11 @@ export const mockCreatedBooking: Booking = {
   id: 35,
   propertyId: 2,
   userId: 3,
-  startDate: new Date("2022-12-21T00:00:00.000Z"),
-  endDate: new Date("2022-12-23T00:00:00.000Z"),
-  createdAt: new Date("2022-11-15T12:03:17.630Z"),
-  updatedAt: new Date("2022-11-15T12:03:17.630Z"),
-  status: "CREATED",
+  startDate: new Date('2022-12-21T00:00:00.000Z'),
+  endDate: new Date('2022-12-23T00:00:00.000Z'),
+  createdAt: new Date('2022-11-15T12:03:17.630Z'),
+  updatedAt: new Date('2022-11-15T12:03:17.630Z'),
+  status: 'CREATED',
   totalPrice: new Prisma.Decimal(719.93),
   rating: null,
   review: null,

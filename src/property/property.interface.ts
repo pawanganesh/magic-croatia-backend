@@ -1,4 +1,4 @@
-import { Prisma, Property } from "@prisma/client";
+import { Prisma, Property } from '@prisma/client';
 
 export interface CreatePropertyDto {
   name: string;

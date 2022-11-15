@@ -1,15 +1,15 @@
-import express from "express";
-import cors from "cors";
-import * as dotenv from "dotenv";
+import express from 'express';
+import cors from 'cors';
+import * as dotenv from 'dotenv';
 dotenv.config();
 
-import Controller from "interfaces/controller.interface";
-import errorMiddleware from "middleware/errorMiddleware";
-import AuthService from "services/authService";
+import Controller from 'interfaces/controller.interface';
+import errorMiddleware from 'middleware/errorMiddleware';
+import AuthService from 'services/authService';
 
 class App {
   public app: express.Application;
-  public appPort: number = 5000;
+  public appPort = 5000;
 
   constructor(controllers: Controller[]) {
     this.app = express();
@@ -33,7 +33,7 @@ class App {
 
   private initializeControllers(controllers: Controller[]) {
     controllers.forEach((controller) => {
-      this.app.use("/", controller.router);
+      this.app.use('/', controller.router);
     });
   }
 

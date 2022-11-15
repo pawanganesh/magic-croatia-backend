@@ -1,13 +1,11 @@
-import { PrismaClient, Role } from "@prisma/client";
-import HttpException from "exceptions/HttpException";
-import { CreatePropertyDto, PropertyWithBookings } from "./property.interface";
+import { PrismaClient, Role } from '@prisma/client';
+import HttpException from 'exceptions/HttpException';
+import { CreatePropertyDto, PropertyWithBookings } from './property.interface';
 
 class PropertyService {
   private prisma = new PrismaClient();
 
-  public getProperty = async (
-    propertyId: number
-  ): Promise<PropertyWithBookings> => {
+  public getProperty = async (propertyId: number): Promise<PropertyWithBookings> => {
     const property = await this.prisma.property.findFirst({
       where: { id: propertyId },
       include: {
@@ -35,10 +33,7 @@ class PropertyService {
     return properties;
   };
 
-  public createProperty = async (
-    propertyData: CreatePropertyDto,
-    userId: number
-  ) => {
+  public createProperty = async (propertyData: CreatePropertyDto, userId: number) => {
     const property = await this.prisma.property.create({
       data: {
         ...propertyData,
@@ -54,7 +49,7 @@ class PropertyService {
       where: { id: userId },
     });
     if (user.role !== Role.LANDLORD) {
-      throw new HttpException(400, "You are not landlord!");
+      throw new HttpException(400, 'You are not landlord!');
     }
   };
 
@@ -70,10 +65,7 @@ class PropertyService {
       },
     });
 
-    const totalRating = propertyBookings.bookings.reduce(
-      (acc, item) => acc + parseFloat(item.rating.toString()),
-      0
-    );
+    const totalRating = propertyBookings.bookings.reduce((acc, item) => acc + parseFloat(item.rating.toString()), 0);
 
     await this.prisma.property.update({
       where: { id: propertyId },

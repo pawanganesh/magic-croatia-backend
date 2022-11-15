@@ -5,15 +5,13 @@
     "outDir": "./dist",
     "baseUrl": "./src",
     "paths": {
-      "*": [
-        "./*"
-      ],
+      "*": ["./*"]
     },
     "module": "commonjs",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "forceConsistentCasingInFileNames": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src"],
   "strict": true,
