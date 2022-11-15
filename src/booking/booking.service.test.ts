@@ -2,9 +2,7 @@ import BookingService from "./booking.service";
 import { PrismaClient } from "@prisma/client";
 import { addDays } from "date-fns";
 import PropertyService from "property/property.service";
-import { mockBookingData } from "./mocks/booking";
-
-(PrismaClient as any) = jest.fn();
+import { mockBookingData, mockPropertyWithBookings } from "./mocks/booking";
 
 describe("Booking service tests", () => {
   const mockedPropertyService = new (<new () => PropertyService>(
@@ -12,8 +10,10 @@ describe("Booking service tests", () => {
   ))() as jest.Mocked<PropertyService>;
 
   (PrismaClient as any) = jest.fn();
+
   const bookingService = new BookingService(mockedPropertyService);
   bookingService.getFutureBookingsForProperty = jest.fn().mockResolvedValue([]);
+
   const today = new Date();
 
   describe("Create booking", () => {
@@ -40,7 +40,7 @@ describe("Booking service tests", () => {
       let bookingData = {
         ...mockBookingData,
         startDate: addDays(today, 3),
-        endDate: addDays(today, 5),
+        endDate: addDays(today, 6),
       };
       bookingService.getFutureBookingsForProperty = jest
         .fn()
@@ -52,6 +52,23 @@ describe("Booking service tests", () => {
         message: "Chosen dates for this property are not available!",
         status: 400,
       });
+    });
+  });
+
+  it("should throw when number of people in booking is over allowed maximum of property", async () => {
+    let bookingData = {
+      ...mockBookingData,
+      adultsCount: 2,
+      childrenCount: 3,
+    };
+    jest.spyOn(mockedPropertyService, "getProperty").mockResolvedValue({
+      ...mockPropertyWithBookings,
+      persons: 4,
+    });
+
+    expect(bookingService.createBooking(bookingData)).rejects.toMatchObject({
+      message: `Maximum number of people for this property is ${mockPropertyWithBookings.persons}`,
+      status: 400,
     });
   });
 });
