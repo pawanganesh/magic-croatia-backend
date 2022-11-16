@@ -49,13 +49,8 @@ class PropertyController {
     next: NextFunction,
   ) => {
     const propertyData: CreatePropertyDto = request.body;
-    const userId = 5;
     try {
-      await this.propertyService.canCreateProperty(userId);
-      const property = await this.propertyService.createProperty(
-        propertyData,
-        userId,
-      );
+      const property = await this.propertyService.createProperty(propertyData);
       return response.json(property);
     } catch (err) {
       next(err);

@@ -8,13 +8,19 @@ import { PrismaClient } from '@prisma/client';
 
 class StripeService {
   private propertyService = new PropertyService();
-  private bookingService = new BookingService(this.propertyService, new PrismaClient());
+  private bookingService = new BookingService(
+    this.propertyService,
+    new PrismaClient(),
+  );
 
   public stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2022-08-01',
   });
 
-  public createPaymentIntent = async (booking: StripeBooking, userId: number) => {
+  public createPaymentIntent = async (
+    booking: StripeBooking,
+    userId: number,
+  ) => {
     const property = await this.propertyService.getProperty(booking.propertyId);
     const bookingStartDate = new Date(booking.startDate);
     const bookingEndDate = new Date(booking.endDate);
@@ -26,7 +32,8 @@ class StripeService {
       pricePerNight: property.pricePerNight,
     });
 
-    const stripePrice = parseFloat(preliminaryCost.toString()) * 100;
+    const stripePrice =
+      parseFloat(parseFloat(preliminaryCost.toString()).toFixed(2)) * 100;
     if (stripePrice <= 0) {
       throw new HttpException(400, 'Error in costs calculations!');
     }

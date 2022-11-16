@@ -5,7 +5,9 @@ import { CreatePropertyDto, PropertyWithBookings } from './property.interface';
 class PropertyService {
   private prisma = new PrismaClient();
 
-  public getProperty = async (propertyId: number): Promise<PropertyWithBookings> => {
+  public getProperty = async (
+    propertyId: number,
+  ): Promise<PropertyWithBookings> => {
     const property = await this.prisma.property.findFirst({
       where: { id: propertyId },
       include: {
@@ -33,24 +35,15 @@ class PropertyService {
     return properties;
   };
 
-  public createProperty = async (propertyData: CreatePropertyDto, userId: number) => {
+  public createProperty = async (propertyData: CreatePropertyDto) => {
+    // TODO cannot have the same name if user is the same check
     const property = await this.prisma.property.create({
       data: {
         ...propertyData,
-        userId,
       },
     });
 
     return property;
-  };
-
-  public canCreateProperty = async (userId: number) => {
-    const user = await this.prisma.user.findFirst({
-      where: { id: userId },
-    });
-    if (user.role !== Role.LANDLORD) {
-      throw new HttpException(400, 'You are not landlord!');
-    }
   };
 
   public calculatePropertyAverageRating = async (propertyId: number) => {
@@ -65,7 +58,10 @@ class PropertyService {
       },
     });
 
-    const totalRating = propertyBookings.bookings.reduce((acc, item) => acc + parseFloat(item.rating.toString()), 0);
+    const totalRating = propertyBookings.bookings.reduce(
+      (acc, item) => acc + parseFloat(item.rating.toString()),
+      0,
+    );
 
     await this.prisma.property.update({
       where: { id: propertyId },
