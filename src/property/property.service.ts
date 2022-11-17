@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import HttpException from 'exceptions/HttpException';
 import { CreatePropertyDto, PropertyWithBookings } from './property.interface';
 
@@ -30,13 +30,24 @@ class PropertyService {
   public getMyProperties = async (userId: number) => {
     const properties = await this.prisma.property.findMany({
       where: { userId },
-      take: 10,
     });
     return properties;
   };
 
+  public getMyPropertyNames = async (userId: number) => {
+    const propertyNames = await this.prisma.property.findMany({
+      where: { userId },
+      select: { name: true },
+    });
+    return propertyNames.map((p) => p.name);
+  };
+
   public createProperty = async (propertyData: CreatePropertyDto) => {
-    // TODO cannot have the same name if user is the same check
+    const myPropertyNames = await this.getMyPropertyNames(propertyData.userId);
+    if (myPropertyNames.includes(propertyData.name)) {
+      throw new HttpException(400, 'Property name already exists!');
+    }
+
     const property = await this.prisma.property.create({
       data: {
         ...propertyData,

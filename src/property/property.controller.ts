@@ -14,7 +14,11 @@ class PropertyController {
   }
 
   public initializeRoutes() {
-    this.router.get(`${this.path}/personal`, this.getMyProperties);
+    this.router.get(`${this.path}/personal/:userId`, this.getMyProperties);
+    this.router.get(
+      `${this.path}/personal/:userId/names`,
+      this.getMyPropertyNames,
+    );
     this.router.get(`${this.path}/:id`, this.getProperty);
     this.router.post(
       this.path,
@@ -38,9 +42,19 @@ class PropertyController {
     response: express.Response,
     next: NextFunction,
   ) => {
-    const userId = 5;
+    const userId = +request.params.userId;
     const properties = await this.propertyService.getMyProperties(userId);
     return response.json(properties);
+  };
+
+  private getMyPropertyNames = async (
+    request: express.Request,
+    response: express.Response,
+    next: NextFunction,
+  ) => {
+    const userId = +request.params.userId;
+    const propertyNames = await this.propertyService.getMyPropertyNames(userId);
+    return response.json(propertyNames);
   };
 
   private createProperty = async (
