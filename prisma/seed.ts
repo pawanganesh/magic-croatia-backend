@@ -43,7 +43,11 @@ async function main() {
             latitude: 43.446999,
             longitude: 16.692384,
             description: 'Lovely home!',
+            address: 'Trg bana Josipa Jelačića 3, Zagreb, Croatia',
             persons: 4,
+            gallery: [
+              'https://res.cloudinary.com/dxn9yllna/image/upload/v1667420247/Houses/digital-marketing-agency-ntwrk-g39p1kDjvSY-unsplash_uxgmne.jpg',
+            ],
           },
           {
             name: 'Ralph Ravi 2',
@@ -53,7 +57,11 @@ async function main() {
             latitude: 43.446999,
             longitude: 18.692384,
             description: 'Nice home!',
+            address: 'Trg bana Josipa Jelačića 3, Zagreb, Croatia',
             persons: 6,
+            gallery: [
+              'https://res.cloudinary.com/dxn9yllna/image/upload/v1667420247/Houses/digital-marketing-agency-ntwrk-g39p1kDjvSY-unsplash_uxgmne.jpg',
+            ],
           },
         ],
       },

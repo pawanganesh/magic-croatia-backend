@@ -4,6 +4,7 @@ export interface CreatePropertyDto {
   name: string;
   description: string;
   featuredImageUrl: string;
+  address: string;
   gallery: string[];
   pricePerNight: number;
   latitude: number;
