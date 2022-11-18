@@ -1,4 +1,5 @@
 import express, { NextFunction } from 'express';
+import authMiddleware from 'middleware/authMiddleware';
 import validate from 'validation';
 import { createPropertySchema } from 'validation/property/createPropertySchema';
 import { CreatePropertyDto } from './property.interface';
@@ -14,6 +15,11 @@ class PropertyController {
   }
 
   public initializeRoutes() {
+    this.router.get(
+      `${this.path}/latest`,
+      authMiddleware,
+      this.getLatestProperties,
+    );
     this.router.get(`${this.path}/personal/:userId`, this.getMyProperties);
     this.router.get(
       `${this.path}/personal/:userId/names`,
@@ -26,6 +32,17 @@ class PropertyController {
       this.createProperty,
     );
   }
+
+  private getLatestProperties = async (
+    request: express.Request,
+    response: express.Response,
+    next: NextFunction,
+  ) => {
+    const latestProperties = await this.propertyService.getLatestProperties(
+      request.userUid,
+    );
+    return response.json(latestProperties);
+  };
 
   private getProperty = async (
     request: express.Request,

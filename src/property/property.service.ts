@@ -5,6 +5,29 @@ import { CreatePropertyDto, PropertyWithBookings } from './property.interface';
 class PropertyService {
   private prisma = new PrismaClient();
 
+  public getLatestProperties = async (userUid: string) => {
+    const currentUser = await this.prisma.user.findFirst({
+      where: { uuid: userUid },
+    });
+
+    const latestProperties = await this.prisma.property.findMany({
+      where: {
+        NOT: {
+          userId: currentUser.id,
+        },
+      },
+      take: 10,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    if (!latestProperties) {
+      throw new HttpException(500, `No latest properties found`);
+    }
+    return latestProperties;
+  };
+
   public getProperty = async (
     propertyId: number,
   ): Promise<PropertyWithBookings> => {
