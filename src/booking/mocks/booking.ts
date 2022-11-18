@@ -31,6 +31,7 @@ export const mockPropertyWithBookings: PropertyWithBookings = {
   numberOfReviews: 5,
   persons: 4,
   bookings: [],
+  address: 'Ilica 3, 10000, Zagreb, Hrvatska',
 };
 
 export const mockCreatedBooking: Booking = {
