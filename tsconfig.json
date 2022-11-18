@@ -12,7 +12,7 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
-    "typeRoots": ["./types"]
+    "typeRoots": ["./types", "types"]
   },
   "include": ["src"],
   "strict": true,
