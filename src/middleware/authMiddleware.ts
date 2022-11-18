@@ -1,9 +1,10 @@
 import HttpException from 'exceptions/HttpException';
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import AuthService from 'services/authService';
+import { RequestWithUserUid } from 'types/express/custom';
 
 async function authMiddleware(
-  request: Request,
+  request: RequestWithUserUid,
   response: Response,
   next: NextFunction,
 ) {

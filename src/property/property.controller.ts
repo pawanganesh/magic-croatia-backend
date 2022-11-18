@@ -1,5 +1,6 @@
 import express, { NextFunction } from 'express';
 import authMiddleware from 'middleware/authMiddleware';
+import { RequestWithUserUid } from 'types/express/custom';
 import validate from 'validation';
 import { createPropertySchema } from 'validation/property/createPropertySchema';
 import { CreatePropertyDto } from './property.interface';
@@ -34,7 +35,7 @@ class PropertyController {
   }
 
   private getLatestProperties = async (
-    request: express.Request,
+    request: RequestWithUserUid,
     response: express.Response,
     next: NextFunction,
   ) => {
