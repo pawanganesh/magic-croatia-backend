@@ -7,7 +7,7 @@ import { calculateBookingCost } from 'booking/utils';
 import { PrismaClient } from '@prisma/client';
 
 class StripeService {
-  private propertyService = new PropertyService();
+  private propertyService = new PropertyService(new PrismaClient());
   private bookingService = new BookingService(
     this.propertyService,
     new PrismaClient(),
