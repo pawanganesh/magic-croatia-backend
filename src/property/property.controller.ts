@@ -1,3 +1,4 @@
+import { PrismaClient } from '@prisma/client';
 import express, { NextFunction } from 'express';
 import authMiddleware from 'middleware/authMiddleware';
 import { RequestWithUserUid } from 'types/express/custom';
@@ -9,7 +10,7 @@ import PropertyService from './property.service';
 class PropertyController {
   public path = '/properties';
   public router = express.Router();
-  public propertyService = new PropertyService();
+  public propertyService = new PropertyService(new PrismaClient());
 
   constructor() {
     this.initializeRoutes();

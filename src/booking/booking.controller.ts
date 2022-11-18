@@ -11,7 +11,7 @@ class BookingController {
   public path = '/bookings';
   public router = express.Router();
   private bookingService = new BookingService(
-    new PropertyService(),
+    new PropertyService(new PrismaClient()),
     new PrismaClient(),
   );
 

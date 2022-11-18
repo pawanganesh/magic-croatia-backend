@@ -3,7 +3,11 @@ import HttpException from 'exceptions/HttpException';
 import { CreatePropertyDto, PropertyWithBookings } from './property.interface';
 
 class PropertyService {
-  private prisma = new PrismaClient();
+  private prisma: PrismaClient;
+
+  constructor(prisma: PrismaClient) {
+    this.prisma = prisma;
+  }
 
   public getLatestProperties = async (userUid: string) => {
     const currentUser = await this.prisma.user.findFirst({
