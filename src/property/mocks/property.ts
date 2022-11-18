@@ -39,3 +39,12 @@ export const mockCreatedProperty: Property = {
   averageRating: new Prisma.Decimal(3.5),
   numberOfReviews: 2,
 };
+
+export const mockCreatedPropertyWithBookings = {
+  ...mockCreatedProperty,
+  bookings: [
+    { rating: new Prisma.Decimal(2.5) },
+    { rating: new Prisma.Decimal(4.0) },
+    { rating: new Prisma.Decimal(5.0) },
+  ],
+};

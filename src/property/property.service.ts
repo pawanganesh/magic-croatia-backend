@@ -101,10 +101,13 @@ class PropertyService {
       0,
     );
 
+    const averageRating = totalRating / propertyBookings.bookings.length;
     await this.prisma.property.update({
       where: { id: propertyId },
       data: {
-        averageRating: totalRating / propertyBookings.bookings.length,
+        averageRating: parseFloat(
+          parseFloat(averageRating.toString()).toFixed(2),
+        ),
         numberOfReviews: propertyBookings.bookings.length,
       },
     });
