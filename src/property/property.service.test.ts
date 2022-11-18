@@ -1,6 +1,5 @@
 import { Prisma, PrismaClient, Property } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime';
-import { mockCreatedUser } from 'user/mocks/user';
 import { mockCreatedProperty, mockCreatePropertyDto } from './mocks/property';
 import PropertyService from './property.service';
 
