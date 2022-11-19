@@ -26,9 +26,6 @@ class PropertyService {
       },
     });
 
-    if (!latestProperties) {
-      throw new HttpException(500, `No latest properties found`);
-    }
     return latestProperties;
   };
 
