@@ -1,24 +1,43 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 import HttpException from 'exceptions/HttpException';
 import { CreateUserDto } from './user.interface';
 
 class UserService {
   private prisma = new PrismaClient();
 
-  public findUserByUuid = async (userUuid: string) => {
+  public findUserByUid = async (userUid: string) => {
     const user = await this.prisma.user.findFirst({
       where: {
-        uuid: userUuid,
+        uid: userUid,
       },
     });
     if (!user) {
-      throw new HttpException(404, `User with uuid: ${userUuid} not found!`);
+      throw new HttpException(404, `User with uid: ${userUid} not found!`);
     }
     return user;
   };
 
-  public updateUserAvatar = async (userId: number, avatar: string | undefined) => {
-    const user = await this.prisma.user.update({
+  public updateUserRoleToLandlord = async (userId: number) => {
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        role: Role.LANDLORD,
+      },
+    });
+    if (!updatedUser) {
+      throw new HttpException(
+        500,
+        `User ${userId} has failed to update to landlord!`,
+      );
+    }
+    return updatedUser;
+  };
+
+  public updateUserAvatar = async (
+    userId: number,
+    avatar: string | undefined,
+  ) => {
+    const updatedUser = await this.prisma.user.update({
       where: {
         id: userId,
       },
@@ -26,10 +45,10 @@ class UserService {
         avatar,
       },
     });
-    if (!user) {
+    if (!updatedUser) {
       throw new HttpException(400, 'Could not update user avatar!');
     }
-    return user;
+    return updatedUser;
   };
 
   public getAllUsers = async () => {

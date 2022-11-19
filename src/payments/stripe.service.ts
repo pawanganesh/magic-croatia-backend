@@ -5,9 +5,13 @@ import Stripe from 'stripe';
 import { StripeBooking } from './stripe.interface';
 import { calculateBookingCost } from 'booking/utils';
 import { PrismaClient } from '@prisma/client';
+import UserService from 'user/user.service';
 
 class StripeService {
-  private propertyService = new PropertyService(new PrismaClient());
+  private propertyService = new PropertyService(
+    new UserService(),
+    new PrismaClient(),
+  );
   private bookingService = new BookingService(
     this.propertyService,
     new PrismaClient(),

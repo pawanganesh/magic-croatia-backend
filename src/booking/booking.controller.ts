@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import express, { NextFunction } from 'express';
 import PropertyService from 'property/property.service';
+import UserService from 'user/user.service';
 import validate from 'validation';
 import { createBookingSchema } from 'validation/booking/createBookingSchema';
 import { createReviewSchema } from 'validation/booking/createReviewSchema';
@@ -11,7 +12,7 @@ class BookingController {
   public path = '/bookings';
   public router = express.Router();
   private bookingService = new BookingService(
-    new PropertyService(new PrismaClient()),
+    new PropertyService(new UserService(), new PrismaClient()),
     new PrismaClient(),
   );
 

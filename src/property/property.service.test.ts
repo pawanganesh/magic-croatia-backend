@@ -1,5 +1,7 @@
 import { Prisma, PrismaClient, Property } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime';
+import { mockCreatedUser } from 'user/mocks/user';
+import UserService from 'user/user.service';
 import { mockCreatedProperty, mockCreatePropertyDto } from './mocks/property';
 import PropertyService from './property.service';
 
@@ -8,7 +10,14 @@ describe('Booking service tests', () => {
     PrismaClient
   ))() as jest.Mocked<PrismaClient>;
 
-  const propertyService = new PropertyService(mockedPrismaClient);
+  const mockedUserService = new (<new () => UserService>(
+    UserService
+  ))() as jest.Mocked<UserService>;
+
+  const propertyService = new PropertyService(
+    mockedUserService,
+    mockedPrismaClient,
+  );
 
   describe('Calculate property average rating', () => {
     it('should return correct average rating', async () => {
@@ -24,14 +33,12 @@ describe('Booking service tests', () => {
           rating: Decimal;
         }[];
       });
-
       jest
         .spyOn(mockedPrismaClient.property, 'update')
         .mockResolvedValue(mockCreatedProperty);
 
       const propertyId = 1;
       await propertyService.calculatePropertyAverageRating(propertyId);
-
       expect(mockedPrismaClient.property.update).toHaveBeenCalledWith({
         where: { id: propertyId },
         data: {
@@ -57,23 +64,55 @@ describe('Booking service tests', () => {
       });
     });
 
-    it('should call create property method with correct params', async () => {
+    it('should throw when property is not created and not update user role to landlord', async () => {
       propertyService.getMyPropertyNames = jest
         .fn()
         .mockResolvedValue(['My apartment']);
+      const propertyData = {
+        ...mockCreatePropertyDto,
+        name: 'New apartment',
+        userId: 100,
+      };
+      jest
+        .spyOn(mockedPrismaClient.property, 'create')
+        .mockResolvedValue(undefined);
+      jest.spyOn(mockedUserService, 'updateUserRoleToLandlord');
 
-      const propertyData = { ...mockCreatePropertyDto, name: 'New apartment' };
+      expect(
+        propertyService.createProperty(propertyData),
+      ).rejects.toMatchObject({
+        status: 500,
+        message: 'Property not created!',
+      });
+      expect(mockedUserService.updateUserRoleToLandlord).not.toHaveBeenCalled();
+    });
+
+    it('should call create property method with correct params and update user role to landlord', async () => {
+      propertyService.getMyPropertyNames = jest
+        .fn()
+        .mockResolvedValue(['My apartment']);
+      const propertyData = {
+        ...mockCreatePropertyDto,
+        name: 'New apartment',
+        userId: 100,
+      };
       jest
         .spyOn(mockedPrismaClient.property, 'create')
         .mockResolvedValue(mockCreatedProperty);
 
-      await propertyService.createProperty(propertyData);
+      jest
+        .spyOn(mockedUserService, 'updateUserRoleToLandlord')
+        .mockResolvedValue(mockCreatedUser);
 
+      await propertyService.createProperty(propertyData);
       expect(mockedPrismaClient.property.create).toHaveBeenCalledWith({
         data: {
           ...propertyData,
         },
       });
+      expect(mockedUserService.updateUserRoleToLandlord).toHaveBeenCalledWith(
+        100,
+      );
     });
   });
 });

@@ -1,18 +1,19 @@
 import { PrismaClient } from '@prisma/client';
 import HttpException from 'exceptions/HttpException';
+import UserService from 'user/user.service';
 import { CreatePropertyDto, PropertyWithBookings } from './property.interface';
 
 class PropertyService {
+  private userService: UserService;
   private prisma: PrismaClient;
 
-  constructor(prisma: PrismaClient) {
+  constructor(userService: UserService, prisma: PrismaClient) {
+    this.userService = userService;
     this.prisma = prisma;
   }
 
   public getLatestProperties = async (userUid: string) => {
-    const currentUser = await this.prisma.user.findFirst({
-      where: { uuid: userUid },
-    });
+    const currentUser = await this.userService.findUserByUid(userUid);
 
     const latestProperties = await this.prisma.property.findMany({
       where: {
@@ -71,13 +72,16 @@ class PropertyService {
     if (myPropertyNames.includes(propertyData.name)) {
       throw new HttpException(400, 'Property name already exists!');
     }
-
     const property = await this.prisma.property.create({
       data: {
         ...propertyData,
       },
     });
-
+    if (property) {
+      await this.userService.updateUserRoleToLandlord(propertyData.userId);
+    } else {
+      throw new HttpException(500, 'Property not created!');
+    }
     return property;
   };
 

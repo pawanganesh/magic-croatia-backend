@@ -4,5 +4,5 @@ export type CreateUserDto = {
   firstName: string;
   lastName: string;
   avatar?: string;
-  uuid: string;
+  uid: string;
 };

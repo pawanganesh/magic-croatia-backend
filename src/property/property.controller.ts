@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import express, { NextFunction } from 'express';
 import authMiddleware from 'middleware/authMiddleware';
 import { RequestWithUserUid } from 'types/express/custom';
+import UserService from 'user/user.service';
 import validate from 'validation';
 import { createPropertySchema } from 'validation/property/createPropertySchema';
 import { CreatePropertyDto } from './property.interface';
@@ -10,7 +11,10 @@ import PropertyService from './property.service';
 class PropertyController {
   public path = '/properties';
   public router = express.Router();
-  public propertyService = new PropertyService(new PrismaClient());
+  public propertyService = new PropertyService(
+    new UserService(),
+    new PrismaClient(),
+  );
 
   constructor() {
     this.initializeRoutes();
