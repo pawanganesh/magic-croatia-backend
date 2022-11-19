@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { CreateFavoriteDto } from './favorite.interface';
+import { CreateFavoriteDto, DeleteFavoriteDto } from './favorite.interface';
 
 class FavoriteService {
   private prisma: PrismaClient;
@@ -24,6 +24,15 @@ class FavoriteService {
       },
     });
     return createdFavorite;
+  };
+
+  public deleteFavorite = async (favoriteDto: DeleteFavoriteDto) => {
+    const deletedFavorite = await this.prisma.favorites.delete({
+      where: {
+        userId_propertyId: { ...favoriteDto },
+      },
+    });
+    return deletedFavorite;
   };
 }
 

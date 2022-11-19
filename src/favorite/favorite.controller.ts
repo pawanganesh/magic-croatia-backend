@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import express from 'express';
-import { CreateFavoriteDto } from './favorite.interface';
+import { CreateFavoriteDto, DeleteFavoriteDto } from './favorite.interface';
 import FavoriteService from './favorite.service';
 
 class FavoriteController {
@@ -15,6 +15,7 @@ class FavoriteController {
   public initializeRoutes() {
     this.router.get(`${this.path}/:userId`, this.getAllFavoritesFromUser);
     this.router.post(`${this.path}`, this.createFavorite);
+    this.router.delete(`${this.path}`, this.deleteFavorite);
   }
 
   private getAllFavoritesFromUser = async (
@@ -26,6 +27,17 @@ class FavoriteController {
       userId,
     );
     return response.json(userFavorites);
+  };
+
+  private deleteFavorite = async (
+    request: express.Request,
+    response: express.Response,
+  ) => {
+    const favoriteDto: DeleteFavoriteDto = request.body;
+    const createdFavorite = await this.favoriteService.deleteFavorite(
+      favoriteDto,
+    );
+    return response.json(createdFavorite);
   };
 
   private createFavorite = async (
