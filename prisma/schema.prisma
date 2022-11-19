@@ -11,40 +11,42 @@ datasource db {
 }
 
 model User {
-  id         Int        @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   uid        String
-  email      String     @unique
+  email      String      @unique
   password   String
-  firstName  String     @map("first_name")
-  lastName   String     @map("last_name")
+  firstName  String      @map("first_name")
+  lastName   String      @map("last_name")
   avatar     String?
-  createdAt  DateTime   @default(now()) @map("created_at")
-  updatedAt  DateTime   @default(now()) @map("updated_at")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @default(now()) @map("updated_at")
   bookings   Booking[]
   properties Property[]
-  role       Role       @default(CUSTOMER)
+  role       Role        @default(CUSTOMER)
+  Favorites  Favorites[]
 
   @@map("users")
 }
 
 model Property {
-  id               Int       @id @default(autoincrement())
+  id               Int         @id @default(autoincrement())
   name             String
   description      String
-  featuredImageUrl String    @map("featured_image_url")
+  featuredImageUrl String      @map("featured_image_url")
   gallery          String[]
-  user             User      @relation(fields: [userId], references: [id])
-  userId           Int       @map("user_id")
+  user             User        @relation(fields: [userId], references: [id])
+  userId           Int         @map("user_id")
   bookings         Booking[]
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @default(now()) @map("updated_at")
-  pricePerNight    Decimal   @map("price_per_night")
+  createdAt        DateTime    @default(now()) @map("created_at")
+  updatedAt        DateTime    @default(now()) @map("updated_at")
+  pricePerNight    Decimal     @map("price_per_night")
   address          String
   latitude         Float
   longitude        Float
-  averageRating    Decimal   @default(0.00) @db.Decimal(10, 2)
-  numberOfReviews  Int       @default(0)
-  persons          Int       @default(1)
+  averageRating    Decimal     @default(0.00) @db.Decimal(10, 2)
+  numberOfReviews  Int         @default(0)
+  persons          Int         @default(1)
+  Favorites        Favorites[]
 
   @@map("properties")
 }
@@ -65,6 +67,18 @@ model Booking {
   review     String?
 
   @@map("bookings")
+}
+
+model Favorites {
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
+  property   Property @relation(fields: [propertyId], references: [id])
+  propertyId Int
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @map("updated_at")
+
+  @@id([userId, propertyId])
+  @@map("favorites")
 }
 
 enum Role {

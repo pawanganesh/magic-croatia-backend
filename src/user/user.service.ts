@@ -57,8 +57,6 @@ class UserService {
   };
 
   public createUser = async (userData: CreateUserDto) => {
-    console.log({ userData });
-
     const createdUser = await this.prisma.user.create({
       data: {
         ...userData,
