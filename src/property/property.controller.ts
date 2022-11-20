@@ -5,7 +5,7 @@ import { RequestWithUserUid } from 'types/express/custom';
 import UserService from 'user/user.service';
 import validate from 'validation';
 import { createPropertySchema } from 'validation/property/createPropertySchema';
-import { CreatePropertyDto } from './property.interface';
+import { CreatePropertyDto, PropertySearchParams } from './property.interface';
 import PropertyService from './property.service';
 
 class PropertyController {
@@ -31,6 +31,11 @@ class PropertyController {
       `${this.path}/personal/:userId/names`,
       this.getMyPropertyNames,
     );
+    this.router.get(
+      `${this.path}/search`,
+      authMiddleware,
+      this.getPropertiesFromSearch,
+    );
     this.router.get(`${this.path}/:id`, this.getProperty);
     this.router.post(
       this.path,
@@ -38,6 +43,19 @@ class PropertyController {
       this.createProperty,
     );
   }
+
+  private getPropertiesFromSearch = async (
+    request: RequestWithUserUid,
+    response: express.Response,
+    next: NextFunction,
+  ) => {
+    const params: PropertySearchParams =
+      request.query as unknown as PropertySearchParams;
+    const userUid = request.userUid;
+    const searchedProperties =
+      await this.propertyService.getPropertiesFromSearch(params, userUid);
+    return response.json(searchedProperties);
+  };
 
   private getLatestProperties = async (
     request: RequestWithUserUid,

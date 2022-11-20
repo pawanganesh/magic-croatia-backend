@@ -1,7 +1,12 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Property } from '@prisma/client';
 import HttpException from 'exceptions/HttpException';
+import { InfiniteScrollResponse } from 'types/express/custom';
 import UserService from 'user/user.service';
-import { CreatePropertyDto, PropertyWithBookings } from './property.interface';
+import {
+  CreatePropertyDto,
+  PropertySearchParams,
+  PropertyWithBookings,
+} from './property.interface';
 
 class PropertyService {
   private userService: UserService;
@@ -21,13 +26,52 @@ class PropertyService {
           userId: currentUser.id,
         },
       },
-      take: 10,
+      take: 5,
       orderBy: {
         createdAt: 'desc',
       },
     });
 
     return latestProperties;
+  };
+
+  public getPropertiesFromSearch = async (
+    params: PropertySearchParams,
+    userUid: string,
+  ): Promise<InfiniteScrollResponse<Property>> => {
+    const currentUser = await this.userService.findUserByUid(userUid);
+    const { search, take, cursor } = params;
+    const parsedTake = +take;
+    const parsedCursor = cursor ? { id: +cursor } : undefined;
+    const skip = cursor ? 1 : 0;
+
+    const properties = await this.prisma.property.findMany({
+      take: parsedTake,
+      cursor: parsedCursor,
+      skip,
+      where: {
+        AND: [
+          {
+            address: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+          {
+            NOT: {
+              userId: currentUser.id,
+            },
+          },
+        ],
+      },
+      orderBy: {
+        id: 'asc',
+      },
+    });
+
+    const lastProperty = properties[take - 1];
+    const nextCursor = lastProperty ? { id: lastProperty.id } : null;
+    return { items: properties, nextCursor };
   };
 
   public getProperty = async (

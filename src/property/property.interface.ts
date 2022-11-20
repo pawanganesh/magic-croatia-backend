@@ -19,3 +19,9 @@ export interface PropertyWithBookings extends Property {
     review: string;
   }[];
 }
+
+export interface PropertySearchParams {
+  search: string;
+  take: number;
+  cursor?: Prisma.PropertyWhereUniqueInput;
+}
