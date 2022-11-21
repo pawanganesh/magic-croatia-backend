@@ -22,6 +22,5 @@ export interface PropertyWithBookings extends Property {
 
 export interface PropertySearchParams {
   search: string;
-  take: number;
   cursor?: Prisma.PropertyWhereUniqueInput;
 }

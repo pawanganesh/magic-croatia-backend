@@ -11,6 +11,7 @@ import {
 class PropertyService {
   private userService: UserService;
   private prisma: PrismaClient;
+  private PER_PAGE = 5;
 
   constructor(userService: UserService, prisma: PrismaClient) {
     this.userService = userService;
@@ -40,13 +41,14 @@ class PropertyService {
     userUid: string,
   ): Promise<InfiniteScrollResponse<Property>> => {
     const currentUser = await this.userService.findUserByUid(userUid);
-    const { search, take, cursor } = params;
-    const parsedTake = +take;
-    const parsedCursor = cursor ? { id: +cursor } : undefined;
-    const skip = cursor ? 1 : 0;
+
+    const take = this.PER_PAGE;
+    const { search, cursor } = params;
+    const parsedCursor = { id: +cursor };
+    const skip = parsedCursor.id > 1 ? 1 : 0;
 
     const properties = await this.prisma.property.findMany({
-      take: parsedTake,
+      take,
       cursor: parsedCursor,
       skip,
       where: {
