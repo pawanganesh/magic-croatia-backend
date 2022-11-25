@@ -13,7 +13,6 @@ async function authMiddleware(
       const token = await AuthService.admin
         .auth()
         .verifyIdToken(request.headers.authtoken as string);
-      console.log({ token });
       request.userUid = token.uid;
       next();
     } catch (_) {

@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import express, { NextFunction } from 'express';
+import authMiddleware from 'middleware/authMiddleware';
 import PropertyService from 'property/property.service';
+import { RequestWithUserUid } from 'types/express/custom';
 import UserService from 'user/user.service';
 import validate from 'validation';
 import { createBookingSchema } from 'validation/booking/createBookingSchema';
@@ -13,6 +15,7 @@ class BookingController {
   public router = express.Router();
   private bookingService = new BookingService(
     new PropertyService(new UserService(), new PrismaClient()),
+    new UserService(),
     new PrismaClient(),
   );
 
@@ -31,9 +34,14 @@ class BookingController {
       validate(createBookingSchema),
       this.createBooking,
     );
+    this.router.get(
+      `${this.path}/:propertyId/reviews`,
+      this.getReviewsForProperty,
+    );
     this.router.post(
       `${this.path}/:id/review`,
       validate(createReviewSchema),
+      authMiddleware,
       this.createReview,
     );
   }
@@ -45,6 +53,17 @@ class BookingController {
     const userId: number = +request.params.userId;
     const myBookings = await this.bookingService.getMyBookings(userId);
     return response.json(myBookings);
+  };
+
+  private getReviewsForProperty = async (
+    request: express.Request,
+    response: express.Response,
+  ) => {
+    const propertyId: number = +request.params.propertyId;
+    const propertyReviews = await this.bookingService.getReviewsForProperty(
+      propertyId,
+    );
+    return response.json(propertyReviews);
   };
 
   private getFutureBookingsForProperty = async (
@@ -72,16 +91,17 @@ class BookingController {
   };
 
   private createReview = async (
-    request: express.Request,
+    request: RequestWithUserUid,
     response: express.Response,
     next: NextFunction,
   ) => {
     const reviewData: ReviewData = request.body;
     const bookingId = +request.params.id;
-    const userId = 4;
     try {
-      await this.bookingService.validateBookingReview(bookingId, userId);
-
+      await this.bookingService.validateBookingReview(
+        bookingId,
+        request.userUid,
+      );
       const updatedBooking = await this.bookingService.createBookingReview(
         bookingId,
         reviewData,

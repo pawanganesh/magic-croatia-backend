@@ -2,16 +2,33 @@ import BookingService from './booking.service';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { addDays } from 'date-fns';
 import PropertyService from 'property/property.service';
-import { mockBookingData, mockCreatedBooking, mockPropertyWithBookings } from './mocks/booking';
+import {
+  mockBookingData,
+  mockCreatedBooking,
+  mockPropertyWithBookings,
+} from './mocks/booking';
 import { calculateBookingCost } from './utils';
 import { CreateBookingDto } from './booking.interface';
+import UserService from 'user/user.service';
 
 describe('Booking service tests', () => {
-  const mockedPropertyService = new (<new () => PropertyService>PropertyService)() as jest.Mocked<PropertyService>;
+  const mockedPropertyService = new (<new () => PropertyService>(
+    PropertyService
+  ))() as jest.Mocked<PropertyService>;
 
-  const mockedPrismaClient = new (<new () => PrismaClient>PrismaClient)() as jest.Mocked<PrismaClient>;
+  const mockedPrismaClient = new (<new () => PrismaClient>(
+    PrismaClient
+  ))() as jest.Mocked<PrismaClient>;
 
-  const bookingService = new BookingService(mockedPropertyService, mockedPrismaClient);
+  const mockedUserService = new (<new () => UserService>(
+    UserService
+  ))() as jest.Mocked<UserService>;
+
+  const bookingService = new BookingService(
+    mockedPropertyService,
+    mockedUserService,
+    mockedPrismaClient,
+  );
   bookingService.getFutureBookingsForProperty = jest.fn().mockResolvedValue([]);
 
   const today = new Date();
@@ -47,7 +64,9 @@ describe('Booking service tests', () => {
       };
       bookingService.getFutureBookingsForProperty = jest
         .fn()
-        .mockResolvedValue([{ id: 1, startDate: addDays(today, 2), endDate: addDays(today, 4) }]);
+        .mockResolvedValue([
+          { id: 1, startDate: addDays(today, 2), endDate: addDays(today, 4) },
+        ]);
 
       expect(bookingService.createBooking(bookingData)).rejects.toMatchObject({
         message: 'Chosen dates for this property are not available!',
@@ -111,7 +130,9 @@ describe('Booking service tests', () => {
       totalPrice: new Prisma.Decimal(719.93),
     };
 
-    jest.spyOn(mockedPrismaClient.booking, 'create').mockResolvedValue(mockCreatedBooking);
+    jest
+      .spyOn(mockedPrismaClient.booking, 'create')
+      .mockResolvedValue(mockCreatedBooking);
 
     jest.spyOn(mockedPropertyService, 'getProperty').mockResolvedValue({
       ...mockPropertyWithBookings,

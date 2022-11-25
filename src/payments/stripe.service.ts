@@ -14,6 +14,7 @@ class StripeService {
   );
   private bookingService = new BookingService(
     this.propertyService,
+    new UserService(),
     new PrismaClient(),
   );
 
