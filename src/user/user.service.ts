@@ -9,16 +9,31 @@ class UserService {
     this.prisma = prisma;
   }
 
-  public findUserById = async (userId: number) => {
-    const foundUser = await this.prisma.user.findFirst({
+  public updateUserAvatar = async (
+    userId: number,
+    avatar: string | undefined,
+  ) => {
+    const updatedUser = await this.prisma.user.update({
       where: {
         id: userId,
       },
+      data: {
+        avatar,
+      },
     });
-    if (!foundUser) {
-      throw new HttpException(404, `User with id ${userId} not found.`);
+    if (!updatedUser) {
+      throw new HttpException(400, 'Could not update user avatar!');
     }
-    return foundUser;
+    return updatedUser;
+  };
+
+  public createUser = async (userData: CreateUserDto) => {
+    const createdUser = await this.prisma.user.create({
+      data: {
+        ...userData,
+      },
+    });
+    return createdUser;
   };
 
   public findUserByUid = async (userUid: string) => {
@@ -47,38 +62,6 @@ class UserService {
       );
     }
     return updatedUser;
-  };
-
-  public updateUserAvatar = async (
-    userId: number,
-    avatar: string | undefined,
-  ) => {
-    const updatedUser = await this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        avatar,
-      },
-    });
-    if (!updatedUser) {
-      throw new HttpException(400, 'Could not update user avatar!');
-    }
-    return updatedUser;
-  };
-
-  public getAllUsers = async () => {
-    const users = await this.prisma.user.findMany();
-    return users;
-  };
-
-  public createUser = async (userData: CreateUserDto) => {
-    const createdUser = await this.prisma.user.create({
-      data: {
-        ...userData,
-      },
-    });
-    return createdUser;
   };
 }
 
