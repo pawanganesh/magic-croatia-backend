@@ -34,55 +34,11 @@ class PropertyService {
     return latestProperties;
   };
 
-  public getProperty = async (
-    propertyId: number,
-  ): Promise<PropertyWithReviews> => {
-    const property = await this.prisma.property.findFirst({
-      where: { id: propertyId },
-      include: {
-        reviews: {
-          select: {
-            rating: true,
-            reviewText: true,
-          },
-          take: 5,
-        },
-      },
-    });
-    if (!property) {
-      throw new HttpException(404, `Property #${propertyId} not found!`);
-    }
-
-    return property;
-  };
-
   public getUserProperties = async (userId: number) => {
     const properties = await this.prisma.property.findMany({
       where: { userId },
     });
     return properties;
-  };
-
-  public createProperty = async (createPropertyDto: CreatePropertyDto) => {
-    const userProperties = await this.getUserProperties(
-      createPropertyDto.userId,
-    );
-    const userPropertyNames = userProperties.map((property) => property.name);
-    if (userPropertyNames.includes(createPropertyDto.name)) {
-      throw new HttpException(400, 'Property name already exists!');
-    }
-
-    const property = await this.prisma.property.create({
-      data: {
-        ...createPropertyDto,
-      },
-    });
-    if (property) {
-      await this.userService.updateUserRoleToLandlord(createPropertyDto.userId);
-    } else {
-      throw new HttpException(500, 'Property not created!');
-    }
-    return property;
   };
 
   public getSearchProperties = async (
@@ -122,6 +78,51 @@ class PropertyService {
     const lastProperty = properties[take - 1];
     const nextCursor = lastProperty ? { id: lastProperty.id } : null;
     return { items: properties, nextCursor };
+  };
+
+  public getProperty = async (
+    propertyId: number,
+  ): Promise<PropertyWithReviews> => {
+    const property = await this.prisma.property.findFirst({
+      where: { id: propertyId },
+      include: {
+        reviews: {
+          select: {
+            rating: true,
+            reviewText: true,
+          },
+          take: 5,
+        },
+      },
+    });
+    if (!property) {
+      throw new HttpException(404, `Property #${propertyId} not found!`);
+    }
+    return property;
+  };
+
+  public createProperty = async (
+    createPropertyDto: CreatePropertyDto & { userId: number },
+  ) => {
+    const userProperties = await this.getUserProperties(
+      createPropertyDto.userId,
+    );
+    const userPropertyNames = userProperties.map((property) => property.name);
+    if (userPropertyNames.includes(createPropertyDto.name)) {
+      throw new HttpException(400, 'Property name already exists!');
+    }
+
+    const property = await this.prisma.property.create({
+      data: {
+        ...createPropertyDto,
+      },
+    });
+    if (property) {
+      await this.userService.updateUserRoleToLandlord(createPropertyDto.userId);
+    } else {
+      throw new HttpException(500, 'Property not created!');
+    }
+    return property;
   };
 
   public calculatePropertyAverageRating = async (propertyId: number) => {

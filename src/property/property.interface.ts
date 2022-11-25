@@ -9,7 +9,6 @@ export interface CreatePropertyDto {
   pricePerNight: number;
   latitude: number;
   longitude: number;
-  userId: number;
   persons: number;
 }
 

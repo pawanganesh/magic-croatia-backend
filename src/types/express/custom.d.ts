@@ -1,6 +1,6 @@
 import { Request } from 'express';
 
-export interface RequestWithUserUid extends Request {
+export interface RequestWithUserId extends Request {
   userId: number;
 }
 

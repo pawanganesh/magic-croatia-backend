@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import express, { NextFunction } from 'express';
+import authMiddleware from 'middleware/authMiddleware';
 import PropertyService from 'property/property.service';
+import { RequestWithUserId } from 'types/express/custom';
 import UserService from 'user/user.service';
 import validate from 'validation';
 import { createBookingSchema } from 'validation/booking/createBookingSchema';
@@ -23,23 +25,28 @@ class BookingController {
   }
 
   public initializeRoutes() {
-    this.router.get(`${this.path}/users/:userId`, this.getUserBookings);
+    this.router.get(
+      `${this.path}/users/me`,
+      authMiddleware,
+      this.getUserBookings,
+    );
     this.router.get(
       `${this.path}/future/properties/:propertyId`,
       this.getFuturePropertyBookings,
     );
     this.router.post(
       this.path,
+      authMiddleware,
       validate(createBookingSchema),
       this.createBooking,
     );
   }
 
   private getUserBookings = async (
-    request: express.Request,
+    request: RequestWithUserId,
     response: express.Response,
   ) => {
-    const userId: number = +request.params.userId;
+    const userId: number = +request.userId;
     const myBookings = await this.bookingService.getUserBookings(userId);
     return response.json(myBookings);
   };
@@ -55,13 +62,17 @@ class BookingController {
   };
 
   private createBooking = async (
-    request: express.Request,
+    request: RequestWithUserId,
     response: express.Response,
     next: NextFunction,
   ) => {
     const bookingData: CreateBookingDto = request.body;
+    const userId: number = request.userId;
     try {
-      const booking = await this.bookingService.createBooking(bookingData);
+      const booking = await this.bookingService.createBooking({
+        ...bookingData,
+        userId,
+      });
       return response.json(booking);
     } catch (err) {
       next(err);

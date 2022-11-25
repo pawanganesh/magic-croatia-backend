@@ -33,7 +33,9 @@ describe('Booking service tests', () => {
         ...mockBookingData,
         startDate: today,
       };
-      expect(bookingService.createBooking(bookingData)).rejects.toMatchObject({
+      expect(
+        bookingService.createBooking({ ...bookingData, userId: 1 }),
+      ).rejects.toMatchObject({
         message: 'Invalid start date!',
         status: 400,
       });
@@ -44,7 +46,9 @@ describe('Booking service tests', () => {
         ...mockBookingData,
         endDate: mockBookingData.startDate,
       };
-      expect(bookingService.createBooking(bookingData)).rejects.toMatchObject({
+      expect(
+        bookingService.createBooking({ ...bookingData, userId: 1 }),
+      ).rejects.toMatchObject({
         message: 'Invalid end date!',
         status: 400,
       });
@@ -62,7 +66,9 @@ describe('Booking service tests', () => {
           { id: 1, startDate: addDays(today, 2), endDate: addDays(today, 4) },
         ]);
 
-      expect(bookingService.createBooking(bookingData)).rejects.toMatchObject({
+      expect(
+        bookingService.createBooking({ ...bookingData, userId: 1 }),
+      ).rejects.toMatchObject({
         message: 'Chosen dates for this property are not available!',
         status: 400,
       });
@@ -80,7 +86,9 @@ describe('Booking service tests', () => {
       persons: 4,
     });
 
-    expect(bookingService.createBooking(bookingData)).rejects.toMatchObject({
+    expect(
+      bookingService.createBooking({ ...bookingData, userId: 1 }),
+    ).rejects.toMatchObject({
       message: `Maximum number of people for this property is ${mockPropertyWithBookings.persons}`,
       status: 400,
     });
@@ -108,7 +116,9 @@ describe('Booking service tests', () => {
     }).toString();
 
     expect(bookedPrice).toBe('719.93');
-    expect(bookingService.createBooking(bookingData)).rejects.toMatchObject({
+    expect(
+      bookingService.createBooking({ ...bookingData, userId: 1 }),
+    ).rejects.toMatchObject({
       message: `Calculated price is not the same!`,
       status: 400,
     });
@@ -134,7 +144,7 @@ describe('Booking service tests', () => {
       id: 1,
     });
 
-    await bookingService.createBooking(bookingData);
+    await bookingService.createBooking({ ...bookingData, userId: 1 });
     expect(mockedPrismaClient.booking.create).toHaveBeenCalledWith({
       data: {
         totalPrice: bookingData.totalPrice,

@@ -57,7 +57,7 @@ describe('Booking service tests', () => {
 
       const propertyData = { ...mockCreatePropertyDto, name: 'My apartment' };
       expect(
-        propertyService.createProperty(propertyData),
+        propertyService.createProperty({ ...propertyData, userId: 10 }),
       ).rejects.toMatchObject({
         status: 400,
         message: 'Property name already exists!',

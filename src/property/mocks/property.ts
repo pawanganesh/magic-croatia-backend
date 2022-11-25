@@ -14,7 +14,6 @@ export const mockCreatePropertyDto: CreatePropertyDto = {
   pricePerNight: 199.99,
   latitude: 43.446999,
   longitude: 16.692384,
-  userId: 10,
   persons: 4,
 };
 

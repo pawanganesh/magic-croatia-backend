@@ -58,7 +58,9 @@ class BookingService {
     return futurePropertyBookings;
   };
 
-  public createBooking = async (bookingData: CreateBookingDto) => {
+  public createBooking = async (
+    bookingData: CreateBookingDto & { userId: number },
+  ) => {
     const {
       totalPrice,
       adultsCount,

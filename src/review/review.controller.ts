@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import express, { NextFunction } from 'express';
 import authMiddleware from 'middleware/authMiddleware';
 import PropertyService from 'property/property.service';
-import { RequestWithUserUid } from 'types/express/custom';
+import { RequestWithUserId } from 'types/express/custom';
 import UserService from 'user/user.service';
 import validate from 'validation';
 import { createReviewSchema } from 'validation/review/createReviewSchema';
@@ -49,7 +49,7 @@ class ReviewController {
   };
 
   private createReview = async (
-    request: RequestWithUserUid,
+    request: RequestWithUserId,
     response: express.Response,
     next: NextFunction,
   ) => {

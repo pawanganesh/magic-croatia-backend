@@ -11,6 +11,5 @@ export const createPropertySchema = [
   body('pricePerNight').isFloat().withMessage('Provide price per night'),
   body('latitude').isFloat().withMessage('Provide latitude'),
   body('longitude').isFloat().withMessage('Provide longitude'),
-  body('userId').isInt().withMessage('User ID in required'),
   body('persons').isInt().withMessage('No. of persons is required'),
 ];

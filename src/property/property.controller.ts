@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import express, { NextFunction } from 'express';
 import authMiddleware from 'middleware/authMiddleware';
-import { RequestWithUserUid } from 'types/express/custom';
+import { RequestWithUserId } from 'types/express/custom';
 import UserService from 'user/user.service';
 import validate from 'validation';
 import { createPropertySchema } from 'validation/property/createPropertySchema';
@@ -26,14 +26,8 @@ class PropertyController {
       authMiddleware,
       this.getLatestProperties,
     );
-    this.router.get(`${this.path}/:id`, this.getProperty);
-    this.router.post(
-      this.path,
-      validate(createPropertySchema),
-      this.createProperty,
-    );
     this.router.get(
-      `${this.path}/users/:userId`,
+      `${this.path}/users/me`,
       authMiddleware,
       this.getUserProperties,
     );
@@ -41,11 +35,18 @@ class PropertyController {
       `${this.path}/search`,
       authMiddleware,
       this.getSearchProperties,
+    ),
+      this.router.get(`${this.path}/:id`, this.getProperty);
+    this.router.post(
+      this.path,
+      authMiddleware,
+      validate(createPropertySchema),
+      this.createProperty,
     );
   }
 
   private getLatestProperties = async (
-    request: RequestWithUserUid,
+    request: RequestWithUserId,
     response: express.Response,
     next: NextFunction,
   ) => {
@@ -54,6 +55,39 @@ class PropertyController {
         request.userId,
       );
       return response.json(latestProperties);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  private getUserProperties = async (
+    request: RequestWithUserId,
+    response: express.Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const userId = +request.userId;
+      const properties = await this.propertyService.getUserProperties(userId);
+      return response.json(properties);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  private getSearchProperties = async (
+    request: RequestWithUserId,
+    response: express.Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const params: PropertySearchParams =
+        request.query as unknown as PropertySearchParams;
+      const userId = +request.userId;
+      const searchedProperties = await this.propertyService.getSearchProperties(
+        params,
+        userId,
+      );
+      return response.json(searchedProperties);
     } catch (err) {
       next(err);
     }
@@ -74,49 +108,18 @@ class PropertyController {
   };
 
   private createProperty = async (
-    request: express.Request,
+    request: RequestWithUserId,
     response: express.Response,
     next: NextFunction,
   ) => {
     const createPropertyDto: CreatePropertyDto = request.body;
+    const userId: number = request.userId;
     try {
-      const property = await this.propertyService.createProperty(
-        createPropertyDto,
-      );
-      return response.json(property);
-    } catch (err) {
-      next(err);
-    }
-  };
-
-  private getUserProperties = async (
-    request: RequestWithUserUid,
-    response: express.Response,
-    next: NextFunction,
-  ) => {
-    try {
-      const userId = +request.userId;
-      const properties = await this.propertyService.getUserProperties(userId);
-      return response.json(properties);
-    } catch (err) {
-      next(err);
-    }
-  };
-
-  private getSearchProperties = async (
-    request: RequestWithUserUid,
-    response: express.Response,
-    next: NextFunction,
-  ) => {
-    try {
-      const params: PropertySearchParams =
-        request.query as unknown as PropertySearchParams;
-      const userId = +request.userId;
-      const searchedProperties = await this.propertyService.getSearchProperties(
-        params,
+      const property = await this.propertyService.createProperty({
+        ...createPropertyDto,
         userId,
-      );
-      return response.json(searchedProperties);
+      });
+      return response.json(property);
     } catch (err) {
       next(err);
     }

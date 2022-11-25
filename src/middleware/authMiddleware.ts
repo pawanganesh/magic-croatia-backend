@@ -2,11 +2,11 @@ import { PrismaClient } from '@prisma/client';
 import HttpException from 'exceptions/HttpException';
 import { NextFunction, Response } from 'express';
 import AuthService from 'services/authService';
-import { RequestWithUserUid } from 'types/express/custom';
+import { RequestWithUserId } from 'types/express/custom';
 import UserService from 'user/user.service';
 
 async function authMiddleware(
-  request: RequestWithUserUid,
+  request: RequestWithUserId,
   response: Response,
   next: NextFunction,
 ) {
