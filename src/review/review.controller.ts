@@ -3,6 +3,7 @@ import express, { NextFunction } from 'express';
 import authMiddleware from 'middleware/authMiddleware';
 import PropertyService from 'property/property.service';
 import { RequestWithUserUid } from 'types/express/custom';
+import UserService from 'user/user.service';
 import validate from 'validation';
 import { createReviewSchema } from 'validation/review/createReviewSchema';
 import { CreateReviewDto } from './review.interface';
@@ -13,7 +14,10 @@ class ReviewController {
   public router = express.Router();
   public reviewService = new ReviewService(
     new PrismaClient(),
-    new PropertyService(new PrismaClient()),
+    new PropertyService(
+      new PrismaClient(),
+      new UserService(new PrismaClient()),
+    ),
   );
 
   constructor() {
