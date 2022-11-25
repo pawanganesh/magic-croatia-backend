@@ -9,27 +9,21 @@ import {
 } from './mocks/booking';
 import { calculateBookingCost } from './utils';
 import { CreateBookingDto } from './booking.interface';
-import UserService from 'user/user.service';
+
+const mockedPrismaClient = new (<new () => PrismaClient>(
+  PrismaClient
+))() as jest.Mocked<PrismaClient>;
 
 describe('Booking service tests', () => {
   const mockedPropertyService = new (<new () => PropertyService>(
     PropertyService
   ))() as jest.Mocked<PropertyService>;
 
-  const mockedPrismaClient = new (<new () => PrismaClient>(
-    PrismaClient
-  ))() as jest.Mocked<PrismaClient>;
-
-  const mockedUserService = new (<new () => UserService>(
-    UserService
-  ))() as jest.Mocked<UserService>;
-
   const bookingService = new BookingService(
-    mockedPropertyService,
-    mockedUserService,
     mockedPrismaClient,
+    mockedPropertyService,
   );
-  bookingService.getFutureBookingsForProperty = jest.fn().mockResolvedValue([]);
+  bookingService.getFuturePropertyBookings = jest.fn().mockResolvedValue([]);
 
   const today = new Date();
 
@@ -62,7 +56,7 @@ describe('Booking service tests', () => {
         startDate: addDays(today, 3),
         endDate: addDays(today, 6),
       };
-      bookingService.getFutureBookingsForProperty = jest
+      bookingService.getFuturePropertyBookings = jest
         .fn()
         .mockResolvedValue([
           { id: 1, startDate: addDays(today, 2), endDate: addDays(today, 4) },

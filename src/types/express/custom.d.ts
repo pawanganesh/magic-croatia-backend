@@ -1,7 +1,7 @@
 import { Request } from 'express';
 
 export interface RequestWithUserUid extends Request {
-  userUid: string;
+  userId: number;
 }
 
 export interface InfiniteScrollResponse<T> {

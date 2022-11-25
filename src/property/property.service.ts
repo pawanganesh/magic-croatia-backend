@@ -5,7 +5,7 @@ import UserService from 'user/user.service';
 import {
   CreatePropertyDto,
   PropertySearchParams,
-  PropertyWithBookings,
+  PropertyWithReviews,
 } from './property.interface';
 
 class PropertyService {
@@ -13,37 +13,85 @@ class PropertyService {
   private prisma: PrismaClient;
   private PER_PAGE = 5;
 
-  constructor(userService: UserService, prisma: PrismaClient) {
-    this.userService = userService;
+  constructor(prisma: PrismaClient, userService: UserService) {
     this.prisma = prisma;
+    this.userService = userService;
   }
 
-  public getLatestProperties = async (userUid: string) => {
-    const currentUser = await this.userService.findUserByUid(userUid);
-
+  public getLatestProperties = async (userId: number) => {
     const latestProperties = await this.prisma.property.findMany({
       where: {
         NOT: {
-          userId: currentUser.id,
+          userId,
         },
       },
       take: 5,
       orderBy: {
-        createdAt: 'desc',
+        id: 'asc',
       },
     });
 
     return latestProperties;
   };
 
-  public getPropertiesFromSearch = async (
-    params: PropertySearchParams,
-    userUid: string,
-  ): Promise<InfiniteScrollResponse<Property>> => {
-    const currentUser = await this.userService.findUserByUid(userUid);
+  public getProperty = async (
+    propertyId: number,
+  ): Promise<PropertyWithReviews> => {
+    const property = await this.prisma.property.findFirst({
+      where: { id: propertyId },
+      include: {
+        reviews: {
+          select: {
+            rating: true,
+            reviewText: true,
+          },
+          take: 5,
+        },
+      },
+    });
+    if (!property) {
+      throw new HttpException(404, `Property #${propertyId} not found!`);
+    }
 
+    return property;
+  };
+
+  public getUserProperties = async (userId: number) => {
+    const properties = await this.prisma.property.findMany({
+      where: { userId },
+    });
+    return properties;
+  };
+
+  public createProperty = async (createPropertyDto: CreatePropertyDto) => {
+    const userProperties = await this.getUserProperties(
+      createPropertyDto.userId,
+    );
+    const userPropertyNames = userProperties.map((property) => property.name);
+    if (userPropertyNames.includes(createPropertyDto.name)) {
+      throw new HttpException(400, 'Property name already exists!');
+    }
+
+    const property = await this.prisma.property.create({
+      data: {
+        ...createPropertyDto,
+      },
+    });
+    if (property) {
+      await this.userService.updateUserRoleToLandlord(createPropertyDto.userId);
+    } else {
+      throw new HttpException(500, 'Property not created!');
+    }
+    return property;
+  };
+
+  public getSearchProperties = async (
+    params: PropertySearchParams,
+    userId: number,
+  ): Promise<InfiniteScrollResponse<Property>> => {
     const take = this.PER_PAGE;
     const { search, cursor } = params;
+    const parsedUserId = +userId;
     const parsedCursor = { id: +cursor };
     const skip = parsedCursor.id > 1 ? 1 : 0;
 
@@ -61,7 +109,7 @@ class PropertyService {
           },
           {
             NOT: {
-              userId: currentUser.id,
+              userId: parsedUserId,
             },
           },
         ],
@@ -76,66 +124,11 @@ class PropertyService {
     return { items: properties, nextCursor };
   };
 
-  public getProperty = async (
-    propertyId: number,
-  ): Promise<PropertyWithBookings> => {
-    const property = await this.prisma.property.findFirst({
-      where: { id: propertyId },
-      include: {
-        bookings: {
-          select: {
-            rating: true,
-            review: true,
-          },
-          take: 5,
-        },
-      },
-    });
-    if (!property) {
-      throw new HttpException(404, `Property #${propertyId} not found!`);
-    }
-
-    return property;
-  };
-
-  public getMyProperties = async (userId: number) => {
-    const properties = await this.prisma.property.findMany({
-      where: { userId },
-    });
-    return properties;
-  };
-
-  public getMyPropertyNames = async (userId: number) => {
-    const propertyNames = await this.prisma.property.findMany({
-      where: { userId },
-      select: { name: true },
-    });
-    return propertyNames.map((p) => p.name);
-  };
-
-  public createProperty = async (propertyData: CreatePropertyDto) => {
-    const myPropertyNames = await this.getMyPropertyNames(propertyData.userId);
-    if (myPropertyNames.includes(propertyData.name)) {
-      throw new HttpException(400, 'Property name already exists!');
-    }
-    const property = await this.prisma.property.create({
-      data: {
-        ...propertyData,
-      },
-    });
-    if (property) {
-      await this.userService.updateUserRoleToLandlord(propertyData.userId);
-    } else {
-      throw new HttpException(500, 'Property not created!');
-    }
-    return property;
-  };
-
   public calculatePropertyAverageRating = async (propertyId: number) => {
     const propertyBookings = await this.prisma.property.findFirst({
       where: { id: propertyId },
       include: {
-        bookings: {
+        reviews: {
           select: {
             rating: true,
           },
@@ -143,19 +136,19 @@ class PropertyService {
       },
     });
 
-    const totalRating = propertyBookings.bookings.reduce(
+    const totalRating = propertyBookings.reviews.reduce(
       (acc, item) => acc + parseFloat(item.rating.toString()),
       0,
     );
 
-    const averageRating = totalRating / propertyBookings.bookings.length;
+    const averageRating = totalRating / propertyBookings.reviews.length;
     await this.prisma.property.update({
       where: { id: propertyId },
       data: {
         averageRating: parseFloat(
           parseFloat(averageRating.toString()).toFixed(2),
         ),
-        numberOfReviews: propertyBookings.bookings.length,
+        numberOfReviews: propertyBookings.reviews.length,
       },
     });
   };

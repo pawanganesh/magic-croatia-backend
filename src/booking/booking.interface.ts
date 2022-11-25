@@ -10,11 +10,6 @@ export type CreateBookingDto = {
   userId: number;
 };
 
-export type ReviewData = {
-  review: string;
-  rating: number;
-};
-
 export interface FutureBookingsForProperty {
   id: number;
   startDate: Date;

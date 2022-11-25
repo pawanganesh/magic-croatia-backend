@@ -15,21 +15,21 @@ describe('Booking service tests', () => {
   ))() as jest.Mocked<UserService>;
 
   const propertyService = new PropertyService(
-    mockedUserService,
     mockedPrismaClient,
+    mockedUserService,
   );
 
   describe('Calculate property average rating', () => {
     it('should return correct average rating', async () => {
       jest.spyOn(mockedPrismaClient.property, 'findFirst').mockResolvedValue({
         ...mockCreatedProperty,
-        bookings: [
+        reviews: [
           { rating: new Prisma.Decimal(2.5) },
           { rating: new Prisma.Decimal(4.0) },
           { rating: new Prisma.Decimal(5.0) },
         ],
       } as Property & {
-        bookings: {
+        reviews: {
           rating: Decimal;
         }[];
       });
@@ -51,9 +51,9 @@ describe('Booking service tests', () => {
 
   describe('Create property', () => {
     it('should throw when property already exists in my properties', async () => {
-      propertyService.getMyPropertyNames = jest
+      propertyService.getUserProperties = jest
         .fn()
-        .mockResolvedValue(['My apartment']);
+        .mockResolvedValue([{ name: 'My apartment' }]);
 
       const propertyData = { ...mockCreatePropertyDto, name: 'My apartment' };
       expect(
@@ -65,7 +65,7 @@ describe('Booking service tests', () => {
     });
 
     it('should throw when property is not created and not update user role to landlord', async () => {
-      propertyService.getMyPropertyNames = jest
+      propertyService.getUserProperties = jest
         .fn()
         .mockResolvedValue(['My apartment']);
       const propertyData = {
@@ -88,9 +88,9 @@ describe('Booking service tests', () => {
     });
 
     it('should call create property method with correct params and update user role to landlord', async () => {
-      propertyService.getMyPropertyNames = jest
+      propertyService.getUserProperties = jest
         .fn()
-        .mockResolvedValue(['My apartment']);
+        .mockResolvedValue([{ name: 'My apartment' }]);
       const propertyData = {
         ...mockCreatePropertyDto,
         name: 'New apartment',

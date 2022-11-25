@@ -1,13 +1,11 @@
-import { PrismaClient, Status } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import {
   CreateBookingDto,
   FutureBookingsForProperty,
   MyBooking,
-  ReviewData,
 } from './booking.interface';
 import HttpException from 'exceptions/HttpException';
 import PropertyService from 'property/property.service';
-import UserService from 'user/user.service';
 import { isBefore, isEqual } from 'date-fns';
 import {
   calculateBookingCost,
@@ -18,19 +16,13 @@ import {
 class BookingService {
   private prisma: PrismaClient;
   private propertyService: PropertyService;
-  private userService: UserService;
 
-  constructor(
-    propertyService: PropertyService,
-    userService: UserService,
-    prisma: PrismaClient,
-  ) {
-    this.propertyService = propertyService;
-    this.userService = userService;
+  constructor(prisma: PrismaClient, propertyService: PropertyService) {
     this.prisma = prisma;
+    this.propertyService = propertyService;
   }
 
-  public getMyBookings = async (userId: number): Promise<MyBooking[]> => {
+  public getUserBookings = async (userId: number): Promise<MyBooking[]> => {
     const myBookings = await this.prisma.booking.findMany({
       where: { userId },
       select: {
@@ -46,10 +38,10 @@ class BookingService {
     return myBookings;
   };
 
-  public getFutureBookingsForProperty = async (
+  public getFuturePropertyBookings = async (
     propertyId: number,
   ): Promise<FutureBookingsForProperty[]> => {
-    const futureBookings = await this.prisma.booking.findMany({
+    const futurePropertyBookings = await this.prisma.booking.findMany({
       where: {
         propertyId,
         startDate: {
@@ -63,7 +55,7 @@ class BookingService {
       },
     });
 
-    return futureBookings;
+    return futurePropertyBookings;
   };
 
   public createBooking = async (bookingData: CreateBookingDto) => {
@@ -96,7 +88,7 @@ class BookingService {
       throw new HttpException(400, 'Invalid end date!');
     }
 
-    const propertyFutureBookings = await this.getFutureBookingsForProperty(
+    const propertyFutureBookings = await this.getFuturePropertyBookings(
       propertyId,
     );
     const bookedDays = getBookedDays(propertyFutureBookings);
@@ -144,52 +136,6 @@ class BookingService {
       },
     });
     return booking;
-  };
-
-  public getReviewsForProperty = async (propertyId: number) => {
-    const propertyBookings = await this.prisma.booking.findMany({
-      where: {
-        propertyId,
-      },
-      select: {
-        review: true,
-        rating: true,
-      },
-    });
-    return propertyBookings;
-  };
-
-  public createBookingReview = async (
-    bookingId: number,
-    reviewData: ReviewData,
-  ) => {
-    const updatedBooking = await this.prisma.booking.update({
-      where: { id: bookingId },
-      data: {
-        review: reviewData.review,
-        rating: reviewData.rating,
-      },
-    });
-    await this.propertyService.calculatePropertyAverageRating(
-      updatedBooking.propertyId,
-    );
-    return updatedBooking;
-  };
-
-  public validateBookingReview = async (bookingId: number, userUid: string) => {
-    const foundUser = await this.userService.findUserByUid(userUid);
-    const affectedBooking = await this.prisma.booking.findFirst({
-      where: { id: bookingId },
-    });
-    if (affectedBooking.userId !== foundUser.id) {
-      throw new HttpException(400, 'This booking is not yours!');
-    }
-    if (affectedBooking.status !== Status.FINISHED) {
-      throw new HttpException(400, 'Booking is not finished yet!');
-    }
-    if (affectedBooking.rating && affectedBooking.review) {
-      throw new HttpException(400, 'Booking already has your review!');
-    }
   };
 }
 

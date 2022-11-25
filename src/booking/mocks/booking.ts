@@ -1,7 +1,7 @@
 import { Booking, Prisma } from '@prisma/client';
 import { CreateBookingDto } from 'booking/booking.interface';
 import { addDays } from 'date-fns';
-import { PropertyWithBookings } from 'property/property.interface';
+import { PropertyWithReviews } from 'property/property.interface';
 
 const today = new Date();
 
@@ -15,7 +15,7 @@ export const mockBookingData: CreateBookingDto = {
   childrenCount: 2,
 };
 
-export const mockPropertyWithBookings: PropertyWithBookings = {
+export const mockPropertyWithBookings: PropertyWithReviews = {
   id: 1,
   name: 'Mocked property',
   description: 'Mocked property desc',
@@ -30,7 +30,7 @@ export const mockPropertyWithBookings: PropertyWithBookings = {
   averageRating: new Prisma.Decimal(4.5),
   numberOfReviews: 5,
   persons: 4,
-  bookings: [],
+  reviews: [],
   address: 'Ilica 3, 10000, Zagreb, Hrvatska',
 };
 
@@ -44,6 +44,4 @@ export const mockCreatedBooking: Booking = {
   updatedAt: new Date('2022-11-15T12:03:17.630Z'),
   status: 'CREATED',
   totalPrice: new Prisma.Decimal(719.93),
-  rating: null,
-  review: null,
 };

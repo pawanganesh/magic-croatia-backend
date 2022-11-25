@@ -3,7 +3,23 @@ import HttpException from 'exceptions/HttpException';
 import { CreateUserDto } from './user.interface';
 
 class UserService {
-  private prisma = new PrismaClient();
+  private prisma: PrismaClient;
+
+  constructor(prisma: PrismaClient) {
+    this.prisma = prisma;
+  }
+
+  public findUserById = async (userId: number) => {
+    const foundUser = await this.prisma.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
+    if (!foundUser) {
+      throw new HttpException(404, `User with id ${userId} not found.`);
+    }
+    return foundUser;
+  };
 
   public findUserByUid = async (userUid: string) => {
     const user = await this.prisma.user.findFirst({

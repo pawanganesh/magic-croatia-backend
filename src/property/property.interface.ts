@@ -13,10 +13,10 @@ export interface CreatePropertyDto {
   persons: number;
 }
 
-export interface PropertyWithBookings extends Property {
-  bookings: {
+export interface PropertyWithReviews extends Property {
+  reviews: {
     rating: Prisma.Decimal;
-    review: string;
+    reviewText: string;
   }[];
 }
 

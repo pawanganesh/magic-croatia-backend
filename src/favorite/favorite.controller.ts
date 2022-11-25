@@ -13,40 +13,38 @@ class FavoriteController {
   }
 
   public initializeRoutes() {
-    this.router.get(`${this.path}/:userId`, this.getAllFavoritesFromUser);
+    this.router.get(`${this.path}/users/:userId`, this.getUserFavorites);
     this.router.post(`${this.path}`, this.createFavorite);
     this.router.delete(`${this.path}`, this.deleteFavorite);
   }
 
-  private getAllFavoritesFromUser = async (
+  private getUserFavorites = async (
     request: express.Request,
     response: express.Response,
   ) => {
     const userId = +request.params.userId;
-    const userFavorites = await this.favoriteService.getAllFavoritesFromUser(
-      userId,
-    );
+    const userFavorites = await this.favoriteService.getUserFavorites(userId);
     return response.json(userFavorites);
-  };
-
-  private deleteFavorite = async (
-    request: express.Request,
-    response: express.Response,
-  ) => {
-    const favoriteDto: DeleteFavoriteDto = request.body;
-    const createdFavorite = await this.favoriteService.deleteFavorite(
-      favoriteDto,
-    );
-    return response.json(createdFavorite);
   };
 
   private createFavorite = async (
     request: express.Request,
     response: express.Response,
   ) => {
-    const favoriteDto: CreateFavoriteDto = request.body;
+    const createFavoriteDto: CreateFavoriteDto = request.body;
     const createdFavorite = await this.favoriteService.createFavorite(
-      favoriteDto,
+      createFavoriteDto,
+    );
+    return response.json(createdFavorite);
+  };
+
+  private deleteFavorite = async (
+    request: express.Request,
+    response: express.Response,
+  ) => {
+    const deleteFavoriteDto: DeleteFavoriteDto = request.body;
+    const createdFavorite = await this.favoriteService.deleteFavorite(
+      deleteFavoriteDto,
     );
     return response.json(createdFavorite);
   };
