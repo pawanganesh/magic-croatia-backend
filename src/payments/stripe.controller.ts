@@ -1,3 +1,4 @@
+import { PrismaClient } from '@prisma/client';
 import express from 'express';
 import UserService from 'user/user.service';
 import { StripeBooking } from './stripe.interface';
@@ -7,7 +8,7 @@ class StripeController {
   public path = '/payments';
   public router = express.Router();
   public stripeService = new StripeService();
-  public userService = new UserService();
+  public userService = new UserService(new PrismaClient());
 
   constructor() {
     this.initializeRoutes();

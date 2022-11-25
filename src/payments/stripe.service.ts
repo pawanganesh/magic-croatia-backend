@@ -9,13 +9,12 @@ import UserService from 'user/user.service';
 
 class StripeService {
   private propertyService = new PropertyService(
-    new UserService(),
     new PrismaClient(),
+    new UserService(new PrismaClient()),
   );
   private bookingService = new BookingService(
-    this.propertyService,
-    new UserService(),
     new PrismaClient(),
+    this.propertyService,
   );
 
   public stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {

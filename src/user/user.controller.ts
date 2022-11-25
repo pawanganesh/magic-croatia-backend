@@ -1,3 +1,4 @@
+import { PrismaClient } from '@prisma/client';
 import express from 'express';
 import { CreateUserDto } from './user.interface';
 import UserService from './user.service';
@@ -5,7 +6,7 @@ import UserService from './user.service';
 class UserController {
   public path = '/users';
   public router = express.Router();
-  public userService = new UserService();
+  public userService = new UserService(new PrismaClient());
 
   constructor() {
     this.initializeRoutes();
