@@ -12,7 +12,7 @@ class ReviewService {
     this.propertyService = propertyService;
   }
 
-  public getReviewsForProperty = async (
+  public getPropertyReviews = async (
     propertyId: number,
   ): Promise<PropertyReview[]> => {
     const propertyReviewsRaw = await this.prisma.review.findMany({
@@ -42,7 +42,9 @@ class ReviewService {
     return propertyReviews;
   };
 
-  public createReview = async (createReviewDto: CreateReviewDto) => {
+  public createReview = async (
+    createReviewDto: CreateReviewDto & { userId: number },
+  ) => {
     await this.validateReviewBeforeCreate(
       createReviewDto.userId,
       createReviewDto.propertyId,

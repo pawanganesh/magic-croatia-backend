@@ -9,7 +9,6 @@ export interface PropertyReview {
 }
 
 export type CreateReviewDto = {
-  userId: number;
   propertyId: number;
   reviewText: string;
   rating: Prisma.Decimal;

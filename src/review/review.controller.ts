@@ -27,22 +27,22 @@ class ReviewController {
   public initializeRoutes() {
     this.router.get(
       `${this.path}/properties/:propertyId`,
-      this.getReviewsForProperty,
+      this.getPropertyReviews,
     );
     this.router.post(
       this.path,
-      validate(createReviewSchema),
       authMiddleware,
+      validate(createReviewSchema),
       this.createReview,
     );
   }
 
-  private getReviewsForProperty = async (
+  private getPropertyReviews = async (
     request: express.Request,
     response: express.Response,
   ) => {
     const propertyId: number = +request.params.propertyId;
-    const propertyReviews = await this.reviewService.getReviewsForProperty(
+    const propertyReviews = await this.reviewService.getPropertyReviews(
       propertyId,
     );
     return response.json(propertyReviews);
@@ -54,8 +54,12 @@ class ReviewController {
     next: NextFunction,
   ) => {
     const reviewData: CreateReviewDto = request.body;
+    const userId = +request.userId;
     try {
-      const createdReview = await this.reviewService.createReview(reviewData);
+      const createdReview = await this.reviewService.createReview({
+        ...reviewData,
+        userId,
+      });
       return response.json(createdReview);
     } catch (err) {
       next(err);
