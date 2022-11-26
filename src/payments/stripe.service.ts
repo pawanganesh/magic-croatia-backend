@@ -51,8 +51,8 @@ class StripeService {
     if (clientSecret) {
       await this.bookingService.createBooking({
         totalPrice: preliminaryCost,
-        startDate: new Date(booking.startDate),
-        endDate: new Date(booking.endDate),
+        startDate: bookingStartDate,
+        endDate: bookingEndDate,
         propertyId: booking.propertyId,
         userId,
         adultsCount: booking.adultsCount,

@@ -27,14 +27,19 @@ class StripeController {
   private createPaymentIntent = async (
     request: RequestWithUserId,
     response: express.Response,
+    next: express.NextFunction,
   ) => {
-    const booking: StripeBooking = request.body;
-    const userId = +request.userId;
-    const clientSecret = await this.stripeService.createPaymentIntent(
-      booking,
-      userId,
-    );
-    return response.json(clientSecret);
+    try {
+      const booking: StripeBooking = request.body;
+      const userId = +request.userId;
+      const clientSecret = await this.stripeService.createPaymentIntent(
+        booking,
+        userId,
+      );
+      return response.json(clientSecret);
+    } catch (err) {
+      next(err);
+    }
   };
 }
 
