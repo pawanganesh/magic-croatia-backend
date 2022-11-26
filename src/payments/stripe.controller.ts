@@ -1,6 +1,8 @@
-import { PrismaClient } from '@prisma/client';
 import express from 'express';
-import UserService from 'user/user.service';
+import authMiddleware from 'middleware/authMiddleware';
+import { RequestWithUserId } from 'types/express/custom';
+import validate from 'validation';
+import { createPaymentSchema } from 'validation/payment/createPaymentSchema';
 import { StripeBooking } from './stripe.interface';
 import StripeService from './stripe.service';
 
@@ -8,7 +10,6 @@ class StripeController {
   public path = '/payments';
   public router = express.Router();
   public stripeService = new StripeService();
-  public userService = new UserService(new PrismaClient());
 
   constructor() {
     this.initializeRoutes();
@@ -17,19 +18,21 @@ class StripeController {
   public initializeRoutes() {
     this.router.post(
       `${this.path}/create-payment-intent`,
+      authMiddleware,
+      validate(createPaymentSchema),
       this.createPaymentIntent,
     );
   }
 
   private createPaymentIntent = async (
-    request: express.Request,
+    request: RequestWithUserId,
     response: express.Response,
   ) => {
     const booking: StripeBooking = request.body;
-    const user = await this.userService.findUserByUid(booking.userUid);
+    const userId = +request.userId;
     const clientSecret = await this.stripeService.createPaymentIntent(
       booking,
-      user.id,
+      userId,
     );
     return response.json(clientSecret);
   };

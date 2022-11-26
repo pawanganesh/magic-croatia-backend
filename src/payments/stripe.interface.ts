@@ -4,5 +4,4 @@ export interface StripeBooking {
   adultsCount: number;
   childrenCount: number;
   propertyId: number;
-  userUid: string;
 }
