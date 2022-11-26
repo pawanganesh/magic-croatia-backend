@@ -7,5 +7,4 @@ export const createBookingSchema = [
   body('adultsCount').isInt(),
   body('childrenCount').isInt(),
   body('propertyId').isInt(),
-  body('userId').isInt(),
 ];

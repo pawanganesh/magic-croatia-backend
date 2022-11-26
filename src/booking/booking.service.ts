@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import {
   CreateBookingDto,
   FutureBookingsForProperty,
-  MyBooking,
+  UserBooking,
 } from './booking.interface';
 import HttpException from 'exceptions/HttpException';
 import PropertyService from 'property/property.service';
@@ -22,8 +22,8 @@ class BookingService {
     this.propertyService = propertyService;
   }
 
-  public getUserBookings = async (userId: number): Promise<MyBooking[]> => {
-    const myBookings = await this.prisma.booking.findMany({
+  public getUserBookings = async (userId: number): Promise<UserBooking[]> => {
+    const userBookings = await this.prisma.booking.findMany({
       where: { userId },
       select: {
         id: true,
@@ -31,11 +31,9 @@ class BookingService {
         endDate: true,
         totalPrice: true,
         property: true,
-        userId: false,
-        propertyId: false,
       },
     });
-    return myBookings;
+    return userBookings;
   };
 
   public getFuturePropertyBookings = async (

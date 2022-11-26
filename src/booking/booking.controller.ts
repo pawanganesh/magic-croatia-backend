@@ -47,8 +47,8 @@ class BookingController {
     response: express.Response,
   ) => {
     const userId: number = +request.userId;
-    const myBookings = await this.bookingService.getUserBookings(userId);
-    return response.json(myBookings);
+    const userBookings = await this.bookingService.getUserBookings(userId);
+    return response.json(userBookings);
   };
 
   private getFuturePropertyBookings = async (

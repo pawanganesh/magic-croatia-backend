@@ -15,7 +15,7 @@ export interface FutureBookingsForProperty {
   endDate: Date;
 }
 
-export interface MyBooking {
+export interface UserBooking {
   id: number;
   startDate: Date;
   endDate: Date;
