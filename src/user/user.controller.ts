@@ -17,6 +17,7 @@ class UserController {
   }
 
   public initializeRoutes() {
+    this.router.get(`${this.path}/me`, authMiddleware, this.getCurrentUser);
     this.router.patch(
       `${this.path}/me/avatar`,
       authMiddleware,
@@ -24,6 +25,15 @@ class UserController {
     );
     this.router.post(this.path, validate(createUserSchema), this.createUser);
   }
+
+  private getCurrentUser = async (
+    request: RequestWithUserId,
+    response: express.Response,
+  ) => {
+    const userId = +request.userId;
+    const currentUser = await this.userService.getCurrentUser(userId);
+    return response.json(currentUser);
+  };
 
   private updateUserAvatar = async (
     request: RequestWithUserId,

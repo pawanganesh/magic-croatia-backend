@@ -20,6 +20,7 @@ class ReviewService {
         propertyId,
       },
       select: {
+        id: true,
         reviewText: true,
         rating: true,
         createdAt: true,
@@ -33,6 +34,7 @@ class ReviewService {
       take: 10,
     });
     const propertyReviews = propertyReviewsRaw.map((review) => ({
+      id: review.id,
       reviewText: review.reviewText,
       rating: review.rating,
       createdAt: review.createdAt,

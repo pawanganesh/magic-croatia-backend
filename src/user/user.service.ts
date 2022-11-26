@@ -9,6 +9,18 @@ class UserService {
     this.prisma = prisma;
   }
 
+  public getCurrentUser = async (userId: number) => {
+    const currentUser = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    if (!currentUser) {
+      throw new HttpException(404, `User with id ${userId} not found!`);
+    }
+    return currentUser;
+  };
+
   public updateUserAvatar = async (
     userId: number,
     avatar: string | undefined,
