@@ -22,4 +22,9 @@ export interface PropertyWithReviews extends Property {
 export interface PropertySearchParams {
   search: string;
   cursor?: Prisma.PropertyWhereUniqueInput;
+  startDate?: string;
+  endDate?: string;
+  persons?: number;
+  minPrice?: number;
+  maxPrice?: number;
 }
