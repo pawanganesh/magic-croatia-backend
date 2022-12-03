@@ -26,9 +26,14 @@ class BookingController {
 
   public initializeRoutes() {
     this.router.get(
-      `${this.path}/users/me`,
+      `${this.path}/future/users/me`,
       authMiddleware,
-      this.getUserBookings,
+      this.getFutureUserBookings,
+    );
+    this.router.get(
+      `${this.path}/past/users/me`,
+      authMiddleware,
+      this.getPastUserBookings,
     );
     this.router.get(
       `${this.path}/future/properties/:propertyId`,
@@ -42,12 +47,23 @@ class BookingController {
     );
   }
 
-  private getUserBookings = async (
+  private getFutureUserBookings = async (
     request: RequestWithUserId,
     response: express.Response,
   ) => {
     const userId: number = +request.userId;
-    const userBookings = await this.bookingService.getUserBookings(userId);
+    const userBookings = await this.bookingService.getFutureUserBookings(
+      userId,
+    );
+    return response.json(userBookings);
+  };
+
+  private getPastUserBookings = async (
+    request: RequestWithUserId,
+    response: express.Response,
+  ) => {
+    const userId: number = +request.userId;
+    const userBookings = await this.bookingService.getPastUserBookings(userId);
     return response.json(userBookings);
   };
 

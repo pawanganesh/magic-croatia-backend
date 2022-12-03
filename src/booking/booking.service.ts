@@ -22,15 +22,39 @@ class BookingService {
     this.propertyService = propertyService;
   }
 
-  public getUserBookings = async (userId: number): Promise<UserBooking[]> => {
+  public getFutureUserBookings = async (
+    userId: number,
+  ): Promise<UserBooking[]> => {
     const userBookings = await this.prisma.booking.findMany({
-      where: { userId },
+      where: { userId, startDate: { gte: new Date() } },
       select: {
         id: true,
         startDate: true,
         endDate: true,
         totalPrice: true,
         property: true,
+      },
+      orderBy: {
+        startDate: 'asc',
+      },
+    });
+    return userBookings;
+  };
+
+  public getPastUserBookings = async (
+    userId: number,
+  ): Promise<UserBooking[]> => {
+    const userBookings = await this.prisma.booking.findMany({
+      where: { userId, endDate: { lt: new Date() } },
+      select: {
+        id: true,
+        startDate: true,
+        endDate: true,
+        totalPrice: true,
+        property: true,
+      },
+      orderBy: {
+        endDate: 'desc',
       },
     });
     return userBookings;
