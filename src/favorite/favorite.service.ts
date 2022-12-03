@@ -8,6 +8,18 @@ class FavoriteService {
     this.prisma = prisma;
   }
 
+  public getUserFavoriteProperties = async (userId: number) => {
+    const favorites = await this.prisma.favorites.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        property: true,
+      },
+    });
+    return favorites;
+  };
+
   public getUserFavorites = async (userId: number) => {
     const favorites = await this.prisma.favorites.findMany({
       where: {

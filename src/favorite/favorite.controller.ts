@@ -18,6 +18,11 @@ class FavoriteController {
 
   public initializeRoutes() {
     this.router.get(
+      `${this.path}/users/me/properties`,
+      authMiddleware,
+      this.getUserFavoriteProperties,
+    );
+    this.router.get(
       `${this.path}/users/me`,
       authMiddleware,
       this.getUserFavorites,
@@ -30,6 +35,16 @@ class FavoriteController {
     );
     this.router.delete(`${this.path}`, authMiddleware, this.deleteFavorite);
   }
+
+  private getUserFavoriteProperties = async (
+    request: RequestWithUserId,
+    response: express.Response,
+  ) => {
+    const userId = +request.userId;
+    const userFavoriteProperties =
+      await this.favoriteService.getUserFavoriteProperties(userId);
+    return response.json(userFavoriteProperties);
+  };
 
   private getUserFavorites = async (
     request: RequestWithUserId,
