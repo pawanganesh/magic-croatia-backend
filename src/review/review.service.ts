@@ -14,10 +14,14 @@ class ReviewService {
 
   public getPropertyReviews = async (
     propertyId: number,
+    userId: number,
   ): Promise<PropertyReview[]> => {
     const propertyReviewsRaw = await this.prisma.review.findMany({
       where: {
         propertyId,
+        userId: {
+          not: userId,
+        },
       },
       select: {
         id: true,

@@ -27,6 +27,7 @@ class ReviewController {
   public initializeRoutes() {
     this.router.get(
       `${this.path}/properties/:propertyId`,
+      authMiddleware,
       this.getPropertyReviews,
     );
     this.router.post(
@@ -38,12 +39,14 @@ class ReviewController {
   }
 
   private getPropertyReviews = async (
-    request: express.Request,
+    request: RequestWithUserId,
     response: express.Response,
   ) => {
     const propertyId: number = +request.params.propertyId;
+    const userId: number = +request.userId;
     const propertyReviews = await this.reviewService.getPropertyReviews(
       propertyId,
+      userId,
     );
     return response.json(propertyReviews);
   };
