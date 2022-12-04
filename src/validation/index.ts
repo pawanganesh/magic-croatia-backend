@@ -2,7 +2,11 @@ import express, { NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 
 const validate = (schemas: any[]) => {
-  return async (request: express.Request, response: express.Response, next: NextFunction) => {
+  return async (
+    request: express.Request,
+    response: express.Response,
+    next: NextFunction,
+  ) => {
     await Promise.all(schemas.map((schema) => schema.run(request)));
 
     const result = validationResult(request);
@@ -11,7 +15,7 @@ const validate = (schemas: any[]) => {
     }
 
     const errors = result.array();
-    return response.send({
+    return response.json({
       message: 'Validation error',
       errors: errors,
     });

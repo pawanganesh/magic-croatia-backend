@@ -26,6 +26,11 @@ class ReviewController {
 
   public initializeRoutes() {
     this.router.get(
+      `${this.path}/users/properties/:propertyId`,
+      authMiddleware,
+      this.getUserPropertyReview,
+    );
+    this.router.get(
       `${this.path}/properties/:propertyId`,
       authMiddleware,
       this.getPropertyReviews,
@@ -37,6 +42,19 @@ class ReviewController {
       this.createReview,
     );
   }
+
+  private getUserPropertyReview = async (
+    request: RequestWithUserId,
+    response: express.Response,
+  ) => {
+    const propertyId: number = +request.params.propertyId;
+    const userId: number = +request.userId;
+    const propertyReview = await this.reviewService.getUserPropertyReview(
+      propertyId,
+      userId,
+    );
+    return response.json(propertyReview);
+  };
 
   private getPropertyReviews = async (
     request: RequestWithUserId,
@@ -65,6 +83,7 @@ class ReviewController {
       });
       return response.json(createdReview);
     } catch (err) {
+      console.log({ err });
       next(err);
     }
   };

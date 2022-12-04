@@ -12,6 +12,16 @@ class ReviewService {
     this.propertyService = propertyService;
   }
 
+  public getUserPropertyReview = async (propertyId: number, userId: number) => {
+    const foundReview = await this.prisma.review.findFirst({
+      where: {
+        userId,
+        propertyId,
+      },
+    });
+    return foundReview;
+  };
+
   public getPropertyReviews = async (
     propertyId: number,
     userId: number,
@@ -51,10 +61,14 @@ class ReviewService {
   public createReview = async (
     createReviewDto: CreateReviewDto & { userId: number },
   ) => {
-    await this.validateReviewBeforeCreate(
-      createReviewDto.userId,
+    const foundReview = await this.getUserPropertyReview(
       createReviewDto.propertyId,
+      createReviewDto.userId,
     );
+
+    if (foundReview) {
+      throw new HttpException(400, 'This property already has your review!');
+    }
 
     const createdReview = await this.prisma.review.create({
       data: {
@@ -65,22 +79,6 @@ class ReviewService {
       createdReview.propertyId,
     );
     return createdReview;
-  };
-
-  private validateReviewBeforeCreate = async (
-    userId: number,
-    propertyId: number,
-  ) => {
-    const foundReview = await this.prisma.review.findFirst({
-      where: {
-        userId,
-        propertyId,
-      },
-    });
-
-    if (foundReview) {
-      throw new HttpException(400, 'This property already has your review!');
-    }
   };
 }
 
