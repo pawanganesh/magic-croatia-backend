@@ -37,6 +37,12 @@ export const mockCreatedProperty: Property = {
   updatedAt: new Date('2022-11-15T12:03:17.630Z'),
   averageRating: new Prisma.Decimal(3.5),
   numberOfReviews: 2,
+  maxChildrenCount: 0,
+  bedroomCount: 1,
+  size: new Prisma.Decimal(59.99),
+  checkIn: '17:00',
+  checkOut: '09:00',
+  extras: [],
 };
 
 export const mockCreatedPropertyWithBookings = {

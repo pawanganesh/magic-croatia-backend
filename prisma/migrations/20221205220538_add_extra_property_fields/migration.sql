@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "properties" ADD COLUMN     "bedroom_count" INTEGER NOT NULL DEFAULT 1,
+ADD COLUMN     "check_in" TEXT NOT NULL DEFAULT '15:00',
+ADD COLUMN     "check_out" TEXT NOT NULL DEFAULT '10:00',
+ADD COLUMN     "extras" TEXT[],
+ADD COLUMN     "max_children_count" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "size" DECIMAL(10,2) NOT NULL DEFAULT 0.00;
