@@ -132,6 +132,7 @@ class PropertyService {
           },
           take: 5,
         },
+        propertyExtras: true,
       },
     });
     if (!property) {
