@@ -52,7 +52,6 @@ model Property {
   size             Decimal         @default(0.00) @db.Decimal(10, 2)
   checkIn          String          @default("15:00") @map("check_in")
   checkOut         String          @default("10:00") @map("check_out")
-  extras           String[]
   favorites        Favorites[]
   reviews          Review[]
   propertyExtras   PropertyExtras?

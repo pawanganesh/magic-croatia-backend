@@ -152,9 +152,18 @@ class PropertyService {
       throw new HttpException(400, 'Property name already exists!');
     }
 
+    const propertyData = { ...createPropertyDto };
+    propertyData.propertyExtras = undefined;
+
     const property = await this.prisma.property.create({
       data: {
-        ...createPropertyDto,
+        ...propertyData,
+      },
+    });
+    await this.prisma.propertyExtras.create({
+      data: {
+        propertyId: property.id,
+        ...createPropertyDto.propertyExtras,
       },
     });
     if (property) {

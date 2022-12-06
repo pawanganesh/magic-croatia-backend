@@ -1,4 +1,4 @@
-import { Prisma, Property } from '@prisma/client';
+import { Prisma, Property, PropertyExtras } from '@prisma/client';
 
 export interface CreatePropertyDto {
   name: string;
@@ -10,6 +10,12 @@ export interface CreatePropertyDto {
   latitude: number;
   longitude: number;
   persons: number;
+  maxChildrenCount: number;
+  bedroomCount: number;
+  size: number;
+  checkIn: string;
+  checkOut: string;
+  propertyExtras: Omit<PropertyExtras, 'id' | 'propertyId'>;
 }
 
 export interface PropertyWithReviews extends Property {
