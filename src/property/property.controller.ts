@@ -113,7 +113,7 @@ class PropertyController {
     next: NextFunction,
   ) => {
     const createPropertyDto: CreatePropertyDto = request.body;
-    const userId: number = request.userId;
+    const userId: number = +request.userId;
     try {
       const property = await this.propertyService.createProperty({
         ...createPropertyDto,

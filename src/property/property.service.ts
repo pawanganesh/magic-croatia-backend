@@ -152,18 +152,10 @@ class PropertyService {
       throw new HttpException(400, 'Property name already exists!');
     }
 
-    const propertyData = { ...createPropertyDto };
-    propertyData.propertyExtras = undefined;
-
     const property = await this.prisma.property.create({
       data: {
-        ...propertyData,
-      },
-    });
-    await this.prisma.propertyExtras.create({
-      data: {
-        propertyId: property.id,
-        ...createPropertyDto.propertyExtras,
+        ...createPropertyDto,
+        propertyExtras: undefined,
       },
     });
     if (property) {
@@ -171,6 +163,12 @@ class PropertyService {
     } else {
       throw new HttpException(500, 'Property not created!');
     }
+    await this.prisma.propertyExtras.create({
+      data: {
+        propertyId: property.id,
+        ...createPropertyDto.propertyExtras,
+      },
+    });
     return property;
   };
 

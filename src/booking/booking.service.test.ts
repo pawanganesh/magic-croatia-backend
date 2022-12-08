@@ -152,6 +152,8 @@ describe('Booking service tests', () => {
         endDate: bookingData.endDate,
         userId: mockPropertyWithBookings.userId,
         propertyId: mockPropertyWithBookings.id,
+        adultsCount: bookingData.adultsCount,
+        childrenCount: bookingData.childrenCount,
       },
     });
   });

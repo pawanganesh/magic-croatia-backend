@@ -1,4 +1,4 @@
-import { Prisma, Property } from '@prisma/client';
+import { Prisma, Property, PropertyExtras } from '@prisma/client';
 import { CreatePropertyDto } from 'property/property.interface';
 
 export const mockCreatePropertyDto: CreatePropertyDto = {
@@ -15,6 +15,12 @@ export const mockCreatePropertyDto: CreatePropertyDto = {
   latitude: 43.446999,
   longitude: 16.692384,
   persons: 4,
+  maxChildrenCount: 0,
+  bedroomCount: 1,
+  size: 50.55,
+  checkIn: '17:00',
+  checkOut: '09:00',
+  propertyExtras: undefined,
 };
 
 export const mockCreatedProperty: Property = {
@@ -42,7 +48,16 @@ export const mockCreatedProperty: Property = {
   size: new Prisma.Decimal(59.99),
   checkIn: '17:00',
   checkOut: '09:00',
-  extras: [],
+};
+
+export const mockPropertyExtras: PropertyExtras = {
+  id: 1,
+  propertyId: 1,
+  wifi: true,
+  pool: true,
+  airCondition: true,
+  pets: true,
+  freeParking: true,
 };
 
 export const mockCreatedPropertyWithBookings = {

@@ -2,10 +2,14 @@ import { Prisma, PrismaClient, Property } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime';
 import { mockCreatedUser } from 'user/mocks/user';
 import UserService from 'user/user.service';
-import { mockCreatedProperty, mockCreatePropertyDto } from './mocks/property';
+import {
+  mockCreatedProperty,
+  mockCreatePropertyDto,
+  mockPropertyExtras,
+} from './mocks/property';
 import PropertyService from './property.service';
 
-describe('Booking service tests', () => {
+describe('Property service tests', () => {
   const mockedPrismaClient = new (<new () => PrismaClient>(
     PrismaClient
   ))() as jest.Mocked<PrismaClient>;
@@ -76,6 +80,9 @@ describe('Booking service tests', () => {
       jest
         .spyOn(mockedPrismaClient.property, 'create')
         .mockResolvedValue(undefined);
+      jest
+        .spyOn(mockedPrismaClient.propertyExtras, 'create')
+        .mockResolvedValue(undefined);
       jest.spyOn(mockedUserService, 'updateUserRoleToLandlord');
 
       expect(
@@ -99,6 +106,9 @@ describe('Booking service tests', () => {
       jest
         .spyOn(mockedPrismaClient.property, 'create')
         .mockResolvedValue(mockCreatedProperty);
+      jest
+        .spyOn(mockedPrismaClient.propertyExtras, 'create')
+        .mockResolvedValue(mockPropertyExtras);
 
       jest
         .spyOn(mockedUserService, 'updateUserRoleToLandlord')

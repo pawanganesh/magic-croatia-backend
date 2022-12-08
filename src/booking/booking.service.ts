@@ -157,6 +157,8 @@ class BookingService {
         endDate: bookingEndDate,
         userId,
         propertyId,
+        adultsCount,
+        childrenCount,
       },
     });
     return booking;
