@@ -33,6 +33,8 @@ class BookingService {
         endDate: true,
         totalPrice: true,
         property: true,
+        adultsCount: true,
+        childrenCount: true,
       },
       orderBy: {
         startDate: 'asc',
@@ -52,6 +54,8 @@ class BookingService {
         endDate: true,
         totalPrice: true,
         property: true,
+        adultsCount: true,
+        childrenCount: true,
       },
       orderBy: {
         endDate: 'desc',

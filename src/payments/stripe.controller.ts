@@ -38,6 +38,8 @@ class StripeController {
       );
       return response.json(clientSecret);
     } catch (err) {
+      console.log({ err });
+
       next(err);
     }
   };

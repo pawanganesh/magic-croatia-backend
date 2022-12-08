@@ -21,6 +21,8 @@ export interface UserBooking {
   endDate: Date;
   totalPrice: Prisma.Decimal;
   property: Property;
+  adultsCount: number;
+  childrenCount: number;
 }
 
 export interface BookingCostInputs {
