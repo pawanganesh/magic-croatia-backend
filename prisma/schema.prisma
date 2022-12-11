@@ -83,7 +83,7 @@ model Booking {
   endDate       DateTime @map("end_date")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @default(now()) @map("updated_at")
-  status        Status   @default(CREATED)
+  status        Status   @default(ACTIVE)
   totalPrice    Decimal  @map("total_price")
   adultsCount   Int      @map("adults_count")
   childrenCount Int      @map("children_count")
@@ -128,7 +128,6 @@ enum Role {
 }
 
 enum Status {
-  CREATED
   ACTIVE
-  FINISHED
+  CANCELED
 }

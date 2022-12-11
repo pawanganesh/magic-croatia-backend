@@ -47,7 +47,7 @@ export const mockCreatedBooking: Booking = {
   endDate: new Date('2022-12-23T00:00:00.000Z'),
   createdAt: new Date('2022-11-15T12:03:17.630Z'),
   updatedAt: new Date('2022-11-15T12:03:17.630Z'),
-  status: 'CREATED',
+  status: 'ACTIVE',
   totalPrice: new Prisma.Decimal(719.93),
   childrenCount: 2,
   adultsCount: 2,
