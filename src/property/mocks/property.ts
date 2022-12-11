@@ -39,6 +39,7 @@ export const mockCreatedProperty: Property = {
   longitude: 16.692384,
   userId: 10,
   persons: 4,
+  type: 'APARTMENT',
   createdAt: new Date('2022-11-15T12:03:17.630Z'),
   updatedAt: new Date('2022-11-15T12:03:17.630Z'),
   averageRating: new Prisma.Decimal(3.5),

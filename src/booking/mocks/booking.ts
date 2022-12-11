@@ -51,4 +51,5 @@ export const mockCreatedBooking: Booking = {
   totalPrice: new Prisma.Decimal(719.93),
   childrenCount: 2,
   adultsCount: 2,
+  stripePaymentIntent: '',
 };
