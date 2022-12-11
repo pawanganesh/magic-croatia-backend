@@ -86,6 +86,7 @@ class BookingService {
         startDate: {
           gte: new Date(),
         },
+        status: 'ACTIVE',
       },
       select: {
         id: true,
