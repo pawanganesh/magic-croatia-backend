@@ -42,6 +42,11 @@ class BookingController {
       this.getFuturePropertyBookings,
     );
     this.router.post(
+      `${this.path}/:id/cancel`,
+      authMiddleware,
+      this.cancelBoking,
+    );
+    this.router.post(
       this.path,
       authMiddleware,
       validate(createBookingSchema),
@@ -91,6 +96,25 @@ class BookingController {
         ...bookingData,
         userId,
       });
+      return response.json(booking);
+    } catch (err) {
+      console.log({ err });
+      next(err);
+    }
+  };
+
+  private cancelBoking = async (
+    request: RequestWithUserId,
+    response: express.Response,
+    next: NextFunction,
+  ) => {
+    const bookingId: number = +request.params.id;
+    const userId: number = request.userId;
+    try {
+      const booking = await this.bookingService.cancelBooking(
+        bookingId,
+        userId,
+      );
       return response.json(booking);
     } catch (err) {
       console.log({ err });

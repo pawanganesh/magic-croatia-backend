@@ -6,11 +6,12 @@ import {
 } from './booking.interface';
 import HttpException from 'exceptions/HttpException';
 import PropertyService from 'property/property.service';
-import { isBefore, isEqual } from 'date-fns';
+import { eachDayOfInterval, isAfter, isBefore, isEqual } from 'date-fns';
 import {
   calculateBookingCost,
   checkBookedInterval,
   getBookedDays,
+  getBookingDistance,
 } from './utils';
 import PaymentService from 'services/paymentService';
 
@@ -33,7 +34,10 @@ class BookingService {
     userId: number,
   ): Promise<UserBooking[]> => {
     const userBookings = await this.prisma.booking.findMany({
-      where: { userId, startDate: { gte: new Date() } },
+      where: {
+        userId,
+        startDate: { gte: new Date() },
+      },
       select: {
         id: true,
         startDate: true,
@@ -42,6 +46,7 @@ class BookingService {
         property: true,
         adultsCount: true,
         childrenCount: true,
+        status: true,
       },
       orderBy: {
         startDate: 'asc',
@@ -63,6 +68,7 @@ class BookingService {
         property: true,
         adultsCount: true,
         childrenCount: true,
+        status: true,
       },
       orderBy: {
         endDate: 'desc',
@@ -182,6 +188,103 @@ class BookingService {
     });
     const clientSecret = paymentIntent.client_secret;
     return clientSecret;
+  };
+
+  public cancelBooking = async (bookingId: number, userId: number) => {
+    const foundBooking = await this.prisma.booking.findFirst({
+      where: {
+        id: bookingId,
+        userId,
+      },
+      include: {
+        property: true,
+      },
+    });
+    if (!foundBooking) {
+      throw new HttpException(
+        404,
+        `Booking #${bookingId} not found for user #${userId}`,
+      );
+    }
+    if (foundBooking.status === 'CANCELED') {
+      throw new HttpException(
+        400,
+        `Booking #${foundBooking.id} is already cancelled!`,
+      );
+    }
+    if (
+      isAfter(new Date(), new Date(foundBooking.startDate)) ||
+      isEqual(new Date(foundBooking.startDate), new Date())
+    ) {
+      const bookingDistance = getBookingDistance(
+        foundBooking.startDate,
+        foundBooking.property.checkIn,
+      );
+      throw new HttpException(
+        400,
+        `Booking cancelation time has passed ${bookingDistance}!`,
+      );
+    }
+
+    const amountToRefund = this.calculateBookingRefund(
+      foundBooking.startDate,
+      parseFloat(foundBooking.totalPrice.toString()),
+    );
+
+    if (
+      amountToRefund >=
+      parseFloat(foundBooking.totalPrice.toString()) * 100
+    ) {
+      throw new HttpException(400, 'Error while calculating refund amount!');
+    }
+
+    const refund = await this.paymentService.createRefund(
+      foundBooking.stripePaymentIntent,
+      amountToRefund,
+    );
+
+    if (refund.status !== 'succeeded') {
+      throw new HttpException(
+        400,
+        `Error while refunding booking #${foundBooking.id} with amount ${
+          amountToRefund / 100
+        }`,
+      );
+    }
+
+    const updatedBooking = await this.prisma.booking.update({
+      where: { id: foundBooking.id },
+      data: {
+        status: 'CANCELED',
+      },
+    });
+    if (!updatedBooking) {
+      throw new HttpException(
+        400,
+        `Error while updating booking #${foundBooking.id} status`,
+      );
+    }
+
+    return updatedBooking;
+  };
+
+  private calculateBookingRefund = (
+    bookingStartDate: Date,
+    bookingPrice: number,
+  ) => {
+    const THIRTY_DAYS = 30;
+    let amount: number;
+    const daysCount = eachDayOfInterval({
+      start: new Date(),
+      end: new Date(bookingStartDate),
+    });
+    if (daysCount.length > THIRTY_DAYS) {
+      amount = bookingPrice * 0.8;
+    }
+    amount = bookingPrice * 0.5;
+    const parsedAmount = +parseFloat(amount.toString()).toFixed(2) * 100;
+
+    return parsedAmount;
   };
 }
 

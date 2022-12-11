@@ -2,6 +2,8 @@ import { Prisma } from '@prisma/client';
 import {
   differenceInCalendarDays,
   eachDayOfInterval,
+  format,
+  formatDistance,
   isEqual,
   subDays,
 } from 'date-fns';
@@ -63,4 +65,32 @@ export const calculateBookingCost = (
 
   const preliminaryCost = totalAdultsPrice + totalChildrenPrice;
   return new Prisma.Decimal(parseFloat(preliminaryCost.toFixed(2)));
+};
+
+export const getDateTime = (bookingDate: Date, time: string) => {
+  const [hours, minutes] = time.split(':');
+  const dateTime = new Date(
+    bookingDate.getFullYear(),
+    bookingDate.getMonth(),
+    bookingDate.getDate(),
+    +hours,
+    +minutes,
+  );
+
+  return dateTime;
+};
+
+export const formatCheckingDates = (date: Date) => {
+  return format(date, 'dd LLL yyy, HH:mm');
+};
+
+export const getBookingDistance = (startDate: Date, checkIn: string) => {
+  const bookingDistance = formatDistance(
+    new Date(),
+    new Date(getDateTime(new Date(startDate), checkIn)),
+    {
+      addSuffix: true,
+    },
+  );
+  return bookingDistance;
 };

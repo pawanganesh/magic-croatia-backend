@@ -1,4 +1,4 @@
-import { Prisma, Property } from '@prisma/client';
+import { Prisma, Property, Status } from '@prisma/client';
 
 export type CreateBookingDto = {
   totalPrice: Prisma.Decimal;
@@ -23,6 +23,7 @@ export interface UserBooking {
   property: Property;
   adultsCount: number;
   childrenCount: number;
+  status: Status;
 }
 
 export interface BookingCostInputs {

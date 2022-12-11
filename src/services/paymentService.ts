@@ -16,6 +16,14 @@ class PaymentService {
     });
     return paymentIntent;
   };
+
+  public createRefund = async (paymentIntent: string, stripeAmount: number) => {
+    const refund = await this.stripe.refunds.create({
+      payment_intent: paymentIntent,
+      amount: stripeAmount,
+    });
+    return refund;
+  };
 }
 
 export default PaymentService;
