@@ -44,6 +44,7 @@ model Property {
   address          String
   latitude         Float
   longitude        Float
+  type             PropertyType    @default(APARTMENT)
   averageRating    Decimal         @default(0.00) @db.Decimal(10, 2)
   numberOfReviews  Int             @default(0)
   persons          Int             @default(1)
@@ -113,6 +114,11 @@ model Favorites {
 
   @@id([userId, propertyId])
   @@map("favorites")
+}
+
+enum PropertyType {
+  APARTMENT
+  HOUSE
 }
 
 enum Role {

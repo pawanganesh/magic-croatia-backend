@@ -21,6 +21,7 @@ export const mockPropertyWithBookings: PropertyWithReviews = {
   featuredImageUrl: '',
   gallery: [],
   userId: 1,
+  type: 'APARTMENT',
   createdAt: new Date(),
   updatedAt: new Date(),
   pricePerNight: new Prisma.Decimal(99.99),
