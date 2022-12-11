@@ -5,7 +5,11 @@ import { RequestWithUserId } from 'types/express/custom';
 import UserService from 'user/user.service';
 import validate from 'validation';
 import { createPropertySchema } from 'validation/property/createPropertySchema';
-import { CreatePropertyDto, PropertySearchParams } from './property.interface';
+import {
+  CreatePropertyDto,
+  PropertyQuickSearch,
+  PropertySearchParams,
+} from './property.interface';
 import PropertyService from './property.service';
 
 class PropertyController {
@@ -56,8 +60,11 @@ class PropertyController {
     next: NextFunction,
   ) => {
     try {
+      const params: PropertyQuickSearch =
+        request.query as unknown as PropertyQuickSearch;
       const popularProperties = await this.propertyService.getPopularProperties(
         request.userId,
+        params,
       );
       return response.json(popularProperties);
     } catch (err) {
@@ -71,8 +78,11 @@ class PropertyController {
     next: NextFunction,
   ) => {
     try {
+      const params: PropertyQuickSearch =
+        request.query as unknown as PropertyQuickSearch;
       const latestProperties = await this.propertyService.getLatestProperties(
         request.userId,
+        params,
       );
       return response.json(latestProperties);
     } catch (err) {

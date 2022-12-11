@@ -4,7 +4,9 @@ import { InfiniteScrollResponse } from 'types/express/custom';
 import UserService from 'user/user.service';
 import {
   CreatePropertyDto,
+  PropertyQuickSearch,
   PropertySearchParams,
+  PropertyTypeFilter,
   PropertyWithReviews,
 } from './property.interface';
 
@@ -18,9 +20,15 @@ class PropertyService {
     this.userService = userService;
   }
 
-  public getPopularProperties = async (userId: number) => {
+  public getPopularProperties = async (
+    userId: number,
+    params: PropertyQuickSearch,
+  ) => {
+    const type =
+      params.type === PropertyTypeFilter.ALL ? undefined : params.type;
+
     const popularProperties = await this.prisma.property.findMany({
-      where: { NOT: { userId } },
+      where: { NOT: { userId }, type },
       take: 5,
       orderBy: {
         averageRating: 'desc',
@@ -30,12 +38,19 @@ class PropertyService {
     return popularProperties;
   };
 
-  public getLatestProperties = async (userId: number) => {
+  public getLatestProperties = async (
+    userId: number,
+    params: PropertyQuickSearch,
+  ) => {
+    const type =
+      params.type === PropertyTypeFilter.ALL ? undefined : params.type;
+
     const latestProperties = await this.prisma.property.findMany({
       where: {
         NOT: {
           userId,
         },
+        type,
       },
       take: 5,
       orderBy: {

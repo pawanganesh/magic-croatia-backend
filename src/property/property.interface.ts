@@ -1,5 +1,16 @@
 import { Prisma, Property, PropertyExtras } from '@prisma/client';
 
+export enum PropertyType {
+  APARTMENT = 'APARTMENT',
+  HOUSE = 'HOUSE',
+}
+
+export enum PropertyTypeFilter {
+  ALL = 'ALL',
+  APARTMENT = 'APARTMENT',
+  HOUSE = 'HOUSE',
+}
+
 export interface CreatePropertyDto {
   name: string;
   description: string;
@@ -23,6 +34,10 @@ export interface PropertyWithReviews extends Property {
     rating: Prisma.Decimal;
     reviewText: string;
   }[];
+}
+
+export interface PropertyQuickSearch {
+  type: PropertyTypeFilter;
 }
 
 export interface PropertySearchParams {
