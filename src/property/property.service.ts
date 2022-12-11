@@ -18,6 +18,18 @@ class PropertyService {
     this.userService = userService;
   }
 
+  public getPopularProperties = async (userId: number) => {
+    const popularProperties = await this.prisma.property.findMany({
+      where: { NOT: { userId } },
+      take: 5,
+      orderBy: {
+        averageRating: 'desc',
+      },
+    });
+
+    return popularProperties;
+  };
+
   public getLatestProperties = async (userId: number) => {
     const latestProperties = await this.prisma.property.findMany({
       where: {
@@ -27,7 +39,7 @@ class PropertyService {
       },
       take: 5,
       orderBy: {
-        id: 'asc',
+        createdAt: 'asc',
       },
     });
 

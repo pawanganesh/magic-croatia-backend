@@ -22,6 +22,11 @@ class PropertyController {
 
   public initializeRoutes() {
     this.router.get(
+      `${this.path}/popular`,
+      authMiddleware,
+      this.getPopularProperties,
+    );
+    this.router.get(
       `${this.path}/latest`,
       authMiddleware,
       this.getLatestProperties,
@@ -44,6 +49,21 @@ class PropertyController {
       this.createProperty,
     );
   }
+
+  private getPopularProperties = async (
+    request: RequestWithUserId,
+    response: express.Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const popularProperties = await this.propertyService.getPopularProperties(
+        request.userId,
+      );
+      return response.json(popularProperties);
+    } catch (err) {
+      next(err);
+    }
+  };
 
   private getLatestProperties = async (
     request: RequestWithUserId,
