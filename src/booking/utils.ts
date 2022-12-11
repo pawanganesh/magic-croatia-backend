@@ -3,7 +3,7 @@ import {
   differenceInCalendarDays,
   eachDayOfInterval,
   isEqual,
-  sub,
+  subDays,
 } from 'date-fns';
 import {
   BookingCostInputs,
@@ -17,10 +17,14 @@ export const getBookedDays = (
 
   const bookedDays: Date[] = futureBookings
     .map((booking) => {
+      const formattedStartDate = new Date(booking.startDate).toDateString();
+      const formattedEndDate = new Date(booking.endDate).toDateString();
+
       const intervalDays = eachDayOfInterval({
-        start: new Date(booking.startDate),
-        end: sub(new Date(booking.endDate), { days: 1 }),
+        start: new Date(formattedStartDate),
+        end: subDays(new Date(formattedEndDate), 1),
       });
+
       return intervalDays;
     })
     .flat();
