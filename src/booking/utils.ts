@@ -86,8 +86,8 @@ export const formatCheckingDates = (date: Date) => {
 
 export const getBookingDistance = (startDate: Date, checkIn: string) => {
   const bookingDistance = formatDistance(
-    new Date(),
     new Date(getDateTime(new Date(startDate), checkIn)),
+    new Date(),
     {
       addSuffix: true,
     },

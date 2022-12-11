@@ -111,10 +111,10 @@ class BookingController {
     const bookingId: number = +request.params.id;
     const userId: number = request.userId;
     try {
-      const booking = await this.bookingService.cancelBooking(
+      const booking = await this.bookingService.cancelBooking({
         bookingId,
         userId,
-      );
+      });
       return response.json(booking);
     } catch (err) {
       console.log({ err });

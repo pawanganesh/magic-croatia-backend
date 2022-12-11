@@ -33,3 +33,8 @@ export interface BookingCostInputs {
   childrenCount: number;
   pricePerNight: Prisma.Decimal;
 }
+
+export interface CancelBooking {
+  bookingId: number;
+  userId: number;
+}

@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import {
+  CancelBooking,
   CreateBookingDto,
   FutureBookingsForProperty,
   UserBooking,
@@ -191,7 +192,7 @@ class BookingService {
     return clientSecret;
   };
 
-  public cancelBooking = async (bookingId: number, userId: number) => {
+  public cancelBooking = async ({ bookingId, userId }: CancelBooking) => {
     const foundBooking = await this.prisma.booking.findFirst({
       where: {
         id: bookingId,
@@ -269,7 +270,7 @@ class BookingService {
     return updatedBooking;
   };
 
-  private calculateBookingRefund = (
+  public calculateBookingRefund = (
     bookingStartDate: Date,
     bookingPrice: number,
   ) => {
@@ -281,8 +282,9 @@ class BookingService {
     });
     if (daysCount.length > THIRTY_DAYS) {
       amount = bookingPrice * 0.8;
+    } else {
+      amount = bookingPrice * 0.5;
     }
-    amount = bookingPrice * 0.5;
     const parsedAmount = +parseFloat(amount.toString()).toFixed(2) * 100;
 
     return parsedAmount;
