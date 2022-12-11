@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client';
 import HttpException from 'exceptions/HttpException';
 import { NextFunction, Response } from 'express';
 import AuthService from 'services/authService';
+import PrismaService from 'services/prismaService';
 import { RequestWithUserId } from 'types/express/custom';
 import UserService from 'user/user.service';
 
@@ -10,7 +10,7 @@ async function authMiddleware(
   response: Response,
   next: NextFunction,
 ) {
-  const userService = new UserService(new PrismaClient());
+  const userService = new UserService(PrismaService.getPrisma());
   if (request.headers.authtoken) {
     try {
       const token = await AuthService.admin

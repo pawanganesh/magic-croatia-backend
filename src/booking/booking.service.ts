@@ -12,14 +12,21 @@ import {
   checkBookedInterval,
   getBookedDays,
 } from './utils';
+import PaymentService from 'services/paymentService';
 
 class BookingService {
   private prisma: PrismaClient;
   private propertyService: PropertyService;
+  private paymentService: PaymentService;
 
-  constructor(prisma: PrismaClient, propertyService: PropertyService) {
+  constructor(
+    prisma: PrismaClient,
+    propertyService: PropertyService,
+    paymentService: PaymentService,
+  ) {
     this.prisma = prisma;
     this.propertyService = propertyService;
+    this.paymentService = paymentService;
   }
 
   public getFutureUserBookings = async (
@@ -95,14 +102,10 @@ class BookingService {
       endDate,
       propertyId,
       userId,
-      stripePaymentIntent,
     } = bookingData;
 
     const bookingStartDate = new Date(startDate);
     const bookingEndDate = new Date(endDate);
-
-    const bookingAdultsCount = +adultsCount;
-    const bookingChildrenCount = +childrenCount;
 
     if (
       isBefore(bookingStartDate, new Date()) ||
@@ -135,11 +138,11 @@ class BookingService {
 
     const property = await this.propertyService.getProperty(propertyId);
 
-    const totalPersonsForBooking = bookingAdultsCount + bookingChildrenCount;
-    if (totalPersonsForBooking > property.persons) {
+    const totalPersonsForBooking = adultsCount + childrenCount;
+    if (totalPersonsForBooking !== property.persons) {
       throw new HttpException(
         400,
-        `Maximum number of people for this property is ${property.persons}`,
+        `Required number of people for this property is ${property.persons}`,
       );
     }
 
@@ -155,7 +158,17 @@ class BookingService {
       throw new HttpException(400, `Calculated price is not the same!`);
     }
 
-    const booking = await this.prisma.booking.create({
+    const stripePrice =
+      parseFloat(parseFloat(bookingCost.toString()).toFixed(2)) * 100;
+    if (stripePrice <= 0) {
+      throw new HttpException(400, 'Error in costs calculations!');
+    }
+
+    const paymentIntent = await this.paymentService.createPaymentIntent(
+      stripePrice,
+    );
+
+    await this.prisma.booking.create({
       data: {
         totalPrice: bookingCost,
         startDate: bookingStartDate,
@@ -164,10 +177,11 @@ class BookingService {
         propertyId,
         adultsCount,
         childrenCount,
-        stripePaymentIntent,
+        stripePaymentIntent: paymentIntent.id,
       },
     });
-    return booking;
+    const clientSecret = paymentIntent.client_secret;
+    return clientSecret;
   };
 }
 

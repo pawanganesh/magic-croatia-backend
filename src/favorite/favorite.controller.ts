@@ -1,6 +1,6 @@
-import { PrismaClient } from '@prisma/client';
 import express from 'express';
 import authMiddleware from 'middleware/authMiddleware';
+import PrismaService from 'services/prismaService';
 import { RequestWithUserId } from 'types/express/custom';
 import validate from 'validation';
 import { createFavoriteSchema } from 'validation/favorite/createFavoriteSchema';
@@ -10,7 +10,7 @@ import FavoriteService from './favorite.service';
 class FavoriteController {
   public path = '/favorites';
   public router = express.Router();
-  private favoriteService = new FavoriteService(new PrismaClient());
+  private favoriteService = new FavoriteService(PrismaService.getPrisma());
 
   constructor() {
     this.initializeRoutes();

@@ -7,7 +7,6 @@ export type CreateBookingDto = {
   startDate: Date;
   endDate: Date;
   propertyId: number;
-  stripePaymentIntent: string;
 };
 
 export interface FutureBookingsForProperty {

@@ -9,6 +9,7 @@ import {
 } from './mocks/booking';
 import { calculateBookingCost } from './utils';
 import { CreateBookingDto } from './booking.interface';
+import PaymentService from 'services/paymentService';
 
 const mockedPrismaClient = new (<new () => PrismaClient>(
   PrismaClient
@@ -19,9 +20,14 @@ describe('Booking service tests', () => {
     PropertyService
   ))() as jest.Mocked<PropertyService>;
 
+  const mockedPaymentService = new (<new () => PaymentService>(
+    PaymentService
+  ))() as jest.Mocked<PaymentService>;
+
   const bookingService = new BookingService(
     mockedPrismaClient,
     mockedPropertyService,
+    mockedPaymentService,
   );
   bookingService.getFuturePropertyBookings = jest.fn().mockResolvedValue([]);
 
@@ -75,21 +81,21 @@ describe('Booking service tests', () => {
     });
   });
 
-  it('should throw when number of people in booking is over allowed maximum of property', async () => {
+  it('should throw when number of people in booking bot the same as persons of property', async () => {
     const bookingData: CreateBookingDto = {
       ...mockBookingData,
       adultsCount: 2,
-      childrenCount: 3,
+      childrenCount: 2,
     };
     jest.spyOn(mockedPropertyService, 'getProperty').mockResolvedValue({
       ...mockPropertyWithBookings,
-      persons: 4,
+      persons: 5,
     });
 
     expect(
       bookingService.createBooking({ ...bookingData, userId: 1 }),
     ).rejects.toMatchObject({
-      message: `Maximum number of people for this property is ${mockPropertyWithBookings.persons}`,
+      message: `Required number of people for this property is 5`,
       status: 400,
     });
   });
@@ -144,6 +150,11 @@ describe('Booking service tests', () => {
       id: 1,
     });
 
+    jest.spyOn(mockedPaymentService, 'createPaymentIntent').mockResolvedValue({
+      id: 'payment_intent_id',
+      client_secret: 'client_secret',
+    } as any);
+
     await bookingService.createBooking({ ...bookingData, userId: 1 });
     expect(mockedPrismaClient.booking.create).toHaveBeenCalledWith({
       data: {
@@ -154,6 +165,7 @@ describe('Booking service tests', () => {
         propertyId: mockPropertyWithBookings.id,
         adultsCount: bookingData.adultsCount,
         childrenCount: bookingData.childrenCount,
+        stripePaymentIntent: 'payment_intent_id',
       },
     });
   });

@@ -1,6 +1,6 @@
-import { PrismaClient } from '@prisma/client';
 import express from 'express';
 import authMiddleware from 'middleware/authMiddleware';
+import PrismaService from 'services/prismaService';
 import { RequestWithUserId } from 'types/express/custom';
 import validate from 'validation';
 import { createUserSchema } from 'validation/user/createUserSchema';
@@ -10,7 +10,7 @@ import UserService from './user.service';
 class UserController {
   public path = '/users';
   public router = express.Router();
-  public userService = new UserService(new PrismaClient());
+  public userService = new UserService(PrismaService.getPrisma());
 
   constructor() {
     this.initializeRoutes();

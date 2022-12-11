@@ -1,6 +1,6 @@
-import { PrismaClient } from '@prisma/client';
 import express, { NextFunction } from 'express';
 import authMiddleware from 'middleware/authMiddleware';
+import PrismaService from 'services/prismaService';
 import { RequestWithUserId } from 'types/express/custom';
 import UserService from 'user/user.service';
 import validate from 'validation';
@@ -16,8 +16,8 @@ class PropertyController {
   public path = '/properties';
   public router = express.Router();
   public propertyService = new PropertyService(
-    new PrismaClient(),
-    new UserService(new PrismaClient()),
+    PrismaService.getPrisma(),
+    new UserService(PrismaService.getPrisma()),
   );
 
   constructor() {

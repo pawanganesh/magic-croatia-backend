@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client';
 import express, { NextFunction } from 'express';
 import authMiddleware from 'middleware/authMiddleware';
 import PropertyService from 'property/property.service';
+import PrismaService from 'services/prismaService';
 import { RequestWithUserId } from 'types/express/custom';
 import UserService from 'user/user.service';
 import validate from 'validation';
@@ -13,10 +13,10 @@ class ReviewController {
   public path = '/reviews';
   public router = express.Router();
   public reviewService = new ReviewService(
-    new PrismaClient(),
+    PrismaService.getPrisma(),
     new PropertyService(
-      new PrismaClient(),
-      new UserService(new PrismaClient()),
+      PrismaService.getPrisma(),
+      new UserService(PrismaService.getPrisma()),
     ),
   );
 
