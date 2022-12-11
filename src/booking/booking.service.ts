@@ -95,6 +95,7 @@ class BookingService {
       endDate,
       propertyId,
       userId,
+      stripePaymentIntent,
     } = bookingData;
 
     const bookingStartDate = new Date(startDate);
@@ -163,6 +164,7 @@ class BookingService {
         propertyId,
         adultsCount,
         childrenCount,
+        stripePaymentIntent,
       },
     });
     return booking;

@@ -57,6 +57,7 @@ class StripeService {
         userId,
         adultsCount: booking.adultsCount,
         childrenCount: booking.childrenCount,
+        stripePaymentIntent: paymentIntent.id,
       });
     }
 
