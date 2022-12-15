@@ -65,20 +65,50 @@ class ReviewService {
       createReviewDto.propertyId,
       createReviewDto.userId,
     );
-
     if (foundReview) {
       throw new HttpException(400, 'This property already has your review!');
     }
 
-    const createdReview = await this.prisma.review.create({
-      data: {
-        ...createReviewDto,
+    const propertyRatings = await this.prisma.property.findFirst({
+      where: { id: createReviewDto.propertyId },
+      select: {
+        averageRating: true,
+        numberOfReviews: true,
       },
     });
-    await this.propertyService.calculatePropertyAverageRating(
-      createdReview.propertyId,
+    if (!propertyRatings) {
+      throw new HttpException(
+        404,
+        `Property #${createReviewDto.propertyId} not found!`,
+      );
+    }
+
+    const parsedAverageRating = parseFloat(
+      propertyRatings.averageRating.toString(),
     );
-    return createdReview;
+    const parsedNewRating = parseFloat(createReviewDto.rating.toString());
+
+    const newAverageRating =
+      (parsedAverageRating + parsedNewRating) /
+      (propertyRatings.numberOfReviews + 1);
+
+    return await this.prisma.$transaction(async (tx) => {
+      await this.prisma.property.update({
+        where: { id: createReviewDto.propertyId },
+        data: {
+          averageRating: newAverageRating,
+          numberOfReviews: propertyRatings.numberOfReviews + 1,
+        },
+      });
+
+      const createdReview = await tx.review.create({
+        data: {
+          ...createReviewDto,
+        },
+      });
+
+      return createdReview;
+    });
   };
 }
 

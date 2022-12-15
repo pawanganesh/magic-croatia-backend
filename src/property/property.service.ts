@@ -198,35 +198,6 @@ class PropertyService {
     });
     return property;
   };
-
-  public calculatePropertyAverageRating = async (propertyId: number) => {
-    const propertyBookings = await this.prisma.property.findFirst({
-      where: { id: propertyId },
-      include: {
-        reviews: {
-          select: {
-            rating: true,
-          },
-        },
-      },
-    });
-
-    const totalRating = propertyBookings.reviews.reduce(
-      (acc, item) => acc + parseFloat(item.rating.toString()),
-      0,
-    );
-
-    const averageRating = totalRating / propertyBookings.reviews.length;
-    await this.prisma.property.update({
-      where: { id: propertyId },
-      data: {
-        averageRating: parseFloat(
-          parseFloat(averageRating.toString()).toFixed(2),
-        ),
-        numberOfReviews: propertyBookings.reviews.length,
-      },
-    });
-  };
 }
 
 export default PropertyService;

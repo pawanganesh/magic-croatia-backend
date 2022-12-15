@@ -1,5 +1,4 @@
-import { Prisma, PrismaClient, Property } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime';
+import { PrismaClient } from '@prisma/client';
 import { mockCreatedUser } from 'user/mocks/user';
 import UserService from 'user/user.service';
 import {
@@ -22,36 +21,6 @@ describe('Property service tests', () => {
     mockedPrismaClient,
     mockedUserService,
   );
-
-  describe('Calculate property average rating', () => {
-    it('should return correct average rating', async () => {
-      jest.spyOn(mockedPrismaClient.property, 'findFirst').mockResolvedValue({
-        ...mockCreatedProperty,
-        reviews: [
-          { rating: new Prisma.Decimal(2.5) },
-          { rating: new Prisma.Decimal(4.0) },
-          { rating: new Prisma.Decimal(5.0) },
-        ],
-      } as Property & {
-        reviews: {
-          rating: Decimal;
-        }[];
-      });
-      jest
-        .spyOn(mockedPrismaClient.property, 'update')
-        .mockResolvedValue(mockCreatedProperty);
-
-      const propertyId = 1;
-      await propertyService.calculatePropertyAverageRating(propertyId);
-      expect(mockedPrismaClient.property.update).toHaveBeenCalledWith({
-        where: { id: propertyId },
-        data: {
-          averageRating: 3.83,
-          numberOfReviews: 3,
-        },
-      });
-    });
-  });
 
   describe('Create property', () => {
     it('should throw when property already exists in my properties', async () => {
