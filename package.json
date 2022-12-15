@@ -5,11 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon ./src/server.ts",
-    "migrate:test": "dotenv -e .env.test -- npx prisma migrate dev",
-    "reset:test": "dotenv -e .env.test -- npx prisma migrate reset",
-    "seed:test": "dotenv -e .env.test -- ts-node prisma/seed.ts",
-    "run:test": "dotenv -e .env.test jest -i",
-    "test": "yarn migrate:test && yarn reset:test && yarn seed:test && yarn run:test",
+    "test": "jest",
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint src/**/*.ts && pretty-quick --pattern '**/*.ts' --check .",
     "lint-staged": "eslint src/**/*.ts && pretty-quick --staged --pattern '**/*.ts' --check .",
