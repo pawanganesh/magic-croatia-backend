@@ -37,31 +37,31 @@ describe('Property service tests', () => {
       });
     });
 
-    it.skip('should throw when property is not created and not update user role to landlord', async () => {
-      propertyService.getUserProperties = jest
-        .fn()
-        .mockResolvedValue(['My apartment']);
-      const propertyData = {
-        ...mockCreatePropertyDto,
-        name: 'New apartment',
-        userId: 100,
-      };
-      jest
-        .spyOn(mockedPrismaClient.property, 'create')
-        .mockResolvedValue(undefined);
-      jest
-        .spyOn(mockedPrismaClient.propertyExtras, 'create')
-        .mockResolvedValue(undefined);
-      jest.spyOn(mockedUserService, 'updateUserRoleToLandlord');
+    // it('should throw when property is not created and not update user role to landlord', async () => {
+    //   propertyService.getUserProperties = jest
+    //     .fn()
+    //     .mockResolvedValue(['My apartment']);
+    //   const propertyData = {
+    //     ...mockCreatePropertyDto,
+    //     name: 'New apartment',
+    //     userId: 100,
+    //   };
+    //   jest
+    //     .spyOn(mockedPrismaClient.property, 'create')
+    //     .mockResolvedValue(undefined);
+    //   jest
+    //     .spyOn(mockedPrismaClient.propertyExtras, 'create')
+    //     .mockResolvedValue(undefined);
+    //   jest.spyOn(mockedUserService, 'updateUserRoleToLandlord');
 
-      expect(
-        propertyService.createProperty(propertyData),
-      ).rejects.toMatchObject({
-        status: 500,
-        message: 'Error while creating property!',
-      });
-      expect(mockedUserService.updateUserRoleToLandlord).not.toHaveBeenCalled();
-    });
+    //   expect(
+    //     propertyService.createProperty(propertyData),
+    //   ).rejects.toMatchObject({
+    //     status: 500,
+    //     message: 'Error while creating property!',
+    //   });
+    //   expect(mockedUserService.updateUserRoleToLandlord).not.toHaveBeenCalled();
+    // });
 
     it('should call create property method with correct params and update user role to landlord', async () => {
       propertyService.getUserProperties = jest
