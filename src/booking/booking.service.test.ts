@@ -1,5 +1,5 @@
 import BookingService from './booking.service';
-import { Booking, Prisma, PrismaClient } from '@prisma/client';
+import { Booking, Property, Prisma, PrismaClient } from '@prisma/client';
 import { addDays, subDays } from 'date-fns';
 import PropertyService from 'property/property.service';
 import {
@@ -210,7 +210,9 @@ describe('Booking service tests', () => {
     });
 
     it('should throw when booking start date is lower than today', async () => {
-      const booking: Booking = {
+      const booking: Booking & {
+        property: Partial<Property>;
+      } = {
         ...mockBookingWithProperty,
         startDate: subDays(new Date(), 1),
       };
@@ -221,7 +223,7 @@ describe('Booking service tests', () => {
       expect(
         bookingService.cancelBooking({ bookingId, userId }),
       ).rejects.toMatchObject({
-        message: `Booking cancelation time has passed 1 day ago!`,
+        message: /^Booking cancelation time has passed/,
         status: 400,
       });
     });
