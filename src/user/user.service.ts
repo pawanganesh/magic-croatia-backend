@@ -1,5 +1,6 @@
 import { PrismaClient, Role } from '@prisma/client';
 import HttpException from 'exceptions/HttpException';
+import { getObjectWithTruthyValues } from 'utils/object';
 import { CreateUserDto, PatchUserDto } from './user.interface';
 
 class UserService {
@@ -23,19 +24,17 @@ class UserService {
 
   public patchCurrentUser = async ({
     userId,
-    avatar,
-    firstName,
-    lastName,
-  }: PatchUserDto & { userId: number }) => {
+    patchData,
+  }: {
+    userId: number;
+    patchData: PatchUserDto;
+  }) => {
+    const parsedPatchData = getObjectWithTruthyValues(patchData);
     const patchedUser = await this.prisma.user.update({
       where: {
         id: userId,
       },
-      data: {
-        firstName,
-        lastName,
-        avatar,
-      },
+      data: { avatar: patchData.avatar, ...parsedPatchData },
     });
     if (!patchedUser) {
       throw new HttpException(
@@ -44,24 +43,6 @@ class UserService {
       );
     }
     return patchedUser;
-  };
-
-  public updateUserAvatar = async (
-    userId: number,
-    avatar: string | undefined,
-  ) => {
-    const updatedUser = await this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        avatar,
-      },
-    });
-    if (!updatedUser) {
-      throw new HttpException(400, 'Could not update user avatar!');
-    }
-    return updatedUser;
   };
 
   public createUser = async (userData: CreateUserDto) => {

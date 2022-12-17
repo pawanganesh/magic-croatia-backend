@@ -25,11 +25,6 @@ class UserController {
       validate(patchUserSchema),
       this.patchCurrentUser,
     );
-    this.router.patch(
-      `${this.path}/me/avatar`,
-      authMiddleware,
-      this.updateUserAvatar,
-    );
     this.router.post(this.path, validate(createUserSchema), this.createUser);
   }
 
@@ -52,22 +47,12 @@ class UserController {
       const patchData: PatchUserDto = request.body;
       const patchedUser = await this.userService.patchCurrentUser({
         userId,
-        ...patchData,
+        patchData,
       });
       return response.json(patchedUser);
     } catch (err) {
       next(err);
     }
-  };
-
-  private updateUserAvatar = async (
-    request: RequestWithUserId,
-    response: express.Response,
-  ) => {
-    const avatar: string | undefined = request.body.avatar;
-    const userId = +request.userId;
-    const updatedUser = await this.userService.updateUserAvatar(userId, avatar);
-    return response.json(updatedUser);
   };
 
   private createUser = async (
