@@ -179,24 +179,28 @@ class PropertyService {
       throw new HttpException(400, 'Property name already exists!');
     }
 
-    const property = await this.prisma.property.create({
-      data: {
-        ...createPropertyDto,
-        propertyExtras: undefined,
-      },
-    });
-    if (property) {
+    return await this.prisma.$transaction(async (tx) => {
+      const property = await tx.property.create({
+        data: {
+          ...createPropertyDto,
+          propertyExtras: undefined,
+        },
+      });
+      if (!property) {
+        throw new HttpException(500, 'Error while creating property!');
+      }
       await this.userService.updateUserRoleToLandlord(createPropertyDto.userId);
-    } else {
-      throw new HttpException(500, 'Property not created!');
-    }
-    await this.prisma.propertyExtras.create({
-      data: {
-        propertyId: property.id,
-        ...createPropertyDto.propertyExtras,
-      },
+      const propertyExtras = await this.prisma.propertyExtras.create({
+        data: {
+          propertyId: property.id,
+          ...createPropertyDto.propertyExtras,
+        },
+      });
+      if (!propertyExtras) {
+        throw new HttpException(500, 'Error while creating property extras!');
+      }
+      return property;
     });
-    return property;
   };
 }
 
