@@ -1,10 +1,11 @@
-import express from 'express';
+import express, { NextFunction } from 'express';
 import authMiddleware from 'middleware/authMiddleware';
 import PrismaService from 'services/prismaService';
 import { RequestWithUserId } from 'types/express/custom';
 import validate from 'validation';
 import { createUserSchema } from 'validation/user/createUserSchema';
-import { CreateUserDto } from './user.interface';
+import { patchUserSchema } from 'validation/user/patchUserSchema';
+import { CreateUserDto, PatchUserDto } from './user.interface';
 import UserService from './user.service';
 
 class UserController {
@@ -18,6 +19,12 @@ class UserController {
 
   public initializeRoutes() {
     this.router.get(`${this.path}/me`, authMiddleware, this.getCurrentUser);
+    this.router.patch(
+      `${this.path}/me`,
+      authMiddleware,
+      validate(patchUserSchema),
+      this.patchCurrentUser,
+    );
     this.router.patch(
       `${this.path}/me/avatar`,
       authMiddleware,
@@ -33,6 +40,24 @@ class UserController {
     const userId = +request.userId;
     const currentUser = await this.userService.getCurrentUser(userId);
     return response.json(currentUser);
+  };
+
+  private patchCurrentUser = async (
+    request: RequestWithUserId,
+    response: express.Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const userId = +request.userId;
+      const patchData: PatchUserDto = request.body;
+      const patchedUser = await this.userService.patchCurrentUser({
+        userId,
+        ...patchData,
+      });
+      return response.json(patchedUser);
+    } catch (err) {
+      next(err);
+    }
   };
 
   private updateUserAvatar = async (

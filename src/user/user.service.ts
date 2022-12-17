@@ -1,6 +1,6 @@
 import { PrismaClient, Role } from '@prisma/client';
 import HttpException from 'exceptions/HttpException';
-import { CreateUserDto } from './user.interface';
+import { CreateUserDto, PatchUserDto } from './user.interface';
 
 class UserService {
   private prisma: PrismaClient;
@@ -19,6 +19,31 @@ class UserService {
       throw new HttpException(404, `User with id ${userId} not found!`);
     }
     return currentUser;
+  };
+
+  public patchCurrentUser = async ({
+    userId,
+    avatar,
+    firstName,
+    lastName,
+  }: PatchUserDto & { userId: number }) => {
+    const patchedUser = await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        firstName,
+        lastName,
+        avatar,
+      },
+    });
+    if (!patchedUser) {
+      throw new HttpException(
+        400,
+        `Error while updating user with id ${userId}.`,
+      );
+    }
+    return patchedUser;
   };
 
   public updateUserAvatar = async (
