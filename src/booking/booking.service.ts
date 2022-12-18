@@ -306,8 +306,10 @@ class BookingService {
       this.totalPropertyYearBookedDays(propertyId),
     ]);
     return {
-      totalRevenue: parseFloat(totalRevenue._sum.totalPrice.toString()),
-      totalYearRevenue: parseFloat(totalYearRevenue._sum.totalPrice.toString()),
+      totalRevenue: parseFloat(totalRevenue._sum.totalPrice?.toString()),
+      totalYearRevenue: parseFloat(
+        totalYearRevenue._sum.totalPrice?.toString(),
+      ),
       totalYearBookings: totalYearBookings._count,
       totalYearBookedDays,
     };
