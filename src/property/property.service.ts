@@ -11,8 +11,8 @@ import {
 } from './property.interface';
 
 class PropertyService {
-  private userService: UserService;
   private prisma: PrismaClient;
+  private userService: UserService;
   private PER_PAGE = 5;
 
   constructor(prisma: PrismaClient, userService: UserService) {
@@ -29,7 +29,7 @@ class PropertyService {
 
     const popularProperties = await this.prisma.property.findMany({
       where: { NOT: { userId }, type },
-      take: 5,
+      take: this.PER_PAGE,
       orderBy: {
         averageRating: 'desc',
       },
@@ -64,6 +64,10 @@ class PropertyService {
   public getUserProperties = async (userId: number) => {
     const properties = await this.prisma.property.findMany({
       where: { userId },
+      take: this.PER_PAGE,
+      orderBy: {
+        createdAt: 'asc',
+      },
     });
     return properties;
   };

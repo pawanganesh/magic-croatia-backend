@@ -289,6 +289,61 @@ class BookingService {
 
     return parsedAmount;
   };
+
+  public calculatePropertyTotalRevenue = async (propertyId: number) => {
+    const totalRevenue = await this.prisma.booking.aggregate({
+      where: {
+        propertyId,
+        status: 'ACTIVE',
+      },
+      _sum: {
+        totalPrice: true,
+      },
+    });
+    return totalRevenue;
+  };
+
+  public calculatePropertyYearRevenue = async (propertyId: number) => {
+    const today = new Date();
+    const totalRevenue = await this.prisma.booking.aggregate({
+      where: {
+        propertyId,
+        status: 'ACTIVE',
+        endDate: { lte: new Date(today.getFullYear(), 12, 31, 23, 59) },
+      },
+      _sum: {
+        totalPrice: true,
+      },
+    });
+    return totalRevenue;
+  };
+
+  public totalPropertyYearBookings = async (propertyId: number) => {
+    const today = new Date();
+    const totalBookings = await this.prisma.booking.aggregate({
+      where: {
+        propertyId,
+        status: 'ACTIVE',
+        endDate: { lte: new Date(today.getFullYear(), 12, 31, 23, 59) },
+      },
+      _count: {
+        id: true,
+      },
+    });
+    return totalBookings;
+  };
+
+  public totalPropertyYearBookedDays = async (propertyId: number) => {
+    const today = new Date();
+    const totalBookedDays = await this.prisma.booking.aggregate({
+      where: {
+        propertyId,
+        status: 'ACTIVE',
+        endDate: { lte: new Date(today.getFullYear(), 12, 31, 23, 59) },
+      },
+    });
+    return totalBookedDays;
+  };
 }
 
 export default BookingService;
