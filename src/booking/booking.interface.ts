@@ -38,3 +38,10 @@ export interface CancelBooking {
   bookingId: number;
   userId: number;
 }
+
+export interface PropertyBookingReport {
+  totalRevenue: number;
+  totalYearRevenue: number;
+  totalYearBookings: number;
+  totalYearBookedDays: number;
+}

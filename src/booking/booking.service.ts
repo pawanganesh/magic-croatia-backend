@@ -3,6 +3,7 @@ import {
   CancelBooking,
   CreateBookingDto,
   FutureBookingsForProperty,
+  PropertyBookingReport,
   UserBooking,
 } from './booking.interface';
 import HttpException from 'exceptions/HttpException';
@@ -290,7 +291,29 @@ class BookingService {
     return parsedAmount;
   };
 
-  public calculatePropertyTotalRevenue = async (propertyId: number) => {
+  public getPropertyBookingReport = async (
+    propertyId: number,
+  ): Promise<PropertyBookingReport> => {
+    const [
+      totalRevenue,
+      totalYearRevenue,
+      totalYearBookings,
+      totalYearBookedDays,
+    ] = await Promise.all([
+      this.calculatePropertyTotalRevenue(propertyId),
+      this.calculatePropertyYearRevenue(propertyId),
+      this.totalPropertyYearBookings(propertyId),
+      this.totalPropertyYearBookedDays(propertyId),
+    ]);
+    return {
+      totalRevenue: parseFloat(totalRevenue._sum.totalPrice.toString()),
+      totalYearRevenue: parseFloat(totalYearRevenue._sum.totalPrice.toString()),
+      totalYearBookings: totalYearBookings._count,
+      totalYearBookedDays,
+    };
+  };
+
+  private calculatePropertyTotalRevenue = async (propertyId: number) => {
     const totalRevenue = await this.prisma.booking.aggregate({
       where: {
         propertyId,
@@ -303,7 +326,7 @@ class BookingService {
     return totalRevenue;
   };
 
-  public calculatePropertyYearRevenue = async (propertyId: number) => {
+  private calculatePropertyYearRevenue = async (propertyId: number) => {
     const today = new Date();
     const totalRevenue = await this.prisma.booking.aggregate({
       where: {
@@ -318,7 +341,7 @@ class BookingService {
     return totalRevenue;
   };
 
-  public totalPropertyYearBookings = async (propertyId: number) => {
+  private totalPropertyYearBookings = async (propertyId: number) => {
     const today = new Date();
     const totalBookings = await this.prisma.booking.aggregate({
       where: {
@@ -326,22 +349,21 @@ class BookingService {
         status: 'ACTIVE',
         endDate: { lte: new Date(today.getFullYear(), 12, 31, 23, 59) },
       },
-      _count: {
-        id: true,
-      },
+      _count: true,
     });
     return totalBookings;
   };
 
-  public totalPropertyYearBookedDays = async (propertyId: number) => {
+  private totalPropertyYearBookedDays = async (propertyId: number) => {
     const today = new Date();
-    const totalBookedDays = await this.prisma.booking.aggregate({
+    const bookings = await this.prisma.booking.findMany({
       where: {
         propertyId,
         status: 'ACTIVE',
         endDate: { lte: new Date(today.getFullYear(), 12, 31, 23, 59) },
       },
     });
+    const totalBookedDays = getBookedDays(bookings).length;
     return totalBookedDays;
   };
 }

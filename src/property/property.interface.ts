@@ -49,13 +49,3 @@ export interface PropertySearchParams {
   minPrice?: number;
   maxPrice?: number;
 }
-
-export interface UserProperty extends Property {
-  totalRevenue: number;
-  yearRevenue: number;
-  totalBookings: number;
-  totalBookedDays: number;
-  bookedSummerDays: number;
-  bookedWinterDays: number;
-  canceledBookings: number;
-}

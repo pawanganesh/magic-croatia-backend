@@ -41,6 +41,11 @@ class BookingController {
       `${this.path}/future/properties/:propertyId`,
       this.getFuturePropertyBookings,
     );
+    this.router.get(
+      `${this.path}/properties/:propertyId/report`,
+      authMiddleware,
+      this.getPropertyBookingReport,
+    );
     this.router.post(
       `${this.path}/:id/cancel`,
       authMiddleware,
@@ -82,6 +87,17 @@ class BookingController {
     const futureBookingsForProperty =
       await this.bookingService.getFuturePropertyBookings(propertyId);
     return response.json(futureBookingsForProperty);
+  };
+
+  private getPropertyBookingReport = async (
+    request: express.Request,
+    response: express.Response,
+  ) => {
+    const propertyId = +request.params.propertyId;
+    const bookingReport = await this.bookingService.getPropertyBookingReport(
+      propertyId,
+    );
+    return response.json(bookingReport);
   };
 
   private createBooking = async (
