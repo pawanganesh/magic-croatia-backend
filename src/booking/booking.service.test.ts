@@ -11,6 +11,7 @@ import {
 import { calculateBookingCost } from './utils';
 import { CreateBookingDto } from './booking.interface';
 import PaymentService from 'services/paymentService';
+import MailService from 'services/mailService';
 
 const mockedPrismaClient = new (<new () => PrismaClient>(
   PrismaClient
@@ -24,11 +25,16 @@ describe('Booking service tests', () => {
   const mockedPaymentService = new (<new () => PaymentService>(
     PaymentService
   ))() as jest.Mocked<PaymentService>;
+  const mockedMailService = new (<new () => MailService>(
+    MailService
+  ))() as jest.Mocked<MailService>;
+  mockedMailService.sendEmail = jest.fn().mockResolvedValue(true);
 
   const bookingService = new BookingService(
     mockedPrismaClient,
     mockedPropertyService,
     mockedPaymentService,
+    mockedMailService,
   );
 
   bookingService.getFuturePropertyBookings = jest.fn().mockResolvedValue([]);

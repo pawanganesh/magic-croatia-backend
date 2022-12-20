@@ -1,6 +1,7 @@
 import express, { NextFunction } from 'express';
 import authMiddleware from 'middleware/authMiddleware';
 import PropertyService from 'property/property.service';
+import MailService from 'services/mailService';
 import PaymentService from 'services/paymentService';
 import PrismaService from 'services/prismaService';
 import { RequestWithUserId } from 'types/express/custom';
@@ -20,6 +21,7 @@ class BookingController {
       new UserService(PrismaService.getPrisma()),
     ),
     new PaymentService(),
+    new MailService(),
   );
 
   constructor() {

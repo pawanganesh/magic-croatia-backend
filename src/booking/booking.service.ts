@@ -16,20 +16,24 @@ import {
   getBookingDistance,
 } from './utils';
 import PaymentService from 'services/paymentService';
+import MailService from 'services/mailService';
 
 class BookingService {
   private prisma: PrismaClient;
   private propertyService: PropertyService;
   private paymentService: PaymentService;
+  private mailService: MailService;
 
   constructor(
     prisma: PrismaClient,
     propertyService: PropertyService,
     paymentService: PaymentService,
+    mailService: MailService,
   ) {
     this.prisma = prisma;
     this.propertyService = propertyService;
     this.paymentService = paymentService;
+    this.mailService = mailService;
   }
 
   public getFutureUserBookings = async (
@@ -189,6 +193,12 @@ class BookingService {
         stripePaymentIntent: paymentIntent.id,
       },
     });
+
+    await this.mailService.sendEmail({
+      subject: 'Booking created!',
+      html: `<div>Property ${property.name}</div><div>Booked from ${bookingStartDate} to ${bookingStartDate}. Total price is $${totalPrice}.</div>`,
+    });
+
     const clientSecret = paymentIntent.client_secret;
     return clientSecret;
   };
