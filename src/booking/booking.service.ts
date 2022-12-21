@@ -120,34 +120,11 @@ class BookingService {
     const bookingStartDate = new Date(startDate);
     const bookingEndDate = new Date(endDate);
 
-    if (
-      isBefore(bookingStartDate, new Date()) ||
-      isEqual(bookingStartDate, new Date())
-    ) {
-      throw new HttpException(400, 'Invalid start date!');
-    }
-    if (
-      isBefore(bookingEndDate, bookingStartDate) ||
-      isEqual(bookingEndDate, bookingStartDate)
-    ) {
-      throw new HttpException(400, 'Invalid end date!');
-    }
-
-    const propertyFutureBookings = await this.getFuturePropertyBookings(
+    await this.isPropertyAvailable(
       propertyId,
-    );
-    const bookedDays = getBookedDays(propertyFutureBookings);
-    const isBookingValid = checkBookedInterval(
       bookingStartDate,
       bookingEndDate,
-      bookedDays,
     );
-    if (!isBookingValid) {
-      throw new HttpException(
-        400,
-        'Chosen dates for this property are not available!',
-      );
-    }
 
     const property = await this.propertyService.getProperty(propertyId);
 
@@ -201,6 +178,41 @@ class BookingService {
 
     const clientSecret = paymentIntent.client_secret;
     return clientSecret;
+  };
+
+  private isPropertyAvailable = async (
+    propertyId: number,
+    bookingStartDate: Date,
+    bookingEndDate: Date,
+  ) => {
+    if (
+      isBefore(bookingStartDate, new Date()) ||
+      isEqual(bookingStartDate, new Date())
+    ) {
+      throw new HttpException(400, 'Invalid start date!');
+    }
+    if (
+      isBefore(bookingEndDate, bookingStartDate) ||
+      isEqual(bookingEndDate, bookingStartDate)
+    ) {
+      throw new HttpException(400, 'Invalid end date!');
+    }
+
+    const propertyFutureBookings = await this.getFuturePropertyBookings(
+      propertyId,
+    );
+    const bookedDays = getBookedDays(propertyFutureBookings);
+    const isBookingValid = checkBookedInterval(
+      bookingStartDate,
+      bookingEndDate,
+      bookedDays,
+    );
+    if (!isBookingValid) {
+      throw new HttpException(
+        400,
+        'Chosen dates for this property are not available!',
+      );
+    }
   };
 
   public cancelBooking = async ({ bookingId, userId }: CancelBooking) => {
