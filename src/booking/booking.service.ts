@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import {
   CancelBooking,
   CreateBookingDto,
@@ -148,17 +148,9 @@ class BookingService {
       throw new HttpException(400, `Calculated price is not the same!`);
     }
 
-    const stripePrice =
-      parseFloat(parseFloat(bookingCost.toString()).toFixed(2)) * 100;
-    if (stripePrice <= 0) {
-      throw new HttpException(400, 'Error in costs calculations!');
-    }
+    const paymentIntent = await this.getPaymentIntent(bookingCost);
 
-    const paymentIntent = await this.paymentService.createPaymentIntent(
-      stripePrice,
-    );
-
-    await this.prisma.booking.create({
+    const createdBooking = await this.prisma.booking.create({
       data: {
         totalPrice: bookingCost,
         startDate: bookingStartDate,
@@ -171,12 +163,20 @@ class BookingService {
       },
     });
 
+    if (!createdBooking) {
+      throw new HttpException(
+        500,
+        `Error while creating booking with payment intent id: ${paymentIntent.id}!`,
+      );
+    }
+
     await this.mailService.sendEmail({
       subject: 'Booking created!',
       html: `<div>Property ${property.name}</div><div>Booked from ${startDate} to ${endDate}. Total price is $${totalPrice}.</div>`,
     });
 
     const clientSecret = paymentIntent.client_secret;
+
     return clientSecret;
   };
 
@@ -213,6 +213,20 @@ class BookingService {
         'Chosen dates for this property are not available!',
       );
     }
+  };
+
+  private getPaymentIntent = async (bookingCost: Prisma.Decimal) => {
+    const stripePrice =
+      parseFloat(parseFloat(bookingCost.toString()).toFixed(2)) * 100;
+    if (stripePrice <= 0) {
+      throw new HttpException(400, 'Error in costs calculations!');
+    }
+
+    const paymentIntent = await this.paymentService.createPaymentIntent(
+      stripePrice,
+    );
+
+    return paymentIntent;
   };
 
   public cancelBooking = async ({ bookingId, userId }: CancelBooking) => {
