@@ -151,7 +151,7 @@ class PropertyController {
       });
       return response.json(property);
     } catch (err) {
-      console.log();
+      console.log({ err });
       next(err);
     }
   };
