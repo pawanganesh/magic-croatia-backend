@@ -338,8 +338,8 @@ class BookingService {
     ] = await Promise.all([
       this.calculatePropertyTotalRevenue(propertyId),
       this.calculatePropertyYearRevenue(propertyId),
-      this.totalPropertyYearBookings(propertyId),
-      this.totalPropertyYearBookedDays(propertyId),
+      this.calculateTotalPropertyYearBookings(propertyId),
+      this.calculateTotalPropertyYearBookedDays(propertyId),
     ]);
     return {
       totalRevenue: parseFloat(totalRevenue._sum.totalPrice?.toString()),
@@ -379,7 +379,7 @@ class BookingService {
     return totalRevenue;
   };
 
-  private totalPropertyYearBookings = async (propertyId: number) => {
+  private calculateTotalPropertyYearBookings = async (propertyId: number) => {
     const today = new Date();
     const totalBookings = await this.prisma.booking.aggregate({
       where: {
@@ -392,7 +392,7 @@ class BookingService {
     return totalBookings;
   };
 
-  private totalPropertyYearBookedDays = async (propertyId: number) => {
+  private calculateTotalPropertyYearBookedDays = async (propertyId: number) => {
     const today = new Date();
     const bookings = await this.prisma.booking.findMany({
       where: {
