@@ -4,13 +4,13 @@
   "description": "Backend for booking app",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon ./src/server.ts",
+    "dev": "yarn build && nodemon dist/server",
     "test": "jest",
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "lint": "eslint src/**/*.ts && pretty-quick --pattern '**/*.ts' --check .",
     "lint-staged": "eslint src/**/*.ts && pretty-quick --staged --pattern '**/*.ts' --check .",
     "format": "eslint src/**/*.ts --fix && pretty-quick --pattern '**/*.ts' --write .",
-    "start:prod": "node ./dist/server.js"
+    "start:prod": "node dist/server"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [

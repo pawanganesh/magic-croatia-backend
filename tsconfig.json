@@ -10,15 +10,11 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "typeRoots": ["node_modules/@types"],
     "types": ["jest", "node"]
   },
   "include": ["src", "express"],
   "strict": true,
-  "exclude": ["node_modules"],
-  "ts-node": {
-    "require": ["tsconfig-paths/register"]
-  }
+  "exclude": ["node_modules"]
 }
