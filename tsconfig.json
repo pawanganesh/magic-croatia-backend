@@ -8,9 +8,9 @@
       "*": ["./*"]
     },
     "module": "commonjs",
-    "resolveJsonModule": true,
+    "moduleResolution": "node",
     "esModuleInterop": true,
-    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "typeRoots": ["node_modules/@types"],
     "types": ["jest", "node"]
