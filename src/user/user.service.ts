@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import HttpException from 'exceptions/HttpException';
 import { getObjectWithTruthyValues } from 'utils/object';
 import { CreateUserDto, PatchUserDto } from './user.interface';
@@ -70,7 +70,7 @@ class UserService {
     const updatedUser = await this.prisma.user.update({
       where: { id: userId },
       data: {
-        role: Role.LANDLORD,
+        role: 'LANDLORD',
       },
     });
     if (!updatedUser) {
