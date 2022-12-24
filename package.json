@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "yarn build && nodemon dist/server",
     "test": "jest",
-    "prod": "yarn build && node dist/server",
+    "prod": "node dist/server",
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "lint": "eslint src/**/*.ts && pretty-quick --pattern '**/*.ts' --check .",
     "lint-staged": "eslint src/**/*.ts && pretty-quick --staged --pattern '**/*.ts' --check .",
