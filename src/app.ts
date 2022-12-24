@@ -9,7 +9,6 @@ import AuthService from 'services/authService';
 
 class App {
   public app: express.Application;
-  public appPort = 5000;
 
   constructor(controllers: Controller[]) {
     this.app = express();
@@ -38,8 +37,8 @@ class App {
   }
 
   public appListen() {
-    this.app.listen(this.appPort, () => {
-      console.log(`App listening on the port ${this.appPort}`);
+    this.app.listen(process.env.PORT || 5000, () => {
+      console.log(`App listening on the port ${process.env.PORT || 5000}`);
     });
   }
 }
