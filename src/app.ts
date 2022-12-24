@@ -18,6 +18,7 @@ class App {
     this.initializeErrorHandling();
 
     // initialize services
+
     new AuthService();
   }
 
