@@ -8,6 +8,7 @@
     "test": "jest",
     "prod": "node dist/server",
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "postinstall": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "lint": "eslint src/**/*.ts && pretty-quick --pattern '**/*.ts' --check .",
     "lint-staged": "eslint src/**/*.ts && pretty-quick --staged --pattern '**/*.ts' --check .",
     "format": "eslint src/**/*.ts --fix && pretty-quick --pattern '**/*.ts' --write ."
