@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "description": "Backend for booking app",
   "main": "index.js",
+  "engines": {
+    "node": "16.14.2"
+  },
   "scripts": {
     "dev": "yarn build && nodemon dist/server",
     "test": "jest",
-    "prod": "node dist/server",
+    "start": "node dist/server",
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "postinstall": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "lint": "eslint src/**/*.ts && pretty-quick --pattern '**/*.ts' --check .",
