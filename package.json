@@ -6,11 +6,11 @@
   "scripts": {
     "dev": "yarn build && nodemon dist/server",
     "test": "jest",
+    "prod": "yarn build && node dist/server",
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "lint": "eslint src/**/*.ts && pretty-quick --pattern '**/*.ts' --check .",
     "lint-staged": "eslint src/**/*.ts && pretty-quick --staged --pattern '**/*.ts' --check .",
-    "format": "eslint src/**/*.ts --fix && pretty-quick --pattern '**/*.ts' --write .",
-    "start:prod": "node dist/server"
+    "format": "eslint src/**/*.ts --fix && pretty-quick --pattern '**/*.ts' --write ."
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [
