@@ -93,7 +93,7 @@ class ReviewService {
       (propertyRatings.numberOfReviews + 1);
 
     return await this.prisma.$transaction(async (tx) => {
-      await this.prisma.property.update({
+      await tx.property.update({
         where: { id: createReviewDto.propertyId },
         data: {
           averageRating: newAverageRating,
