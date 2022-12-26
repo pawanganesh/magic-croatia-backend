@@ -7,7 +7,6 @@ async function main() {
     update: {},
     create: {
       email: 'alice@prisma.io',
-      password: '123456',
       firstName: 'Alice',
       lastName: 'Galvin',
       role: 'CUSTOMER',
@@ -19,7 +18,6 @@ async function main() {
     update: {},
     create: {
       email: 'm@gmail.com',
-      password: '123456',
       firstName: 'Mateo',
       lastName: 'Galić',
       role: 'CUSTOMER',
@@ -31,7 +29,6 @@ async function main() {
     update: {},
     create: {
       email: 'bob@prisma.io',
-      password: '123456',
       firstName: 'Bob',
       lastName: 'Roger',
       role: 'LANDLORD',
