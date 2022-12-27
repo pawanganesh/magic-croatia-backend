@@ -1,4 +1,4 @@
-import { Prisma, Property, PropertyExtras } from '@prisma/client';
+import { Prisma, Property, PropertyExtras, PropertyType } from '@prisma/client';
 import { CreatePropertyDto } from 'property/property.interface';
 
 export const mockCreatePropertyDto: CreatePropertyDto = {
@@ -21,6 +21,7 @@ export const mockCreatePropertyDto: CreatePropertyDto = {
   checkIn: '17:00',
   checkOut: '09:00',
   propertyExtras: undefined,
+  type: PropertyType.APARTMENT,
 };
 
 export const mockCreatedProperty: Property = {
