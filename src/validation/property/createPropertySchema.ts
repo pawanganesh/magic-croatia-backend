@@ -17,4 +17,5 @@ export const createPropertySchema = [
   body('size').isFloat().withMessage('Property size is required'),
   body('checkIn').notEmpty().withMessage('Provide check in hour.'),
   body('checkOut').notEmpty().withMessage('Provide check out hour.'),
+  body('type').notEmpty().withMessage('Provide property type.'),
 ];
