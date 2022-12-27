@@ -27,7 +27,7 @@ export interface CreatePropertyDto {
   checkIn: string;
   checkOut: string;
   propertyExtras: Omit<PropertyExtras, 'id' | 'propertyId'>;
-  type: string;
+  type: 'HOUSE' | 'APARTMENT';
 }
 
 export interface PropertyWithReviews extends Property {
