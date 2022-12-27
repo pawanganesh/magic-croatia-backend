@@ -1,3 +1,4 @@
+import HttpException from 'exceptions/HttpException';
 import express, { NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 
@@ -17,7 +18,7 @@ const validate = (schemas: any[]) => {
     const errors = result.array();
     console.log({ errors });
 
-    return next(errors);
+    return next(new HttpException(400, errors[0].msg));
   };
 };
 
