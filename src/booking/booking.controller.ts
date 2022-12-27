@@ -5,7 +5,6 @@ import MailService from 'services/mailService';
 import PaymentService from 'services/paymentService';
 import PrismaService from 'services/prismaService';
 import { RequestWithUserId } from 'types/express/custom';
-import UserService from 'user/user.service';
 import validate from 'validation';
 import { createBookingSchema } from 'validation/booking/createBookingSchema';
 import { CreateBookingDto } from './booking.interface';
@@ -16,10 +15,7 @@ class BookingController {
   public router = express.Router();
   private bookingService = new BookingService(
     PrismaService.getPrisma(),
-    new PropertyService(
-      PrismaService.getPrisma(),
-      new UserService(PrismaService.getPrisma()),
-    ),
+    new PropertyService(PrismaService.getPrisma()),
     new PaymentService(),
     new MailService(),
   );

@@ -1,6 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import { mockCreatedUser } from 'user/mocks/user';
-import UserService from 'user/user.service';
 import {
   mockCreatedProperty,
   mockCreatePropertyDto,
@@ -13,14 +11,7 @@ describe('Property service tests', () => {
     PrismaClient
   ))() as jest.Mocked<PrismaClient>;
 
-  const mockedUserService = new (<new () => UserService>(
-    UserService
-  ))() as jest.Mocked<UserService>;
-
-  const propertyService = new PropertyService(
-    mockedPrismaClient,
-    mockedUserService,
-  );
+  const propertyService = new PropertyService(mockedPrismaClient);
 
   describe('Create property', () => {
     it('should throw when property already exists in my properties', async () => {
@@ -79,19 +70,12 @@ describe('Property service tests', () => {
         .spyOn(mockedPrismaClient.propertyExtras, 'create')
         .mockResolvedValue(mockPropertyExtras);
 
-      jest
-        .spyOn(mockedUserService, 'updateUserRoleToLandlord')
-        .mockResolvedValue(mockCreatedUser);
-
       await propertyService.createProperty(propertyData);
       expect(mockedPrismaClient.property.create).toHaveBeenCalledWith({
         data: {
           ...propertyData,
         },
       });
-      expect(mockedUserService.updateUserRoleToLandlord).toHaveBeenCalledWith(
-        100,
-      );
     });
   });
 });

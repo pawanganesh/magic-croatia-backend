@@ -1,7 +1,6 @@
 import { PrismaClient, Property } from '@prisma/client';
 import HttpException from 'exceptions/HttpException';
 import { InfiniteScrollResponse } from 'types/express/custom';
-import UserService from 'user/user.service';
 import {
   CreatePropertyDto,
   PropertyQuickSearch,
@@ -12,12 +11,10 @@ import {
 
 class PropertyService {
   private prisma: PrismaClient;
-  private userService: UserService;
   private PER_PAGE = 5;
 
-  constructor(prisma: PrismaClient, userService: UserService) {
+  constructor(prisma: PrismaClient) {
     this.prisma = prisma;
-    this.userService = userService;
   }
 
   public getPopularProperties = async (
@@ -199,7 +196,18 @@ class PropertyService {
         throw new HttpException(500, 'Error while creating property!');
       }
 
-      await this.userService.updateUserRoleToLandlord(createPropertyDto.userId);
+      const updatedUser = await tx.user.update({
+        where: { id: createPropertyDto.userId },
+        data: {
+          role: 'LANDLORD',
+        },
+      });
+      if (!updatedUser) {
+        throw new HttpException(
+          500,
+          `User ${createPropertyDto.userId} has failed to update to landlord!`,
+        );
+      }
 
       return property;
     });

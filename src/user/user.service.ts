@@ -65,22 +65,6 @@ class UserService {
     }
     return user;
   };
-
-  public updateUserRoleToLandlord = async (userId: number) => {
-    const updatedUser = await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        role: 'LANDLORD',
-      },
-    });
-    if (!updatedUser) {
-      throw new HttpException(
-        500,
-        `User ${userId} has failed to update to landlord!`,
-      );
-    }
-    return updatedUser;
-  };
 }
 
 export default UserService;
