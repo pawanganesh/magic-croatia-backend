@@ -2,7 +2,6 @@ import express, { NextFunction } from 'express';
 import authMiddleware from 'middleware/authMiddleware';
 import PrismaService from 'services/prismaService';
 import { RequestWithUserId } from 'types/express/custom';
-import UserService from 'user/user.service';
 import validate from 'validation';
 import { createPropertySchema } from 'validation/property/createPropertySchema';
 import {
@@ -15,10 +14,7 @@ import PropertyService from './property.service';
 class PropertyController {
   public path = '/properties';
   public router = express.Router();
-  public propertyService = new PropertyService(
-    PrismaService.getPrisma(),
-    new UserService(PrismaService.getPrisma()),
-  );
+  public propertyService = new PropertyService(PrismaService.getPrisma());
 
   constructor() {
     this.initializeRoutes();
