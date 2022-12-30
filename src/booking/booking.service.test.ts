@@ -1,7 +1,6 @@
 import BookingService from './booking.service';
 import { Booking, Property, Prisma, PrismaClient } from '@prisma/client';
 import { addDays, subDays } from 'date-fns';
-import PropertyService from 'property/property.service';
 import {
   mockBookingData,
   mockBookingWithProperty,
@@ -18,13 +17,10 @@ const mockedPrismaClient = new (<new () => PrismaClient>(
 ))() as jest.Mocked<PrismaClient>;
 
 describe('Booking service tests', () => {
-  const mockedPropertyService = new (<new () => PropertyService>(
-    PropertyService
-  ))() as jest.Mocked<PropertyService>;
-
   const mockedPaymentService = new (<new () => PaymentService>(
     PaymentService
   ))() as jest.Mocked<PaymentService>;
+
   const mockedMailService = new (<new () => MailService>(
     MailService
   ))() as jest.Mocked<MailService>;
@@ -32,7 +28,6 @@ describe('Booking service tests', () => {
 
   const bookingService = new BookingService(
     mockedPrismaClient,
-    mockedPropertyService,
     mockedPaymentService,
     mockedMailService,
   );
@@ -94,7 +89,7 @@ describe('Booking service tests', () => {
         adultsCount: 2,
         childrenCount: 2,
       };
-      jest.spyOn(mockedPropertyService, 'getProperty').mockResolvedValue({
+      jest.spyOn(mockedPrismaClient.property, 'findFirst').mockResolvedValue({
         ...mockPropertyWithBookings,
         persons: 5,
       });
@@ -118,7 +113,7 @@ describe('Booking service tests', () => {
       };
       const pricePerNight = new Prisma.Decimal(99.99);
 
-      jest.spyOn(mockedPropertyService, 'getProperty').mockResolvedValue({
+      jest.spyOn(mockedPrismaClient.property, 'findFirst').mockResolvedValue({
         ...mockPropertyWithBookings,
         pricePerNight,
       });
@@ -151,7 +146,7 @@ describe('Booking service tests', () => {
         .spyOn(mockedPrismaClient.booking, 'create')
         .mockResolvedValue(mockCreatedBooking);
 
-      jest.spyOn(mockedPropertyService, 'getProperty').mockResolvedValue({
+      jest.spyOn(mockedPrismaClient.property, 'findFirst').mockResolvedValue({
         ...mockPropertyWithBookings,
         userId: '1',
         id: 1,

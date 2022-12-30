@@ -7,7 +7,6 @@ import {
   UserBooking,
 } from './booking.interface';
 import HttpException from 'exceptions/HttpException';
-import PropertyService from 'property/property.service';
 import { eachDayOfInterval, isAfter, isBefore, isEqual } from 'date-fns';
 import {
   calculateBookingCost,
@@ -20,18 +19,15 @@ import MailService from 'services/mailService';
 
 class BookingService {
   private prisma: PrismaClient;
-  private propertyService: PropertyService;
   private paymentService: PaymentService;
   private mailService: MailService;
 
   constructor(
     prisma: PrismaClient,
-    propertyService: PropertyService,
     paymentService: PaymentService,
     mailService: MailService,
   ) {
     this.prisma = prisma;
-    this.propertyService = propertyService;
     this.paymentService = paymentService;
     this.mailService = mailService;
   }
@@ -126,7 +122,15 @@ class BookingService {
       bookingEndDate,
     );
 
-    const property = await this.propertyService.getProperty(propertyId);
+    const property = await this.prisma.property.findFirst({
+      where: { id: propertyId },
+    });
+    if (!property) {
+      throw new HttpException(
+        404,
+        `Property with id: #${propertyId} not found!`,
+      );
+    }
 
     const totalPersonsForBooking = adultsCount + childrenCount;
     if (totalPersonsForBooking !== property.persons) {
