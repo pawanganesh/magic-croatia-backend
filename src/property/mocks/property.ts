@@ -38,7 +38,7 @@ export const mockCreatedProperty: Property = {
   pricePerNight: new Prisma.Decimal(199.99),
   latitude: 43.446999,
   longitude: 16.692384,
-  userId: 10,
+  userId: '10',
   persons: 4,
   type: 'APARTMENT',
   createdAt: new Date('2022-11-15T12:03:17.630Z'),
