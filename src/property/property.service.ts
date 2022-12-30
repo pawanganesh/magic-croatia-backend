@@ -18,7 +18,7 @@ class PropertyService {
   }
 
   public getPopularProperties = async (
-    userId: number,
+    userId: string,
     params: PropertyQuickSearch,
   ) => {
     const type =
@@ -36,7 +36,7 @@ class PropertyService {
   };
 
   public getLatestProperties = async (
-    userId: number,
+    userId: string,
     params: PropertyQuickSearch,
   ) => {
     const type =
@@ -58,7 +58,7 @@ class PropertyService {
     return latestProperties;
   };
 
-  public getUserProperties = async (userId: number) => {
+  public getUserProperties = async (userId: string) => {
     const properties = await this.prisma.property.findMany({
       where: { userId },
       take: this.PER_PAGE,
@@ -71,7 +71,7 @@ class PropertyService {
 
   public getSearchProperties = async (
     params: PropertySearchParams,
-    userId: number,
+    userId: string,
   ): Promise<InfiniteScrollResponse<Property>> => {
     const take = this.PER_PAGE;
     const { search, cursor, minPrice, maxPrice, persons, startDate, endDate } =
@@ -82,7 +82,6 @@ class PropertyService {
     const parsedPersons = persons ? +persons : undefined;
     const parsedMaxPrice = maxPrice ? +maxPrice : undefined;
     const parsedMinPrice = minPrice ? +minPrice : undefined;
-    const parsedUserId = +userId;
     const parsedCursor = { id: +cursor };
 
     const skip = parsedCursor.id > 1 ? 1 : 0;
@@ -101,7 +100,7 @@ class PropertyService {
           },
           {
             NOT: {
-              userId: parsedUserId,
+              userId,
             },
           },
           {
@@ -170,7 +169,7 @@ class PropertyService {
   };
 
   public createProperty = async (
-    createPropertyDto: CreatePropertyDto & { userId: number },
+    createPropertyDto: CreatePropertyDto & { userId: string },
   ) => {
     const userProperties = await this.getUserProperties(
       createPropertyDto.userId,

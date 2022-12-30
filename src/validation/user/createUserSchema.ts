@@ -1,6 +1,7 @@
 import { body } from 'express-validator';
 
 export const createUserSchema = [
+  body('id').notEmpty().isString().withMessage('Provide valid id.'),
   body('email').isEmail().withMessage('Provide valid email.'),
   body('firstName')
     .notEmpty()
@@ -10,6 +11,5 @@ export const createUserSchema = [
     .notEmpty()
     .isString()
     .withMessage('Provide valid last name.'),
-  body('uid').notEmpty().isString().withMessage('Provide valid uid.'),
   body('avatar'),
 ];

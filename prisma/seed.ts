@@ -10,7 +10,7 @@ async function main() {
       firstName: 'Alice',
       lastName: 'Galvin',
       role: 'CUSTOMER',
-      uid: 'abc123',
+      id: 'abc123',
     },
   });
   const mateo = await prisma.user.upsert({
@@ -21,7 +21,7 @@ async function main() {
       firstName: 'Mateo',
       lastName: 'Galić',
       role: 'CUSTOMER',
-      uid: 'NWDRpKttYDe40sGvyhdYeEcYu812',
+      id: 'NWDRpKttYDe40sGvyhdYeEcYu812',
     },
   });
   const bob = await prisma.user.upsert({
@@ -32,7 +32,7 @@ async function main() {
       firstName: 'Bob',
       lastName: 'Roger',
       role: 'LANDLORD',
-      uid: 'abc12345',
+      id: 'abc12345',
       properties: {
         create: createdProperties,
       },

@@ -21,7 +21,7 @@ describe('Property service tests', () => {
 
       const propertyData = { ...mockCreatePropertyDto, name: 'My apartment' };
       expect(
-        propertyService.createProperty({ ...propertyData, userId: 10 }),
+        propertyService.createProperty({ ...propertyData, userId: '10' }),
       ).rejects.toMatchObject({
         status: 400,
         message: 'Property name already exists!',
@@ -61,7 +61,7 @@ describe('Property service tests', () => {
       const propertyData = {
         ...mockCreatePropertyDto,
         name: 'New apartment',
-        userId: 100,
+        userId: '100',
       };
       jest
         .spyOn(mockedPrismaClient.property, 'create')

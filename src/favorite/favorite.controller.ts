@@ -40,7 +40,7 @@ class FavoriteController {
     request: RequestWithUserId,
     response: express.Response,
   ) => {
-    const userId = +request.userId;
+    const userId = request.userId;
     const userFavoriteProperties =
       await this.favoriteService.getUserFavoriteProperties(userId);
     return response.json(userFavoriteProperties);
@@ -50,7 +50,7 @@ class FavoriteController {
     request: RequestWithUserId,
     response: express.Response,
   ) => {
-    const userId = +request.userId;
+    const userId = request.userId;
     const userFavorites = await this.favoriteService.getUserFavorites(userId);
     return response.json(userFavorites);
   };
@@ -60,7 +60,7 @@ class FavoriteController {
     response: express.Response,
   ) => {
     const createFavoriteDto: CreateFavoriteDto = request.body;
-    const userId = +request.userId;
+    const userId = request.userId;
     const createdFavorite = await this.favoriteService.createFavorite({
       ...createFavoriteDto,
       userId,
@@ -73,7 +73,7 @@ class FavoriteController {
     response: express.Response,
   ) => {
     const deleteFavoriteDto: DeleteFavoriteDto = request.body;
-    const userId = +request.userId;
+    const userId = request.userId;
     const createdFavorite = await this.favoriteService.deleteFavorite({
       ...deleteFavoriteDto,
       userId,

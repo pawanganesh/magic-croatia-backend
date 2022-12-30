@@ -32,7 +32,7 @@ class UserController {
     request: RequestWithUserId,
     response: express.Response,
   ) => {
-    const userId = +request.userId;
+    const userId = request.userId;
     const currentUser = await this.userService.getCurrentUser(userId);
     return response.json(currentUser);
   };
@@ -43,7 +43,7 @@ class UserController {
     next: NextFunction,
   ) => {
     try {
-      const userId = +request.userId;
+      const userId = request.userId;
       const patchData: PatchUserDto = request.body;
       const patchedUser = await this.userService.patchCurrentUser({
         userId,

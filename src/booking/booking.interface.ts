@@ -36,7 +36,7 @@ export interface BookingCostInputs {
 
 export interface CancelBooking {
   bookingId: number;
-  userId: number;
+  userId: string;
 }
 
 export interface PropertyBookingReport {

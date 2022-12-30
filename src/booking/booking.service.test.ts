@@ -48,7 +48,7 @@ describe('Booking service tests', () => {
         startDate: today,
       };
       expect(
-        bookingService.createBooking({ ...bookingData, userId: 1 }),
+        bookingService.createBooking({ ...bookingData, userId: '1' }),
       ).rejects.toMatchObject({
         message: 'Invalid start date!',
         status: 400,
@@ -61,7 +61,7 @@ describe('Booking service tests', () => {
         endDate: mockBookingData.startDate,
       };
       expect(
-        bookingService.createBooking({ ...bookingData, userId: 1 }),
+        bookingService.createBooking({ ...bookingData, userId: '1' }),
       ).rejects.toMatchObject({
         message: 'Invalid end date!',
         status: 400,
@@ -81,7 +81,7 @@ describe('Booking service tests', () => {
         ]);
 
       expect(
-        bookingService.createBooking({ ...bookingData, userId: 1 }),
+        bookingService.createBooking({ ...bookingData, userId: '1' }),
       ).rejects.toMatchObject({
         message: 'Chosen dates for this property are not available!',
         status: 400,
@@ -100,7 +100,7 @@ describe('Booking service tests', () => {
       });
 
       expect(
-        bookingService.createBooking({ ...bookingData, userId: 1 }),
+        bookingService.createBooking({ ...bookingData, userId: '1' }),
       ).rejects.toMatchObject({
         message: `Required number of people for this property is 5`,
         status: 400,
@@ -130,7 +130,7 @@ describe('Booking service tests', () => {
 
       expect(bookedPrice).toBe('719.93');
       expect(
-        bookingService.createBooking({ ...bookingData, userId: 1 }),
+        bookingService.createBooking({ ...bookingData, userId: '1' }),
       ).rejects.toMatchObject({
         message: `Calculated price is not the same!`,
         status: 400,
@@ -153,7 +153,7 @@ describe('Booking service tests', () => {
 
       jest.spyOn(mockedPropertyService, 'getProperty').mockResolvedValue({
         ...mockPropertyWithBookings,
-        userId: 1,
+        userId: '1',
         id: 1,
       });
 
@@ -164,7 +164,7 @@ describe('Booking service tests', () => {
           client_secret: 'client_secret',
         } as never);
 
-      await bookingService.createBooking({ ...bookingData, userId: 1 });
+      await bookingService.createBooking({ ...bookingData, userId: '1' });
       expect(mockedPrismaClient.booking.create).toHaveBeenCalledWith({
         data: {
           totalPrice: bookingData.totalPrice,
@@ -182,7 +182,7 @@ describe('Booking service tests', () => {
 
   describe('Cancel booking', () => {
     const bookingId = 1;
-    const userId = 1;
+    const userId = '1';
 
     beforeEach(() => {
       jest.restoreAllMocks();

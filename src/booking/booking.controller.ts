@@ -61,7 +61,7 @@ class BookingController {
     request: RequestWithUserId,
     response: express.Response,
   ) => {
-    const userId: number = +request.userId;
+    const userId: string = request.userId;
     const userBookings = await this.bookingService.getFutureUserBookings(
       userId,
     );
@@ -72,7 +72,7 @@ class BookingController {
     request: RequestWithUserId,
     response: express.Response,
   ) => {
-    const userId: number = +request.userId;
+    const userId: string = request.userId;
     const userBookings = await this.bookingService.getPastUserBookings(userId);
     return response.json(userBookings);
   };
@@ -104,7 +104,7 @@ class BookingController {
     next: NextFunction,
   ) => {
     const bookingData: CreateBookingDto = request.body;
-    const userId: number = request.userId;
+    const userId: string = request.userId;
     try {
       const booking = await this.bookingService.createBooking({
         ...bookingData,
@@ -123,7 +123,7 @@ class BookingController {
     next: NextFunction,
   ) => {
     const bookingId: number = +request.params.id;
-    const userId: number = request.userId;
+    const userId: string = request.userId;
     try {
       const booking = await this.bookingService.cancelBooking({
         bookingId,

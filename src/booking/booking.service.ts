@@ -37,7 +37,7 @@ class BookingService {
   }
 
   public getFutureUserBookings = async (
-    userId: number,
+    userId: string,
   ): Promise<UserBooking[]> => {
     const userBookings = await this.prisma.booking.findMany({
       where: {
@@ -62,7 +62,7 @@ class BookingService {
   };
 
   public getPastUserBookings = async (
-    userId: number,
+    userId: string,
   ): Promise<UserBooking[]> => {
     const userBookings = await this.prisma.booking.findMany({
       where: { userId, endDate: { lt: new Date() } },
@@ -105,7 +105,7 @@ class BookingService {
   };
 
   public createBooking = async (
-    bookingData: CreateBookingDto & { userId: number },
+    bookingData: CreateBookingDto & { userId: string },
   ) => {
     const {
       totalPrice,

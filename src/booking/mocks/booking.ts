@@ -20,7 +20,7 @@ export const mockPropertyWithBookings: PropertyWithReviews = {
   description: 'Mocked property desc',
   featuredImageUrl: '',
   gallery: [],
-  userId: 1,
+  userId: '1',
   type: 'APARTMENT',
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -42,7 +42,7 @@ export const mockPropertyWithBookings: PropertyWithReviews = {
 export const mockCreatedBooking: Booking = {
   id: 35,
   propertyId: 2,
-  userId: 3,
+  userId: '3',
   startDate: new Date('2022-12-21T00:00:00.000Z'),
   endDate: new Date('2022-12-23T00:00:00.000Z'),
   createdAt: new Date('2022-11-15T12:03:17.630Z'),
@@ -59,7 +59,7 @@ export const mockBookingWithProperty: Booking & {
 } = {
   id: 35,
   propertyId: 2,
-  userId: 3,
+  userId: '3',
   startDate: new Date('2022-12-21T00:00:00.000Z'),
   endDate: new Date('2022-12-23T00:00:00.000Z'),
   createdAt: new Date('2022-11-15T12:03:17.630Z'),

@@ -8,7 +8,7 @@ class FavoriteService {
     this.prisma = prisma;
   }
 
-  public getUserFavoriteProperties = async (userId: number) => {
+  public getUserFavoriteProperties = async (userId: string) => {
     const favorites = await this.prisma.favorites.findMany({
       where: {
         userId,
@@ -20,7 +20,7 @@ class FavoriteService {
     return favorites;
   };
 
-  public getUserFavorites = async (userId: number) => {
+  public getUserFavorites = async (userId: string) => {
     const favorites = await this.prisma.favorites.findMany({
       where: {
         userId,
@@ -30,7 +30,7 @@ class FavoriteService {
   };
 
   public createFavorite = async (
-    favoriteDto: CreateFavoriteDto & { userId: number },
+    favoriteDto: CreateFavoriteDto & { userId: string },
   ) => {
     const createdFavorite = await this.prisma.favorites.create({
       data: {
@@ -41,7 +41,7 @@ class FavoriteService {
   };
 
   public deleteFavorite = async (
-    deleteFavoriteDto: DeleteFavoriteDto & { userId: number },
+    deleteFavoriteDto: DeleteFavoriteDto & { userId: string },
   ) => {
     const deletedFavorite = await this.prisma.favorites.delete({
       where: {

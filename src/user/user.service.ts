@@ -10,8 +10,8 @@ class UserService {
     this.prisma = prisma;
   }
 
-  public getCurrentUser = async (userId: number) => {
-    const currentUser = await this.prisma.user.findUnique({
+  public getCurrentUser = async (userId: string) => {
+    const currentUser = await this.prisma.user.findFirst({
       where: {
         id: userId,
       },
@@ -26,7 +26,7 @@ class UserService {
     userId,
     patchData,
   }: {
-    userId: number;
+    userId: string;
     patchData: PatchUserDto;
   }) => {
     const parsedPatchData = getObjectWithTruthyValues(patchData);
@@ -54,14 +54,14 @@ class UserService {
     return createdUser;
   };
 
-  public findUserByUid = async (userUid: string) => {
+  public findUserById = async (userId: string) => {
     const user = await this.prisma.user.findFirst({
       where: {
-        uid: userUid,
+        id: userId,
       },
     });
     if (!user) {
-      throw new HttpException(404, `User with uid: ${userUid} not found!`);
+      throw new HttpException(404, `User with uid: ${userId} not found!`);
     }
     return user;
   };

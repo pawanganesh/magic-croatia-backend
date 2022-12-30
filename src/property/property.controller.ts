@@ -92,7 +92,7 @@ class PropertyController {
     next: NextFunction,
   ) => {
     try {
-      const userId = +request.userId;
+      const userId = request.userId;
       const properties = await this.propertyService.getUserProperties(userId);
       return response.json(properties);
     } catch (err) {
@@ -108,7 +108,7 @@ class PropertyController {
     try {
       const params: PropertySearchParams =
         request.query as unknown as PropertySearchParams;
-      const userId = +request.userId;
+      const userId = request.userId;
       const searchedProperties = await this.propertyService.getSearchProperties(
         params,
         userId,
@@ -139,7 +139,7 @@ class PropertyController {
     next: NextFunction,
   ) => {
     const createPropertyDto: CreatePropertyDto = request.body;
-    const userId: number = +request.userId;
+    const userId: string = request.userId;
     try {
       const property = await this.propertyService.createProperty({
         ...createPropertyDto,

@@ -12,7 +12,7 @@ class ReviewService {
     this.propertyService = propertyService;
   }
 
-  public getUserPropertyReview = async (propertyId: number, userId: number) => {
+  public getUserPropertyReview = async (propertyId: number, userId: string) => {
     const foundReview = await this.prisma.review.findFirst({
       where: {
         userId,
@@ -24,7 +24,7 @@ class ReviewService {
 
   public getPropertyReviews = async (
     propertyId: number,
-    userId: number,
+    userId: string,
   ): Promise<PropertyReview[]> => {
     const propertyReviewsRaw = await this.prisma.review.findMany({
       where: {
@@ -59,7 +59,7 @@ class ReviewService {
   };
 
   public createReview = async (
-    createReviewDto: CreateReviewDto & { userId: number },
+    createReviewDto: CreateReviewDto & { userId: string },
   ) => {
     const foundReview = await this.getUserPropertyReview(
       createReviewDto.propertyId,

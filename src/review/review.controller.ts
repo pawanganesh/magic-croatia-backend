@@ -44,7 +44,7 @@ class ReviewController {
     response: express.Response,
   ) => {
     const propertyId: number = +request.params.propertyId;
-    const userId: number = +request.userId;
+    const userId: string = request.userId;
     const propertyReview = await this.reviewService.getUserPropertyReview(
       propertyId,
       userId,
@@ -57,7 +57,7 @@ class ReviewController {
     response: express.Response,
   ) => {
     const propertyId: number = +request.params.propertyId;
-    const userId: number = +request.userId;
+    const userId: string = request.userId;
     const propertyReviews = await this.reviewService.getPropertyReviews(
       propertyId,
       userId,
@@ -71,7 +71,7 @@ class ReviewController {
     next: NextFunction,
   ) => {
     const reviewData: CreateReviewDto = request.body;
-    const userId = +request.userId;
+    const userId = request.userId;
     try {
       const createdReview = await this.reviewService.createReview({
         ...reviewData,
