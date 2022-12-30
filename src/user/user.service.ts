@@ -16,9 +16,7 @@ class UserService {
         id: userId,
       },
     });
-    if (!currentUser) {
-      throw new HttpException(404, `User with id ${userId} not found!`);
-    }
+    if (!currentUser) return null;
     return currentUser;
   };
 
