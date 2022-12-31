@@ -20,7 +20,13 @@ export const mockCreatePropertyDto: CreatePropertyDto = {
   size: 50.55,
   checkIn: '17:00',
   checkOut: '09:00',
-  propertyExtras: undefined,
+  propertyExtras: {
+    wifi: false,
+    pool: false,
+    airCondition: false,
+    pets: false,
+    freeParking: false,
+  },
   type: PropertyType.APARTMENT,
 };
 

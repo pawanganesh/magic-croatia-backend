@@ -1,15 +1,30 @@
 import App from 'app';
 import request from 'supertest';
 import BookingController from './booking.controller';
-import { mockCreateBooking } from './mocks/booking';
 import AuthService from 'services/authService';
 import axios from 'axios';
+import PrismaService from 'services/prismaService';
+import { mockCreatePropertyDto } from 'property/mocks/property';
+import { Prisma } from '@prisma/client';
+import { addDays } from 'date-fns';
+
+jest.setTimeout(30000);
 
 describe('Booking controller tests', () => {
   describe('POST /bookings', () => {
-    it.only('should create a new booking', async () => {
-      const bookingController = new BookingController();
-      const app = new App([bookingController]);
+    let app: App;
+    let bookingController: BookingController;
+    let authtoken: string;
+
+    afterEach(async () => {
+      await PrismaService.getPrisma().booking.deleteMany();
+      await PrismaService.getPrisma().propertyExtras.deleteMany();
+      await PrismaService.getPrisma().property.deleteMany();
+    });
+
+    beforeEach(async () => {
+      bookingController = new BookingController();
+      app = new App([bookingController]);
       const customToken = await AuthService.admin
         .auth()
         .createCustomToken('Kdo1JqpEdWhmw85v1eD8zL5g5kv2');
@@ -21,12 +36,32 @@ describe('Booking controller tests', () => {
           returnSecureToken: true,
         },
       );
-      const authtoken = res.data.idToken as string;
+      authtoken = res.data.idToken as string;
+    });
+    it.only('should create a new booking', async () => {
+      const createdProperty = await PrismaService.getPrisma().property.create({
+        data: {
+          ...mockCreatePropertyDto,
+          propertyExtras: {
+            create: {
+              ...mockCreatePropertyDto.propertyExtras,
+            },
+          },
+          userId: 'Kdo1JqpEdWhmw85v1eD8zL5g5kv2',
+        },
+      });
 
       return request(app.getServer())
         .post(bookingController.path)
         .set({ authtoken, 'Content-Type': 'application/json' })
-        .send(mockCreateBooking)
+        .send({
+          totalPrice: new Prisma.Decimal(3999.8),
+          adultsCount: createdProperty.persons,
+          childrenCount: 0,
+          startDate: new Date(addDays(new Date(), 10)),
+          endDate: new Date(addDays(new Date(), 15)),
+          propertyId: createdProperty.id,
+        })
         .expect(200)
         .then((response) => {
           // Check the response data
