@@ -36,6 +36,7 @@
   "homepage": "https://github.com/mateogalic112/magic-croatia-backend#readme",
   "dependencies": {
     "@prisma/client": "4.5.0",
+    "axios": "^1.2.2",
     "cors": "^2.8.5",
     "date-fns": "^2.29.3",
     "dotenv": "^16.0.3",
