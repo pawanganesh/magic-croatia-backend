@@ -5,7 +5,7 @@ import AuthService from 'services/authService';
 import axios from 'axios';
 import PrismaService from 'services/prismaService';
 import { mockCreatePropertyDto } from 'property/mocks/property';
-import { Prisma } from '@prisma/client';
+import { Prisma, Property } from '@prisma/client';
 import { addDays } from 'date-fns';
 
 jest.setTimeout(30000);
@@ -15,6 +15,7 @@ describe('Booking controller tests', () => {
     let app: App;
     let bookingController: BookingController;
     let authtoken: string;
+    let createdProperty: Property;
 
     afterEach(async () => {
       await PrismaService.getPrisma().booking.deleteMany();
@@ -22,7 +23,7 @@ describe('Booking controller tests', () => {
       await PrismaService.getPrisma().property.deleteMany();
     });
 
-    beforeEach(async () => {
+    beforeAll(async () => {
       bookingController = new BookingController();
       app = new App([bookingController]);
       const customToken = await AuthService.admin
@@ -38,8 +39,9 @@ describe('Booking controller tests', () => {
       );
       authtoken = res.data.idToken as string;
     });
-    it.only('should create a new booking', async () => {
-      const createdProperty = await PrismaService.getPrisma().property.create({
+
+    beforeEach(async () => {
+      createdProperty = await PrismaService.getPrisma().property.create({
         data: {
           ...mockCreatePropertyDto,
           propertyExtras: {
@@ -50,7 +52,48 @@ describe('Booking controller tests', () => {
           userId: 'Kdo1JqpEdWhmw85v1eD8zL5g5kv2',
         },
       });
+    });
 
+    it('should throw when endDate in not supplied in request body', async () => {
+      return request(app.getServer())
+        .post(bookingController.path)
+        .set({ authtoken, 'Content-Type': 'application/json' })
+        .send({
+          totalPrice: new Prisma.Decimal(3999.81),
+          adultsCount: createdProperty.persons,
+          childrenCount: 0,
+          startDate: new Date(addDays(new Date(), 10)),
+          propertyId: createdProperty.id,
+        })
+        .expect(400)
+        .then((response) => {
+          // Check the response data
+          expect(response.body.message).toBe('Provide valid end date');
+        });
+    });
+
+    it('should throw when totalPrice do not match', async () => {
+      return request(app.getServer())
+        .post(bookingController.path)
+        .set({ authtoken, 'Content-Type': 'application/json' })
+        .send({
+          totalPrice: new Prisma.Decimal(3999.81),
+          adultsCount: createdProperty.persons,
+          childrenCount: 0,
+          startDate: new Date(addDays(new Date(), 10)),
+          endDate: new Date(addDays(new Date(), 15)),
+          propertyId: createdProperty.id,
+        })
+        .expect(400)
+        .then((response) => {
+          // Check the response data
+          expect(response.body.message).toBe(
+            'Calculated price is not the same!',
+          );
+        });
+    });
+
+    it('should create a new booking', async () => {
       return request(app.getServer())
         .post(bookingController.path)
         .set({ authtoken, 'Content-Type': 'application/json' })

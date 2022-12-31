@@ -174,10 +174,10 @@ class BookingService {
       );
     }
 
-    await this.mailService.sendEmail({
-      subject: 'Booking created!',
-      html: `<div>Property ${property.name}</div><div>Booked from ${startDate} to ${endDate}. Total price is $${totalPrice}.</div>`,
-    });
+    // await this.mailService.sendEmail({
+    //   subject: 'Booking created!',
+    //   html: `<div>Property ${property.name}</div><div>Booked from ${startDate} to ${endDate}. Total price is $${totalPrice}.</div>`,
+    // });
 
     const clientSecret = paymentIntent.client_secret;
 
