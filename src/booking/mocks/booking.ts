@@ -74,3 +74,12 @@ export const mockBookingWithProperty: Booking & {
     checkIn: '17:00',
   },
 };
+
+export const mockCreateBooking = {
+  totalPrice: new Prisma.Decimal(3000.0),
+  adultsCount: 6,
+  childrenCount: 0,
+  startDate: new Date(addDays(new Date(), 10)),
+  endDate: new Date(addDays(new Date(), 15)),
+  propertyId: 37,
+};

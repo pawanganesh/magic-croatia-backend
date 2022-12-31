@@ -8,7 +8,7 @@ import errorMiddleware from 'middleware/errorMiddleware';
 import AuthService from 'services/authService';
 
 class App {
-  public app: express.Application;
+  private app: express.Application;
 
   constructor(controllers: Controller[]) {
     this.app = express();
@@ -34,6 +34,10 @@ class App {
     controllers.forEach((controller) => {
       this.app.use('/', controller.router);
     });
+  }
+
+  public getServer() {
+    return this.app;
   }
 
   public appListen() {
