@@ -5,4 +5,5 @@ module.exports = {
   testEnvironment: 'node',
   moduleDirectories: ['node_modules', 'src', __dirname],
   resetMocks: true,
+  testPathIgnorePatterns: ['src/booking/booking.controller.test.ts'],
 };

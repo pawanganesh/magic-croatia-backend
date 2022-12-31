@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "nodemon -r tsconfig-paths/register src/server.ts",
     "test": "jest",
+    "test:local": "jest --testPathIgnorePatterns=ignore",
     "start": "node dist/server",
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "postinstall": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
