@@ -21,7 +21,6 @@ describe('Booking controller tests', () => {
           returnSecureToken: true,
         },
       );
-
       const authtoken = res.data.idToken as string;
 
       return request(app.getServer())
