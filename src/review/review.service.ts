@@ -97,14 +97,12 @@ class ReviewService {
         where: { id: createReviewDto.propertyId },
         data: {
           averageRating: newAverageRating,
-          numberOfReviews: propertyRatings.numberOfReviews + 1,
+          numberOfReviews: { increment: 1 },
         },
       });
 
       const createdReview = await tx.review.create({
-        data: {
-          ...createReviewDto,
-        },
+        data: createReviewDto,
       });
 
       return createdReview;
