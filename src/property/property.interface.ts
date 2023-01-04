@@ -47,6 +47,7 @@ export interface PropertySearchParams {
   startDate?: string;
   endDate?: string;
   persons?: number;
+  maxChildrenCount?: number;
   minPrice?: number;
   maxPrice?: number;
 }

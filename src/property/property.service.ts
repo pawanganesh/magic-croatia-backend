@@ -74,17 +74,37 @@ class PropertyService {
     userId: string,
   ): Promise<InfiniteScrollResponse<Property>> => {
     const take = this.PER_PAGE;
-    const { search, cursor, minPrice, maxPrice, persons, startDate, endDate } =
-      params;
+    const {
+      search,
+      cursor,
+      minPrice,
+      maxPrice,
+      persons,
+      maxChildrenCount,
+      startDate,
+      endDate,
+    } = params;
 
     const parsedStartDate = startDate ? new Date(startDate) : undefined;
     const parsedEndDate = endDate ? new Date(endDate) : undefined;
     const parsedPersons = persons ? +persons : undefined;
+    const parsedMaxChildrenCount = maxChildrenCount
+      ? +maxChildrenCount
+      : undefined;
     const parsedMaxPrice = maxPrice ? +maxPrice : undefined;
     const parsedMinPrice = minPrice ? +minPrice : undefined;
     const parsedCursor = { id: +cursor };
 
     const skip = parsedCursor.id > 1 ? 1 : 0;
+
+    console.log({
+      parsedStartDate,
+      parsedEndDate,
+      parsedPersons,
+      parsedMaxChildrenCount,
+      parsedMaxPrice,
+      parsedMinPrice,
+    });
 
     const properties = await this.prisma.property.findMany({
       take,
@@ -112,6 +132,11 @@ class PropertyService {
           {
             persons: {
               gte: parsedPersons,
+            },
+          },
+          {
+            maxChildrenCount: {
+              gte: parsedMaxChildrenCount,
             },
           },
           {
