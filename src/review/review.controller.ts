@@ -1,6 +1,5 @@
 import express, { NextFunction } from 'express';
 import authMiddleware from 'middleware/authMiddleware';
-import PropertyService from 'property/property.service';
 import PrismaService from 'services/prismaService';
 import { RequestWithUserId } from 'types/express/custom';
 import validate from 'validation';
@@ -11,10 +10,7 @@ import ReviewService from './review.service';
 class ReviewController {
   public path = '/reviews';
   public router = express.Router();
-  public reviewService = new ReviewService(
-    PrismaService.getPrisma(),
-    new PropertyService(PrismaService.getPrisma()),
-  );
+  public reviewService = new ReviewService(PrismaService.getPrisma());
 
   constructor() {
     this.initializeRoutes();

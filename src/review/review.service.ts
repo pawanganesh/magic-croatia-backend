@@ -1,15 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 import { CreateReviewDto, PropertyReview } from './review.interface';
 import HttpException from 'exceptions/HttpException';
-import PropertyService from 'property/property.service';
 
 class ReviewService {
   private prisma: PrismaClient;
-  public propertyService: PropertyService;
 
-  constructor(prisma: PrismaClient, propertyService: PropertyService) {
+  constructor(prisma: PrismaClient) {
     this.prisma = prisma;
-    this.propertyService = propertyService;
   }
 
   public getUserPropertyReview = async (propertyId: number, userId: string) => {
