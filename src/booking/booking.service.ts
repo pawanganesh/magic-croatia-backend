@@ -152,6 +152,8 @@ class BookingService {
       throw new HttpException(400, `Calculated price is not the same!`);
     }
 
+    console.log({ bookingCost });
+
     const paymentIntent = await this.getPaymentIntent(bookingCost);
 
     const createdBooking = await this.prisma.booking.create({
@@ -220,8 +222,11 @@ class BookingService {
   };
 
   private getPaymentIntent = async (bookingCost: Prisma.Decimal) => {
-    const stripePrice =
-      parseFloat(parseFloat(bookingCost.toString()).toFixed(2)) * 100;
+    const castedBookingCost = +bookingCost.toString();
+
+    const rawStripePrice = castedBookingCost * 100;
+    const stripePrice = Math.trunc(rawStripePrice);
+
     if (stripePrice <= 0) {
       throw new HttpException(400, 'Error in costs calculations!');
     }
