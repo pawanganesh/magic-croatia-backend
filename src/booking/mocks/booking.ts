@@ -12,6 +12,7 @@ export const mockBookingData: CreateBookingDto = {
   totalPrice: new Prisma.Decimal(100.99),
   adultsCount: 2,
   childrenCount: 2,
+  paymentIntentId: 'payment_intent_id',
 };
 
 export const mockPropertyWithBookings: PropertyWithReviews = {

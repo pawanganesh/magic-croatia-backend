@@ -10,4 +10,8 @@ export const createBookingSchema = [
   body('adultsCount').isInt(),
   body('childrenCount').isInt(),
   body('propertyId').isInt(),
+  body('paymentIntentId')
+    .notEmpty()
+    .isString()
+    .withMessage('Provide valid payment intent id'),
 ];

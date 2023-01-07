@@ -169,7 +169,7 @@ describe('Booking service tests', () => {
           propertyId: mockPropertyWithBookings.id,
           adultsCount: bookingData.adultsCount,
           childrenCount: bookingData.childrenCount,
-          stripePaymentIntent: 'payment_intent_id',
+          stripePaymentIntent: bookingData.paymentIntentId,
         },
       });
     });

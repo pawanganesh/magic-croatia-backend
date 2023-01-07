@@ -1,3 +1,4 @@
+import HttpException from 'exceptions/HttpException';
 import Stripe from 'stripe';
 
 class PaymentService {
@@ -9,12 +10,22 @@ class PaymentService {
     });
   }
 
-  public createPaymentIntent = async (stripePrice: number) => {
-    const paymentIntent = await this.stripe.paymentIntents.create({
-      amount: stripePrice,
-      currency: 'usd',
-    });
-    return paymentIntent;
+  public createPaymentIntent = async (rawStripePrice: number) => {
+    const parsedStripePrice = rawStripePrice * 100;
+    const truncatedStripePrice = Math.trunc(parsedStripePrice);
+
+    if (truncatedStripePrice <= 0) {
+      throw new HttpException(400, 'Error in costs calculations!');
+    }
+    try {
+      const paymentIntent = await this.stripe.paymentIntents.create({
+        amount: truncatedStripePrice,
+        currency: 'usd',
+      });
+      return paymentIntent;
+    } catch (err) {
+      console.log({ err });
+    }
   };
 
   public createRefund = async (paymentIntent: string, stripeAmount: number) => {

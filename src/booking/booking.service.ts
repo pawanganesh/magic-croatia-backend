@@ -111,6 +111,7 @@ class BookingService {
       endDate,
       propertyId,
       userId,
+      paymentIntentId,
     } = bookingData;
 
     const bookingStartDate = new Date(startDate);
@@ -152,10 +153,6 @@ class BookingService {
       throw new HttpException(400, `Calculated price is not the same!`);
     }
 
-    console.log({ bookingCost });
-
-    const paymentIntent = await this.getPaymentIntent(bookingCost);
-
     const createdBooking = await this.prisma.booking.create({
       data: {
         totalPrice: bookingCost,
@@ -165,14 +162,14 @@ class BookingService {
         propertyId,
         adultsCount,
         childrenCount,
-        stripePaymentIntent: paymentIntent.id,
+        stripePaymentIntent: paymentIntentId,
       },
     });
 
     if (!createdBooking) {
       throw new HttpException(
         500,
-        `Error while creating booking with payment intent id: ${paymentIntent.id}!`,
+        `Error while creating booking with payment intent id: ${paymentIntentId}!`,
       );
     }
 
@@ -181,9 +178,7 @@ class BookingService {
     //   html: `<div>Property ${property.name}</div><div>Booked from ${startDate} to ${endDate}. Total price is $${totalPrice}.</div>`,
     // });
 
-    const clientSecret = paymentIntent.client_secret;
-
-    return clientSecret;
+    return createdBooking;
   };
 
   private isPropertyAvailable = async (
@@ -219,23 +214,6 @@ class BookingService {
         'Chosen dates for this property are not available!',
       );
     }
-  };
-
-  private getPaymentIntent = async (bookingCost: Prisma.Decimal) => {
-    const castedBookingCost = +bookingCost.toString();
-
-    const rawStripePrice = castedBookingCost * 100;
-    const stripePrice = Math.trunc(rawStripePrice);
-
-    if (stripePrice <= 0) {
-      throw new HttpException(400, 'Error in costs calculations!');
-    }
-
-    const paymentIntent = await this.paymentService.createPaymentIntent(
-      stripePrice,
-    );
-
-    return paymentIntent;
   };
 
   public cancelBooking = async ({ bookingId, userId }: CancelBooking) => {

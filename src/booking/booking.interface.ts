@@ -7,6 +7,7 @@ export type CreateBookingDto = {
   startDate: Date;
   endDate: Date;
   propertyId: number;
+  paymentIntentId: string;
 };
 
 export interface FutureBookingsForProperty {
