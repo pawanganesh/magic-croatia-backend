@@ -87,6 +87,7 @@ model Booking {
   adultsCount         Int      @map("adults_count")
   childrenCount       Int      @map("children_count")
   stripePaymentIntent String   @default("") @map("stripe_payment_intent")
+  stripeRefundId      String?  @map("stripe_refund_id")
 
   @@map("bookings")
 }
