@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import HttpException from 'exceptions/HttpException';
 import { calculateBookingRefund } from 'payment/utils';
 import Stripe from 'stripe';
+import { CreateBookingRefund } from './payment.interface';
 
 class PaymentService {
   private stripe: Stripe;
@@ -27,7 +28,10 @@ class PaymentService {
     }
   };
 
-  public createBookingRefund = async (bookingId: number, userId: string) => {
+  public createBookingRefund = async ({
+    bookingId,
+    userId,
+  }: CreateBookingRefund) => {
     const foundBooking = await this.prisma.booking.findFirst({
       where: {
         id: bookingId,
@@ -49,10 +53,7 @@ class PaymentService {
       parseFloat(foundBooking.totalPrice.toString()),
     );
 
-    if (
-      amountToRefund >=
-      parseFloat(foundBooking.totalPrice.toString()) * 100
-    ) {
+    if (amountToRefund >= parseFloat(foundBooking.totalPrice.toString())) {
       throw new HttpException(400, 'Error while calculating refund amount!');
     }
 
@@ -60,15 +61,6 @@ class PaymentService {
       foundBooking.stripePaymentIntent,
       amountToRefund,
     );
-
-    if (refund.status !== 'succeeded') {
-      throw new HttpException(
-        400,
-        `Error while refunding booking #${foundBooking.id} with amount ${
-          amountToRefund / 100
-        }`,
-      );
-    }
 
     return refund;
   };

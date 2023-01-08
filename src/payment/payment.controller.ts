@@ -55,10 +55,10 @@ class PaymentController {
     try {
       const userId: string = request.userId;
       const bookingId = +request.body.bookingId;
-      const refund = await this.paymentService.createBookingRefund(
+      const refund = await this.paymentService.createBookingRefund({
         bookingId,
         userId,
-      );
+      });
       return response.json(refund);
     } catch (err) {
       next(err);
