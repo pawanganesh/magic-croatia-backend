@@ -28,7 +28,7 @@ class PaymentService {
   };
 
   public createBookingRefund = async (bookingId: number, userId: string) => {
-    const foundBooking = await this.prisma.booking.findFirstOrThrow({
+    const foundBooking = await this.prisma.booking.findFirst({
       where: {
         id: bookingId,
         userId,
@@ -40,6 +40,9 @@ class PaymentService {
         stripePaymentIntent: true,
       },
     });
+    if (!foundBooking) {
+      throw new HttpException(404, `Booking with id #${bookingId} bot found!`);
+    }
 
     const amountToRefund = calculateBookingRefund(
       foundBooking.startDate,
