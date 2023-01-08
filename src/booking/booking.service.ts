@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClient, Status } from '@prisma/client';
 import {
   CancelBooking,
   CreateBookingDto,
@@ -7,28 +7,21 @@ import {
   UserBooking,
 } from './booking.interface';
 import HttpException from 'exceptions/HttpException';
-import { eachDayOfInterval, isAfter, isBefore, isEqual } from 'date-fns';
+import { isAfter, isBefore, isEqual } from 'date-fns';
 import {
   calculateBookingCost,
   checkBookedInterval,
   getBookedDays,
   getBookingDistance,
 } from './utils';
-import PaymentService from 'services/paymentService';
 import MailService from 'services/mailService';
 
 class BookingService {
   private prisma: PrismaClient;
-  private paymentService: PaymentService;
   private mailService: MailService;
 
-  constructor(
-    prisma: PrismaClient,
-    paymentService: PaymentService,
-    mailService: MailService,
-  ) {
+  constructor(prisma: PrismaClient, mailService: MailService) {
     this.prisma = prisma;
-    this.paymentService = paymentService;
     this.mailService = mailService;
   }
 
@@ -217,22 +210,23 @@ class BookingService {
   };
 
   public cancelBooking = async ({ bookingId, userId }: CancelBooking) => {
-    const foundBooking = await this.prisma.booking.findFirst({
+    const foundBooking = await this.prisma.booking.findFirstOrThrow({
       where: {
         id: bookingId,
         userId,
       },
-      include: {
-        property: true,
+      select: {
+        id: true,
+        status: true,
+        startDate: true,
+        property: {
+          select: {
+            checkIn: true,
+          },
+        },
       },
     });
-    if (!foundBooking) {
-      throw new HttpException(
-        404,
-        `Booking #${bookingId} not found for user #${userId}`,
-      );
-    }
-    if (foundBooking.status === 'CANCELED') {
+    if (foundBooking.status === Status.CANCELED) {
       throw new HttpException(
         400,
         `Booking #${foundBooking.id} is already cancelled!`,
@@ -252,36 +246,10 @@ class BookingService {
       );
     }
 
-    const amountToRefund = this.calculateBookingRefund(
-      foundBooking.startDate,
-      parseFloat(foundBooking.totalPrice.toString()),
-    );
-
-    if (
-      amountToRefund >=
-      parseFloat(foundBooking.totalPrice.toString()) * 100
-    ) {
-      throw new HttpException(400, 'Error while calculating refund amount!');
-    }
-
-    const refund = await this.paymentService.createRefund(
-      foundBooking.stripePaymentIntent,
-      amountToRefund,
-    );
-
-    if (refund.status !== 'succeeded') {
-      throw new HttpException(
-        400,
-        `Error while refunding booking #${foundBooking.id} with amount ${
-          amountToRefund / 100
-        }`,
-      );
-    }
-
     const updatedBooking = await this.prisma.booking.update({
       where: { id: foundBooking.id },
       data: {
-        status: 'CANCELED',
+        status: Status.CANCELED,
       },
     });
     if (!updatedBooking) {
@@ -292,26 +260,6 @@ class BookingService {
     }
 
     return updatedBooking;
-  };
-
-  public calculateBookingRefund = (
-    bookingStartDate: Date,
-    bookingPrice: number,
-  ) => {
-    const THIRTY_DAYS = 30;
-    let amount: number;
-    const daysCount = eachDayOfInterval({
-      start: new Date(),
-      end: new Date(bookingStartDate),
-    });
-    if (daysCount.length > THIRTY_DAYS) {
-      amount = bookingPrice * 0.8;
-    } else {
-      amount = bookingPrice * 0.5;
-    }
-    const parsedAmount = +parseFloat(amount.toString()).toFixed(2) * 100;
-
-    return parsedAmount;
   };
 
   public getPropertyBookingReport = async (

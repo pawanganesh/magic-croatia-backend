@@ -1,14 +1,16 @@
 import express, { NextFunction } from 'express';
 import authMiddleware from 'middleware/authMiddleware';
-import PaymentService from 'services/paymentService';
 import { RequestWithUserId } from 'types/express/custom';
 import { createPaymentIntentSchema } from 'validation/payment/createPaymentIntentSchema';
 import validate from 'validation';
+import { createPaymentRefundSchema } from 'validation/payment/createPaymentRefundSchema';
+import PrismaService from 'services/prismaService';
+import PaymentService from './payment.service';
 
 class PaymentController {
   public path = '/payments';
   public router = express.Router();
-  public paymentService = new PaymentService();
+  public paymentService = new PaymentService(PrismaService.getPrisma());
 
   constructor() {
     this.initializeRoutes();
@@ -21,6 +23,12 @@ class PaymentController {
       validate(createPaymentIntentSchema),
       this.createPaymentIntent,
     );
+    this.router.post(
+      `${this.path}/create-booking-refund`,
+      authMiddleware,
+      validate(createPaymentRefundSchema),
+      this.createBookingRefund,
+    );
   }
 
   private createPaymentIntent = async (
@@ -29,11 +37,29 @@ class PaymentController {
     next: NextFunction,
   ) => {
     try {
-      const stripePrice = +request.body.stripePrice;
+      const rawStripePrice = +request.body.stripePrice;
       const paymentIntent = await this.paymentService.createPaymentIntent(
-        stripePrice,
+        rawStripePrice,
       );
       return response.json(paymentIntent);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  private createBookingRefund = async (
+    request: RequestWithUserId,
+    response: express.Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const userId: string = request.userId;
+      const bookingId = +request.body.bookingId;
+      const refund = await this.paymentService.createBookingRefund(
+        bookingId,
+        userId,
+      );
+      return response.json(refund);
     } catch (err) {
       next(err);
     }
