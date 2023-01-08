@@ -9,7 +9,6 @@ import {
 } from './mocks/booking';
 import { calculateBookingCost } from './utils';
 import { CreateBookingDto } from './booking.interface';
-import PaymentService from 'services/paymentService';
 import MailService from 'services/mailService';
 
 const mockedPrismaClient = new (<new () => PrismaClient>(
@@ -17,10 +16,6 @@ const mockedPrismaClient = new (<new () => PrismaClient>(
 ))() as jest.Mocked<PrismaClient>;
 
 describe('Booking service tests', () => {
-  const mockedPaymentService = new (<new () => PaymentService>(
-    PaymentService
-  ))() as jest.Mocked<PaymentService>;
-
   const mockedMailService = new (<new () => MailService>(
     MailService
   ))() as jest.Mocked<MailService>;
@@ -28,7 +23,6 @@ describe('Booking service tests', () => {
 
   const bookingService = new BookingService(
     mockedPrismaClient,
-    mockedPaymentService,
     mockedMailService,
   );
 
@@ -152,13 +146,6 @@ describe('Booking service tests', () => {
         id: 1,
       });
 
-      jest
-        .spyOn(mockedPaymentService, 'createPaymentIntent')
-        .mockResolvedValue({
-          id: 'payment_intent_id',
-          client_secret: 'client_secret',
-        } as never);
-
       await bookingService.createBooking({ ...bookingData, userId: '1' });
       expect(mockedPrismaClient.booking.create).toHaveBeenCalledWith({
         data: {
@@ -245,51 +232,6 @@ describe('Booking service tests', () => {
       });
     });
 
-    it('should throw when booking start date is equal to today', async () => {
-      const booking: Booking = {
-        ...mockBookingWithProperty,
-        startDate: addDays(new Date(), 30),
-      };
-      jest
-        .spyOn(mockedPrismaClient.booking, 'findFirst')
-        .mockResolvedValue(booking);
-
-      const mockedRefundAmount =
-        parseFloat(booking.totalPrice.toString()) * 100;
-      jest
-        .spyOn(bookingService, 'calculateBookingRefund')
-        .mockReturnValueOnce(mockedRefundAmount);
-
-      expect(
-        bookingService.cancelBooking({ bookingId, userId }),
-      ).rejects.toMatchObject({
-        message: 'Error while calculating refund amount!',
-        status: 400,
-      });
-    });
-
-    it('should throw when refund is not successful', async () => {
-      const booking: Booking = {
-        ...mockBookingWithProperty,
-        totalPrice: new Prisma.Decimal(199.99),
-        startDate: addDays(new Date(), 30),
-      };
-      jest
-        .spyOn(mockedPrismaClient.booking, 'findFirst')
-        .mockResolvedValue(booking);
-
-      jest
-        .spyOn(mockedPaymentService, 'createRefund')
-        .mockResolvedValue({ status: 'fail' } as never);
-
-      expect(
-        bookingService.cancelBooking({ bookingId, userId }),
-      ).rejects.toMatchObject({
-        message: `Error while refunding booking #${booking.id} with amount 159.99`,
-        status: 400,
-      });
-    });
-
     it('should throw when booking is not updated', async () => {
       const booking: Booking = {
         ...mockBookingWithProperty,
@@ -299,10 +241,6 @@ describe('Booking service tests', () => {
       jest
         .spyOn(mockedPrismaClient.booking, 'findFirst')
         .mockResolvedValue(booking);
-
-      jest
-        .spyOn(mockedPaymentService, 'createRefund')
-        .mockResolvedValue({ status: 'succeeded' } as never);
 
       jest
         .spyOn(mockedPrismaClient.booking, 'update')
@@ -326,20 +264,15 @@ describe('Booking service tests', () => {
         .spyOn(mockedPrismaClient.booking, 'findFirst')
         .mockResolvedValue(booking);
 
-      jest
-        .spyOn(mockedPaymentService, 'createRefund')
-        .mockResolvedValue({ status: 'succeeded' } as never);
+      jest;
 
-      jest
+      const updateBookingToCancelled = jest
         .spyOn(mockedPrismaClient.booking, 'update')
         .mockResolvedValue({} as never);
 
       await bookingService.cancelBooking({ bookingId, userId });
 
-      expect(mockedPaymentService.createRefund).toHaveBeenCalledWith(
-        '123',
-        10000,
-      );
+      expect(updateBookingToCancelled).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -210,7 +210,7 @@ class BookingService {
   };
 
   public cancelBooking = async ({ bookingId, userId }: CancelBooking) => {
-    const foundBooking = await this.prisma.booking.findFirstOrThrow({
+    const foundBooking = await this.prisma.booking.findFirst({
       where: {
         id: bookingId,
         userId,
@@ -226,6 +226,12 @@ class BookingService {
         },
       },
     });
+    if (!foundBooking) {
+      throw new HttpException(
+        404,
+        `Booking #${bookingId} not found for user #${userId}`,
+      );
+    }
     if (foundBooking.status === Status.CANCELED) {
       throw new HttpException(
         400,
