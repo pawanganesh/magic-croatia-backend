@@ -31,6 +31,9 @@ describe('Booking service tests', () => {
   const today = new Date();
 
   describe('Create booking', () => {
+    afterEach(() => {
+      jest.resetAllMocks();
+    });
     it("should throw when start date is before tomorrow's date", async () => {
       const bookingData: CreateBookingDto = {
         ...mockBookingData,
