@@ -53,6 +53,7 @@ export const mockCreatedBooking: Booking = {
   childrenCount: 2,
   adultsCount: 2,
   stripePaymentIntent: '123',
+  stripeRefundId: '123',
 };
 
 export const mockBookingWithProperty: Booking & {
@@ -74,4 +75,5 @@ export const mockBookingWithProperty: Booking & {
     id: 1,
     checkIn: '17:00',
   },
+  stripeRefundId: '123',
 };
