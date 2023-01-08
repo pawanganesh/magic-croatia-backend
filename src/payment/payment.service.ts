@@ -45,7 +45,7 @@ class PaymentService {
       },
     });
     if (!foundBooking) {
-      throw new HttpException(404, `Booking with id #${bookingId} bot found!`);
+      throw new HttpException(404, `Booking with id #${bookingId} not found!`);
     }
 
     const amountToRefund = calculateBookingRefund(
@@ -61,6 +61,25 @@ class PaymentService {
       foundBooking.stripePaymentIntent,
       amountToRefund,
     );
+
+    if (!refund) {
+      throw new HttpException(500, 'Error while creating refund!');
+    }
+
+    const updatedBooking = await this.prisma.booking.update({
+      where: {
+        id: bookingId,
+      },
+      data: {
+        stripeRefundId: refund.id,
+      },
+    });
+
+    if (!updatedBooking) {
+      console.log({
+        error: `Error while updating booking #${bookingId} with refund!`,
+      });
+    }
 
     return refund;
   };

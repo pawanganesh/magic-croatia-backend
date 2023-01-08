@@ -23,7 +23,7 @@ describe('Payment service tests', () => {
         paymentService.createBookingRefund({ bookingId: 1, userId: '1' }),
       ).rejects.toMatchObject({
         status: 404,
-        message: `Booking with id #${1} bot found!`,
+        message: `Booking with id #${1} not found!`,
       });
     });
 
@@ -39,6 +39,31 @@ describe('Payment service tests', () => {
       ).rejects.toMatchObject({
         status: 400,
         message: 'Error while calculating refund amount!',
+      });
+    });
+
+    it('should throw when refund is undefined', async () => {
+      jest.spyOn(mockedPrismaClient.booking, 'findFirst').mockResolvedValue({
+        id: 1,
+        startDate: addDays(new Date(), 1),
+        totalPrice: new Prisma.Decimal(899.99),
+        stripePaymentIntent: '123',
+      } as any);
+
+      jest
+        .spyOn(
+          paymentService as unknown as {
+            createPaymentRefund: PaymentService['createPaymentRefund'];
+          },
+          'createPaymentRefund',
+        )
+        .mockResolvedValue(undefined);
+
+      expect(
+        paymentService.createBookingRefund({ bookingId: 1, userId: '1' }),
+      ).rejects.toMatchObject({
+        status: 500,
+        message: 'Error while creating refund!',
       });
     });
 
@@ -58,6 +83,10 @@ describe('Payment service tests', () => {
           'createPaymentRefund',
         )
         .mockResolvedValue({ status: 'succeeded' } as any);
+
+      jest
+        .spyOn(mockedPrismaClient.booking, 'update')
+        .mockResolvedValue({ id: 1 } as any);
 
       await paymentService.createBookingRefund({ bookingId: 1, userId: '1' });
 
