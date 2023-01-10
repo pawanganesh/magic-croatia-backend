@@ -32,6 +32,56 @@ class PaymentService {
     bookingId,
     userId,
   }: CreateBookingRefund) => {
+    const foundBooking = await this.findBookingForRefund(bookingId, userId);
+    if (!foundBooking) {
+      throw new HttpException(404, `Booking with id #${bookingId} not found!`);
+    }
+
+    const amountToRefund = calculateBookingRefund(
+      foundBooking.startDate,
+      parseFloat(foundBooking.totalPrice.toString()),
+    );
+    if (amountToRefund >= parseFloat(foundBooking.totalPrice.toString())) {
+      throw new HttpException(400, 'Error while calculating refund amount!');
+    }
+
+    const refund = await this.createPaymentRefund(
+      foundBooking.stripePaymentIntent,
+      amountToRefund,
+    );
+    if (!refund) {
+      throw new HttpException(500, 'Error while creating refund!');
+    }
+
+    const updatedBooking = await this.updateBookingWithRefundId(
+      bookingId,
+      refund,
+    );
+    if (!updatedBooking) {
+      console.log({
+        error: `Error while updating booking #${bookingId} with refund!`,
+      });
+    }
+
+    return refund;
+  };
+
+  private updateBookingWithRefundId = async (
+    bookingId: number,
+    refund: Stripe.Refund,
+  ) => {
+    const updatedBooking = await this.prisma.booking.update({
+      where: {
+        id: bookingId,
+      },
+      data: {
+        stripeRefundId: refund.id,
+      },
+    });
+    return updatedBooking;
+  };
+
+  private findBookingForRefund = async (bookingId: number, userId: string) => {
     const foundBooking = await this.prisma.booking.findFirst({
       where: {
         id: bookingId,
@@ -44,44 +94,7 @@ class PaymentService {
         stripePaymentIntent: true,
       },
     });
-    if (!foundBooking) {
-      throw new HttpException(404, `Booking with id #${bookingId} not found!`);
-    }
-
-    const amountToRefund = calculateBookingRefund(
-      foundBooking.startDate,
-      parseFloat(foundBooking.totalPrice.toString()),
-    );
-
-    if (amountToRefund >= parseFloat(foundBooking.totalPrice.toString())) {
-      throw new HttpException(400, 'Error while calculating refund amount!');
-    }
-
-    const refund = await this.createPaymentRefund(
-      foundBooking.stripePaymentIntent,
-      amountToRefund,
-    );
-
-    if (!refund) {
-      throw new HttpException(500, 'Error while creating refund!');
-    }
-
-    const updatedBooking = await this.prisma.booking.update({
-      where: {
-        id: bookingId,
-      },
-      data: {
-        stripeRefundId: refund.id,
-      },
-    });
-
-    if (!updatedBooking) {
-      console.log({
-        error: `Error while updating booking #${bookingId} with refund!`,
-      });
-    }
-
-    return refund;
+    return foundBooking;
   };
 
   private createPaymentRefund = async (

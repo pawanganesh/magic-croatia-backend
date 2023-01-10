@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import { addDays } from 'date-fns';
+import { createBookingRefundMocks } from './mocks/payment';
 import PaymentService from './payment.service';
 
 import { calculateBookingRefund } from './utils';
@@ -14,10 +15,19 @@ const mockedPrismaClient = new (<new () => PrismaClient>(
 describe('Payment service tests', () => {
   const paymentService = new PaymentService(mockedPrismaClient);
   describe('Create booking refund', () => {
+    const bookingStartDate = addDays(new Date(), 1);
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    const {
+      mockFindBookingForRefund,
+      mockCreatePaymentRefund,
+      mockUpdateBookingWithRefundId,
+    } = createBookingRefundMocks(paymentService);
+
     it('should throw when booking is not found', async () => {
-      jest
-        .spyOn(mockedPrismaClient.booking, 'findFirst')
-        .mockResolvedValue(null);
+      mockFindBookingForRefund.mockResolvedValue(null);
 
       expect(
         paymentService.createBookingRefund({ bookingId: 1, userId: '1' }),
@@ -28,9 +38,9 @@ describe('Payment service tests', () => {
     });
 
     it('should throw when refund amount is greater than booking price', async () => {
-      jest.spyOn(mockedPrismaClient.booking, 'findFirst').mockResolvedValue({
+      mockFindBookingForRefund.mockResolvedValue({
         id: 1,
-        startDate: addDays(new Date(), 1),
+        startDate: bookingStartDate,
         totalPrice: new Prisma.Decimal(199.99),
       } as any);
 
@@ -43,21 +53,14 @@ describe('Payment service tests', () => {
     });
 
     it('should throw when refund is undefined', async () => {
-      jest.spyOn(mockedPrismaClient.booking, 'findFirst').mockResolvedValue({
+      mockFindBookingForRefund.mockResolvedValue({
         id: 1,
-        startDate: addDays(new Date(), 1),
+        startDate: bookingStartDate,
         totalPrice: new Prisma.Decimal(899.99),
         stripePaymentIntent: '123',
       } as any);
 
-      jest
-        .spyOn(
-          paymentService as unknown as {
-            createPaymentRefund: PaymentService['createPaymentRefund'];
-          },
-          'createPaymentRefund',
-        )
-        .mockResolvedValue(undefined);
+      mockCreatePaymentRefund.mockResolvedValue(undefined);
 
       expect(
         paymentService.createBookingRefund({ bookingId: 1, userId: '1' }),
@@ -68,30 +71,31 @@ describe('Payment service tests', () => {
     });
 
     it('should create proper refund response', async () => {
-      jest.spyOn(mockedPrismaClient.booking, 'findFirst').mockResolvedValue({
+      mockFindBookingForRefund.mockResolvedValue({
         id: 1,
-        startDate: addDays(new Date(), 1),
+        startDate: bookingStartDate,
         totalPrice: new Prisma.Decimal(899.99),
         stripePaymentIntent: '123',
       } as any);
 
-      const mockedCreatePaymentRefund = jest
-        .spyOn(
-          paymentService as unknown as {
-            createPaymentRefund: PaymentService['createPaymentRefund'];
-          },
-          'createPaymentRefund',
-        )
-        .mockResolvedValue({ status: 'succeeded' } as any);
+      mockCreatePaymentRefund.mockResolvedValue({
+        status: 'succeeded',
+        id: '1',
+      } as any);
 
-      jest
-        .spyOn(mockedPrismaClient.booking, 'update')
-        .mockResolvedValue({ id: 1 } as any);
+      mockUpdateBookingWithRefundId.mockResolvedValue({ id: 1 } as any);
 
       await paymentService.createBookingRefund({ bookingId: 1, userId: '1' });
 
-      expect(calculateBookingRefund).toHaveBeenCalled();
-      expect(mockedCreatePaymentRefund).toHaveBeenCalledWith('123', 200);
+      expect(calculateBookingRefund).toHaveBeenCalledWith(
+        bookingStartDate,
+        899.99,
+      );
+      expect(mockUpdateBookingWithRefundId).toHaveBeenCalledWith(1, {
+        status: 'succeeded',
+        id: '1',
+      });
+      expect(mockCreatePaymentRefund).toHaveBeenCalledWith('123', 200);
     });
   });
 });
