@@ -1,6 +1,5 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import { addDays } from 'date-fns';
-import { createBookingRefundMocks } from './mocks/payment';
 import PaymentService from './payment.service';
 
 import { calculateBookingRefund } from './utils';
@@ -14,17 +13,37 @@ const mockedPrismaClient = new (<new () => PrismaClient>(
 
 describe('Payment service tests', () => {
   const paymentService = new PaymentService(mockedPrismaClient);
+
   describe('Create booking refund', () => {
     const bookingStartDate = addDays(new Date(), 1);
+
     afterEach(() => {
       jest.clearAllMocks();
     });
 
-    const {
-      mockFindBookingForRefund,
-      mockCreatePaymentRefund,
-      mockUpdateBookingWithRefundId,
-    } = createBookingRefundMocks(paymentService);
+    // Mock findBookingForRefund private function
+    const mockFindBookingForRefund = jest.spyOn(
+      paymentService as unknown as {
+        findBookingForRefund: PaymentService['findBookingForRefund'];
+      },
+      'findBookingForRefund',
+    );
+
+    // Mock createPaymentRefund private function
+    const mockCreatePaymentRefund = jest.spyOn(
+      paymentService as unknown as {
+        createPaymentRefund: PaymentService['createPaymentRefund'];
+      },
+      'createPaymentRefund',
+    );
+
+    // Mock updateBookingWithRefundId private function
+    const mockUpdateBookingWithRefundId = jest.spyOn(
+      paymentService as unknown as {
+        updateBookingWithRefundId: PaymentService['updateBookingWithRefundId'];
+      },
+      'updateBookingWithRefundId',
+    );
 
     it('should throw when booking is not found', async () => {
       mockFindBookingForRefund.mockResolvedValue(null);
