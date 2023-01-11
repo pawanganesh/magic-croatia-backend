@@ -205,7 +205,7 @@ class PropertyService {
       throw new HttpException(400, 'Property name already exists!');
     }
 
-    return await this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx) => {
       const property = await tx.property.create({
         data: {
           ...createPropertyDto,
