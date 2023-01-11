@@ -5,7 +5,7 @@ import AuthService from 'services/authService';
 import axios from 'axios';
 import PrismaService from 'services/prismaService';
 import { mockCreatePropertyDto } from 'property/mocks/property';
-import { Prisma, Property } from '@prisma/client';
+import { Booking, Prisma, Property } from '@prisma/client';
 import { addDays } from 'date-fns';
 
 jest.setTimeout(30000);
@@ -16,11 +16,27 @@ describe('Booking controller tests', () => {
     let bookingController: BookingController;
     let authtoken: string;
     let createdProperty: Property;
+    let createdBooking: Booking;
 
     afterEach(async () => {
-      await PrismaService.getPrisma().booking.deleteMany();
-      await PrismaService.getPrisma().propertyExtras.deleteMany();
-      await PrismaService.getPrisma().property.deleteMany();
+      if (createdBooking) {
+        await PrismaService.getPrisma().booking.delete({
+          where: {
+            id: createdBooking.id,
+          },
+        });
+      }
+
+      await PrismaService.getPrisma().propertyExtras.deleteMany({
+        where: {
+          propertyId: createdProperty.id,
+        },
+      });
+      await PrismaService.getPrisma().property.delete({
+        where: {
+          id: createdProperty.id,
+        },
+      });
     });
 
     beforeAll(async () => {
@@ -52,6 +68,8 @@ describe('Booking controller tests', () => {
           userId: 'Kdo1JqpEdWhmw85v1eD8zL5g5kv2',
         },
       });
+
+      createdBooking = undefined;
     });
 
     it('should throw when endDate in not supplied in request body', async () => {
@@ -64,6 +82,7 @@ describe('Booking controller tests', () => {
           childrenCount: 0,
           startDate: new Date(addDays(new Date(), 10)),
           propertyId: createdProperty.id,
+          paymentIntentId: '123',
         })
         .expect(400)
         .then((response) => {
@@ -83,6 +102,7 @@ describe('Booking controller tests', () => {
           startDate: new Date(addDays(new Date(), 10)),
           endDate: new Date(addDays(new Date(), 15)),
           propertyId: createdProperty.id,
+          paymentIntentId: '123',
         })
         .expect(400)
         .then((response) => {
@@ -104,10 +124,12 @@ describe('Booking controller tests', () => {
           startDate: new Date(addDays(new Date(), 10)),
           endDate: new Date(addDays(new Date(), 15)),
           propertyId: createdProperty.id,
+          paymentIntentId: '123',
         })
         .expect(200)
         .then((response) => {
           // Check the response data
+          createdBooking = response.body;
           expect(response.body).toBeTruthy();
         });
     });

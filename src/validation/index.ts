@@ -18,7 +18,7 @@ const validate = (schemas: any[]) => {
     const errors = result.array();
     console.log({ errors });
 
-    return next(new HttpException(400, errors[0]?.msg ?? 'Bad request'));
+    return next(new HttpException(400, errors[1]?.msg ?? 'Bad request'));
   };
 };
 
