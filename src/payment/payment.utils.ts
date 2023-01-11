@@ -17,3 +17,9 @@ export const calculateBookingRefund = (
   }
   return +parseFloat(amount.toString()).toFixed(2);
 };
+
+export const getStripePrice = (rawStripePrice: number) => {
+  const parsedStripePrice = rawStripePrice * 100;
+  const truncatedStripePrice = Math.trunc(parsedStripePrice);
+  return truncatedStripePrice;
+};

@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import HttpException from 'exceptions/HttpException';
-import { calculateBookingRefund } from 'payment/utils';
+import { calculateBookingRefund, getStripePrice } from 'payment/payment.utils';
 import Stripe from 'stripe';
 import { CreateBookingRefund } from './payment.interface';
 
@@ -16,7 +16,10 @@ class PaymentService {
   }
 
   public createPaymentIntent = async (rawStripePrice: number) => {
-    const stripePrice = this.getStripePrice(rawStripePrice);
+    const stripePrice = getStripePrice(rawStripePrice);
+    if (stripePrice <= 0) {
+      throw new HttpException(400, 'Error in parsing stripe price!');
+    }
     try {
       const paymentIntent = await this.stripe.paymentIntents.create({
         amount: stripePrice,
@@ -101,7 +104,10 @@ class PaymentService {
     paymentIntentId: string,
     rawStripePrice: number,
   ) => {
-    const stripePrice = this.getStripePrice(rawStripePrice);
+    const stripePrice = getStripePrice(rawStripePrice);
+    if (stripePrice <= 0) {
+      throw new HttpException(400, 'Error in parsing stripe price!');
+    }
     try {
       const refund = await this.stripe.refunds.create({
         payment_intent: paymentIntentId,
@@ -111,15 +117,6 @@ class PaymentService {
     } catch (err) {
       console.log({ err });
     }
-  };
-
-  private getStripePrice = (rawStripePrice: number) => {
-    const parsedStripePrice = rawStripePrice * 100;
-    const truncatedStripePrice = Math.trunc(parsedStripePrice);
-    if (truncatedStripePrice <= 0) {
-      throw new HttpException(400, 'Error in stripe price calculations!');
-    }
-    return truncatedStripePrice;
   };
 }
 

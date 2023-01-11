@@ -2,8 +2,8 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import { addDays } from 'date-fns';
 import PaymentService from './payment.service';
 
-import { calculateBookingRefund } from './utils';
-jest.mock('./utils', () => ({
+import { calculateBookingRefund } from './payment.utils';
+jest.mock('./payment.utils', () => ({
   calculateBookingRefund: jest.fn().mockImplementation(() => 200.0),
 }));
 
