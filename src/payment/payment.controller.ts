@@ -43,6 +43,7 @@ class PaymentController {
       );
       return response.json(paymentIntent);
     } catch (err) {
+      console.log({ err });
       next(err);
     }
   };
@@ -61,6 +62,7 @@ class PaymentController {
       });
       return response.json(refund);
     } catch (err) {
+      console.log({ err });
       next(err);
     }
   };

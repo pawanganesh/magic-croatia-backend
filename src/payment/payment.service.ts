@@ -20,15 +20,11 @@ class PaymentService {
     if (stripePrice <= 0) {
       throw new HttpException(400, 'Error in parsing stripe price!');
     }
-    try {
-      const paymentIntent = await this.stripe.paymentIntents.create({
-        amount: stripePrice,
-        currency: 'usd',
-      });
-      return paymentIntent;
-    } catch (err) {
-      console.log({ err });
-    }
+    const paymentIntent = await this.stripe.paymentIntents.create({
+      amount: stripePrice,
+      currency: 'usd',
+    });
+    return paymentIntent;
   };
 
   public createBookingRefund = async ({
@@ -108,15 +104,11 @@ class PaymentService {
     if (stripePrice <= 0) {
       throw new HttpException(400, 'Error in parsing stripe price!');
     }
-    try {
-      const refund = await this.stripe.refunds.create({
-        payment_intent: paymentIntentId,
-        amount: stripePrice,
-      });
-      return refund;
-    } catch (err) {
-      console.log({ err });
-    }
+    const refund = await this.stripe.refunds.create({
+      payment_intent: paymentIntentId,
+      amount: stripePrice,
+    });
+    return refund;
   };
 }
 
