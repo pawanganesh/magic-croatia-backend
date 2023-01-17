@@ -58,6 +58,16 @@ class ReviewService {
   public createReview = async (
     createReviewDto: CreateReviewDto & { userId: string },
   ) => {
+    const isMyProperty = await this.prisma.property.findFirst({
+      where: {
+        id: createReviewDto.propertyId,
+        userId: createReviewDto.userId,
+      },
+    });
+    if (isMyProperty) {
+      throw new HttpException(400, 'You cannot review your own property!');
+    }
+
     const foundReview = await this.getUserPropertyReview(
       createReviewDto.propertyId,
       createReviewDto.userId,
